@@ -162,12 +162,32 @@
             lasttimen = n;
         },
         false);
+    document.addEventListener("touchend",
+        function (ev) {
+            ev.preventDefault();
+            var n = ev.touches.length;
+            if (n == 1) {
+                var oEvent = ev.touches[0];
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            }
+            else if (n == 2) {
+                var oEvent = ev.touches[0];
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+                oEvent = ev.touches[1];
+                mx1 = oEvent.clientX;
+                my1 = oEvent.clientY;
+            }
+            lasttimen = n;
+        },
+        false);
 
     document.addEventListener("touchmove",
         function (ev) {
             ev.preventDefault();
             var n = ev.touches.length;
-            if (n == 1) {
+            if (n == 1&&lasttimen==1) {
                 var oEvent = ev.touches[0];
                 ang1 += (oEvent.clientX - mx) * 0.002;
                 ang2 += (oEvent.clientY - my) * 0.002;
@@ -189,6 +209,7 @@
                 l = Math.sqrt((mx - mx1) * (mx - mx1) + (my - my1) * (my - my1) + 1.0);
                 len *= l1 / l;
             }
+            lasttimen = n;
         },
         false);
 
