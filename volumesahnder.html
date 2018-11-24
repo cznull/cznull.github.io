@@ -86,14 +86,18 @@ body{background: #131115;}
         if (ml == 1) {
             ang1 += (oEvent.clientX - mx) * 0.002;
             ang2 += (oEvent.clientY - my) * 0.002;
-            mm = 1;
+            if (oEvent.clientX != mx || oEvent.clientY != my) {
+                mm = 1;
+            }
         }
         if (mr) {
             var l = len * 4.0 / (cx + cy);
             cenx += l * (-(oEvent.clientX - mx) * Math.sin(ang1) - (oEvent.clientY - my) * Math.sin(ang2) * Math.cos(ang1));
             ceny += l * ((oEvent.clientY - my) * Math.cos(ang2));
             cenz += l * ((oEvent.clientX - mx) * Math.cos(ang1) - (oEvent.clientY - my) * Math.sin(ang2) * Math.sin(ang1));
-            mm = 1;
+            if (oEvent.clientX != mx || oEvent.clientY != my) {
+                mm = 1;
+            }
         }
         mx = oEvent.clientX;
         my = oEvent.clientY;
@@ -369,7 +373,7 @@ body{background: #131115;}
             this.innerText = state ? "HIDE" : "CONFIG";
             document.getElementById("config").style.display = state ? "inline" : "none";
         });
-        document.getElementById("apply").addEventListener("click",function() {
+        document.getElementById("apply").addEventListener("click", function() {
             KERNEL = document.getElementById("kernel").value;
 
             gl.shaderSource(fragshader, FSHADER_SOURCE + KERNEL);
@@ -381,7 +385,7 @@ body{background: #131115;}
 
             if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
                 var info = gl.getProgramInfoLog(shaderProgram);
-                alert(infof + info);
+                throw 'Could not compile WebGL program. \n\n' + infof + info;
             }
 
             glposition = gl.getAttribLocation(shaderProgram, 'position');
