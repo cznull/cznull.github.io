@@ -385,7 +385,7 @@ body{background: #131115;}
 
             if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
                 var info = gl.getProgramInfoLog(shaderProgram);
-                throw 'Could not compile WebGL program. \n\n' + infof + info;
+                alert(infof + info);
             }
 
             glposition = gl.getAttribLocation(shaderProgram, 'position');
