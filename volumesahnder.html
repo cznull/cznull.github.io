@@ -79,6 +79,20 @@
             len *= Math.exp(-0.001 * oEvent.wheelDelta);
         }
 
+        document.touchstart = function (ev) {
+            var oEvent = ev || event;
+            mx = oEvent.clientX;
+            my = oEvent.clientY;
+        };
+
+        document.touchmove = function (ev) {
+            var oEvent = ev || event;
+            ang1 += (oEvent.clientX - mx) * 0.002;
+            ang2 += (oEvent.clientY - my) * 0.002;
+            mx = oEvent.clientX;
+            my = oEvent.clientY;
+        };
+
         document.oncontextmenu = function (event) {
             if (mm == 1) {
                 event.preventDefault();
