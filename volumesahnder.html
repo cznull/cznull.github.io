@@ -79,19 +79,26 @@
             len *= Math.exp(-0.001 * oEvent.wheelDelta);
         }
 
-        document.touchstart = function (ev) {
-            var oEvent = ev || event;
-            mx = oEvent.clientX;
-            my = oEvent.clientY;
-        };
-
-        document.touchmove = function (ev) {
-            var oEvent = ev || event;
-            ang1 += (oEvent.clientX - mx) * 0.002;
-            ang2 += (oEvent.clientY - my) * 0.002;
-            mx = oEvent.clientX;
-            my = oEvent.clientY;
-        };
+        document.addEventListener("touchstart",
+            function (ev) {
+                alert("touch");
+                event.preventDefault();
+                var oEvent = ev.touches[0];
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            },
+            false);
+            
+        document.addEventListener("touchmove",
+            function (ev) {
+                event.preventDefault();
+                var oEvent = ev.touches[0];
+                ang1 += (oEvent.clientX - mx) * 0.002;
+                ang2 += (oEvent.clientY - my) * 0.002;
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            },
+            false);
 
         document.oncontextmenu = function (event) {
             if (mm == 1) {
