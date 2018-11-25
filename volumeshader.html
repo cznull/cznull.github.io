@@ -144,6 +144,7 @@
 
     document.addEventListener("touchstart",
         function (ev) {
+            ev.preventDefault();
             var n = ev.touches.length;
             if (n == 1) {
                 var oEvent = ev.touches[0];
@@ -183,6 +184,7 @@
 
     document.addEventListener("touchmove",
         function (ev) {
+            ev.preventDefault();
             var n = ev.touches.length;
             if (n == 1&&lasttimen==1) {
                 var oEvent = ev.touches[0];
