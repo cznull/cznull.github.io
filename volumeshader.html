@@ -385,9 +385,9 @@
             "   }\n" +
             "   if (sign==1) {\n" +
             "      ver = origin + dir*r3 ;\n" +
-            "      n.x = kernal(ver - right * (r3*0.001)) - kernal(ver + right * (r3*0.001));\n" +
-            "      n.y = kernal(ver - up * (r3*0.001)) - kernal(ver + up * (r3*0.001));\n" +
-            "      n.z = kernal(ver + forward * (r3*0.001)) - kernal(ver - forward * (r3*0.001));\n" +
+            "      n.x = kernal(ver - right * (r3*0.002)) - kernal(ver + right * (r3*0.002));\n" +
+            "      n.y = kernal(ver - up * (r3*0.002)) - kernal(ver + up * (r3*0.002));\n" +
+            "      n.z = kernal(ver + forward * (r3*0.002)) - kernal(ver - forward * (r3*0.002));\n" +
             "      r3 = n.x*n.x+n.y*n.y+n.z*n.z;\n" +
             "      n = n * (1.0 / sqrt(r3));\n" +
             "      ver = localdir;\n" +
