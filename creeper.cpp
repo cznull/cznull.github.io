@@ -21,20 +21,20 @@ void reduce(std::string &s) {
 
 int main()
 {
-	std::vector<std::string> ir = {
+	std::vector<std::string> lyrics = {
 		"Creeper?",
 		"Awww man!"
 	};
-	std::cout << ir[0] << "\n";
-	for (int i = 1; i < ir.size(); i++) {
+	std::cout << lyrics[0] << "\n";
+	for (int i = 1; i < lyrics.size(); i++) {
 		std::string s;
 		std::cin >> s;
 		reduce(s);
-		reduce(ir[i]);
-		if (s == ir[i]) {
+		reduce(lyrics[i]);
+		if (s == lyrics[i]) {
 			i++;
-			if (i < ir.size()) {
-				std::cout << ir[i] << "\n";
+			if (i < lyrics.size()) {
+				std::cout << lyrics[i] << "\n";
 			}
 		}
 		else {
