@@ -39,7 +39,9 @@ int main()
 		}
 		else {
 			printf("please stop your kongxia behavior");
+			return 0;
 		}
 	}
+	printf("ohhhhhhhhhhhhhh");
 	return 0;
 }
