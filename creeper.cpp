@@ -25,8 +25,7 @@ int main()
 		"Creeper?",
 		"Awww man!"
 	};
-	std::cout << ir[0];
-  for(int j=0;j<
+	std::cout << ir[0] << "\n";
 	for (int i = 1; i < ir.size(); i++) {
 		std::string s;
 		std::cin >> s;
