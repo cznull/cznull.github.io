@@ -1197,7 +1197,7 @@ function txt_check()
 							console.error("Data analyze error,use the default char to instead");
 							temp_d2 = 0;
 						}
-						command_set.name = data_link[temp_d1][temp_d2].default;
+						command_set.name = data_link[temp_d1].array[temp_d2].default;
 					}
 					else
 					{
@@ -1210,19 +1210,19 @@ function txt_check()
 							{
 								if(data_link[temp_d1][place].name == temp_d2)
 								{
-									command_set.name = data_link[temp_d1][place].default;
+									command_set.name = data_link[temp_d1].array[place].default;
 									break;
 								}
 							}
 							if(place == data_link[temp_d1].length)
 							{
 								console.error("Data analyze error,use the default char to instead");
-								command_set.name = data_link[temp_d1][0].default;
+								command_set.name = data_link[temp_d1].array[0].default;
 							}
 						}
 						else
 						{
-							command_set.name = data_link[command_set.name][0].default;
+							command_set.name = data_link[command_set.name].array[0].default;
 						}
 					}
 					if(data_pic_char[command_set.name] == undefined)
@@ -1256,7 +1256,7 @@ function txt_check()
 							console.error("Data analyze error,use the default char to instead");
 							temp_d2 = 0;
 						}
-						command_set.name = data_link[temp_d1][temp_d2].default;
+						command_set.name = data_link[temp_d1].array[temp_d2].default;
 					}
 					else
 					{
@@ -1269,19 +1269,19 @@ function txt_check()
 							{
 								if(data_link[temp_d1][place].name == temp_d2)
 								{
-									command_set.name = data_link[temp_d1][place].default;
+									command_set.name = data_link[temp_d1].array[place].default;
 									break;
 								}
 							}
 							if(place == data_link[temp_d1].length)
 							{
 								console.error("Data analyze error,use the default char to instead");
-								command_set.name = data_link[temp_d1][0].default;
+								command_set.name = data_link[temp_d1].array[0].default;
 							}
 						}
 						else
 						{
-							command_set.name = data_link[command_set.name][0].default;
+							command_set.name = data_link[command_set.name].array[0].default;
 						}
 					}
 					place = command_set.name2.lastIndexOf("#");
