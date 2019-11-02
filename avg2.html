@@ -2110,7 +2110,7 @@ var data_txt_test = new Array();
 var txt_interval = 50;
 try 
 {
-	data_temp = document.getElementById("datas_txt_temp").innerHTML;
+	data_temp = document.getElementById("datas_txt").innerHTML;
 	data_txt_test = data_temp.split("\n");
 	data_temp = document.getElementById("datas_txt").innerHTML;
 	data_txt = data_temp.split("\n");
@@ -3027,7 +3027,7 @@ function timer_temp()
 		timer_id_fade = setInterval("fun_music_fade()",100);
 	}
 	obj_music_2.volume = music_volume;
-	obj_music_2.play();
+	//obj_music_2.play();
 	music_used = temp_d1;
 	timer_id_music = setInterval("timer_temp()",100);
 }
