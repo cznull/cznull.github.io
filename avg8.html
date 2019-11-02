@@ -1184,6 +1184,7 @@ function txt_check()
 				}
 				else if (command_set.name2 == undefined)
 				{
+					var pos,scale;
 					place = command_set.name.lastIndexOf("#");
 					if(place > 0)
 					{
@@ -1198,6 +1199,8 @@ function txt_check()
 							temp_d2 = 0;
 						}
 						command_set.name = data_link[temp_d1].array[temp_d2].default;
+						pos=data_link[temp_d1].pos;
+						scale=data_link[temp_d1].scale;
 					}
 					else
 					{
@@ -1206,7 +1209,7 @@ function txt_check()
 						{
 							temp_d1 = command_set.name.substr(0,place);
 							temp_d2 = command_set.name.substr(place1 + 1);
-							for(place = 0;place<data_link[temp_d1].length;place++)
+							for(place = 0;place<data_link[temp_d1].array.length;place++)
 							{
 								if(data_link[temp_d1][place].name == temp_d2)
 								{
@@ -1219,10 +1222,14 @@ function txt_check()
 								console.error("Data analyze error,use the default char to instead");
 								command_set.name = data_link[temp_d1].array[0].default;
 							}
+							pos=data_link[temp_d1].pos;
+							scale=data_link[temp_d1].scale;
 						}
 						else
 						{
 							command_set.name = data_link[command_set.name].array[0].default;
+							pos=data_link[command_set.name].pos;
+							scale=data_link[command_set.name].scale;
 						}
 					}
 					if(data_pic_char[command_set.name] == undefined)
@@ -1239,10 +1246,12 @@ function txt_check()
 					}
 					obj_char_1.style.display = "block";
 					obj_char_2.style.display = "none";
-					obj_char.innerHTML = "<img alt=\"" + command_set.name + "\" width=\"600\" height=\"600\" src=\"" + data_pic_char[command_set.name] + "\">";
+					obj_char.innerHTML = "<img alt=\"" + command_set.name + "\" width=\"+scale.x*450/720+\" height=\"+scale.y*450/720+\" src=\"" + data_pic_char[command_set.name] + "\">";
 				}
 				else
 				{
+					var pos,scale;
+					var pos2,scale2;
 					place = command_set.name.lastIndexOf("#");
 					if(place > 0)
 					{
@@ -1257,6 +1266,8 @@ function txt_check()
 							temp_d2 = 0;
 						}
 						command_set.name = data_link[temp_d1].array[temp_d2].default;
+						pos=data_link[temp_d1].pos;
+						scale=data_link[temp_d1].scale;
 					}
 					else
 					{
@@ -1265,7 +1276,7 @@ function txt_check()
 						{
 							temp_d1 = command_set.name.substr(0,place);
 							temp_d2 = command_set.name.substr(place1 + 1);
-							for(place = 0;place<data_link[temp_d1].length;place++)
+							for(place = 0;place<data_link[temp_d1].array.length;place++)
 							{
 								if(data_link[temp_d1][place].name == temp_d2)
 								{
@@ -1278,10 +1289,14 @@ function txt_check()
 								console.error("Data analyze error,use the default char to instead");
 								command_set.name = data_link[temp_d1].array[0].default;
 							}
+							pos=data_link[temp_d1].pos;
+							scale=data_link[temp_d1].scale;
 						}
 						else
 						{
 							command_set.name = data_link[command_set.name].array[0].default;
+							pos=data_link[temp_d1].pos;
+							scale=data_link[temp_d1].scale;
 						}
 					}
 					place = command_set.name2.lastIndexOf("#");
@@ -1297,7 +1312,9 @@ function txt_check()
 							console.error("Data analyze error,use the default char to instead");
 							temp_d2 = 0;
 						}
-						command_set.name2 = data_link[temp_d1][temp_d2].default;
+						command_set.name2 = data_link[temp_d1].array[temp_d2].default;
+						pos2=data_link[temp_d1].pos;
+						scale2=data_link[temp_d1].scale;
 					}
 					else
 					{
@@ -1306,19 +1323,27 @@ function txt_check()
 						{
 							temp_d1 = command_set.name2.substr(0,place);
 							temp_d2 = command_set.name2.substr(place1 + 1);
-							for(place = 0;place<data_link[temp_d1].length;place++)
+							for(place = 0;place<data_link[temp_d1].array.length;place++)
 							{
-								if(data_link[temp_d1][place].name == temp_d2)
+								if(data_link[temp_d1].array[place].name == temp_d2)
 								{
-									command_set.name2 = data_link[temp_d1][place].default;
+									command_set.name2 = data_link[temp_d1].array[place].default;
 									break;
 								}
 							}
 							if(place == data_link[temp_d1].length)
 							{
 								console.error("Data analyze error,use the default char to instead");
-								command_set.name2 = data_link[temp_d1][0].default;
+								command_set.name2 = data_link[temp_d1].array[0].default;
 							}
+							pos2=data_link[temp_d1].pos;
+							scale2=data_link[temp_d1].scale;
+						}
+						else
+						{
+							command_set.name2 = data_link[command_set.name2].array[0].default;
+							pos2=data_link[command_set.name2].pos;
+							scale2=data_link[command_set.name2].scale;
 						}
 					}
 					if(data_pic_char[command_set.name] == undefined)
@@ -1348,8 +1373,8 @@ function txt_check()
 					}
 					obj_char_1.style.display = "none";
 					obj_char_2.style.display = "block";
-					char_left.innerHTML = "<img alt=\"" + command_set.name + "\" width=\"600\" height=\"600\" src=\"" + data_pic_char[command_set.name] + "\">";
-					char_right.innerHTML = "<img alt=\"" + command_set.name2 + "\" width=\"600\" height=\"600\" src=\"" + data_pic_char[command_set.name2] + "\">";
+					char_left.innerHTML = "<img alt=\"" + command_set.name + "\" width=\"scale.x*450/720+\" height=\"scale.y*450/720+\" src=\"" + data_pic_char[command_set.name] + "\">";
+					char_right.innerHTML = "<img alt=\"" + command_set.name2 + "\" width=\"scale2.x*450/720+\" height=\"scale2.y*450/720+\" src=\"" + data_pic_char[command_set.name2] + "\">";
 				}
 				break;
 			default:
