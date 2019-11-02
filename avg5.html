@@ -2085,7 +2085,7 @@ shop_loop,http://ak.mooncell.wiki/images/3/31/M_sys_shop_loop.mp3</script>
 }</script>
 
 <script>
-	var mw={"config":{"values":{"debug":true}}};
+	var mw={"config":{"values":{"debug":false}}};
 var txt_max = 0,txt_num = 0,now_txt = "",now_txt_max = 0,now_txt_num = 0,now_txt_temp = "";
 var timer_id = -1,flag_timer = false;
 var timer_id_auto = -1,flag_auto = false;
@@ -2131,7 +2131,7 @@ try
 	{
 		var [name,path] = num.split(",");
 		data_pic_back[name] = path;
-		queue.loadFile(path);
+	//	queue.loadFile(path);
 	}
 }
 catch(err)
@@ -2150,7 +2150,7 @@ try
 	{
 		var [name,path] = num.split(",");
 		data_pic_char[name] = path;
-		queue.loadFile(path);
+	//	queue.loadFile(path);
 	}
 }
 catch(err)
@@ -2169,7 +2169,7 @@ try
 	{
 		var [name,path] = num.split(",");
 		data_audio[name] = path;
-		queue.loadFile(path);
+	//	queue.loadFile(path);
 	}
 }
 catch(err)
