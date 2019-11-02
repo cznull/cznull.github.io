@@ -1249,6 +1249,7 @@ function txt_check()
 					
 					obj_char.style.left=pos.x*450/720-scale.x*450/720/2+400;
 					obj_char.style.top=450-pos.y*450/720-scale.y*450/720/2;
+					obj_char.style.clip="rect("+(-obj_char.style.top)+"px "+(800-obj_char.style.left)+"px "+(450-obj_char.style.top)+"px "+(-obj_char.style.left)+"px)";
 					obj_char.innerHTML = "<img alt=\"" + command_set.name + "\" width=\""+scale.x*450/720+"\"height=\""+scale.y*450/720+"\" src=\"" + data_pic_char[command_set.name] + "\">";
 				}
 				else
@@ -1378,8 +1379,10 @@ function txt_check()
 					obj_char_2.style.display = "block";
 					char_left.style.left=pos.x*450/720-scale.x*450/720/2-125+400;
 					char_left.style.top=450-pos.y*450/720-scale.y*450/720/2;
+					char_left.style.clip="rect("+(-char_left.style.top)+"px "+(800-char_left.style.left)+"px "+(450-char_left.style.top)+"px "+(-char_left.style.left)+"px)";
 					char_right.style.left=pos2.x*450/720-scale2.x*450/720/2+125+400;
 					char_right.style.top=450-pos2.y*450/720-scale2.y*450/720/2;
+					char_right.style.clip="rect("+(-char_right.style.top)+"px "+(800-char_right.style.left)+"px "+(450-char_right.style.top)+"px "+(-char_right.style.left)+"px)";
 					char_left.innerHTML = "<img alt=\"" + command_set.name + "\" width=\""+scale.x*450/720+"\" height=\""+scale.y*450/720+"\" src=\"" + data_pic_char[command_set.name] + "\">";
 					char_right.innerHTML = "<img alt=\"" + command_set.name2 + "\" width=\""+scale2.x*450/720+"\" height=\""+scale2.y*450/720+"\" src=\"" + data_pic_char[command_set.name2] + "\">";
 				}
