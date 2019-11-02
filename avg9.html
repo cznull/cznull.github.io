@@ -1198,9 +1198,9 @@ function txt_check()
 							console.error("Data analyze error,use the default char to instead");
 							temp_d2 = 0;
 						}
-						command_set.name = data_link[temp_d1].array[temp_d2].default;
 						pos=data_link[temp_d1].pos;
 						scale=data_link[temp_d1].scale;
+						command_set.name = data_link[temp_d1].array[temp_d2].default;
 					}
 					else
 					{
@@ -1209,6 +1209,8 @@ function txt_check()
 						{
 							temp_d1 = command_set.name.substr(0,place);
 							temp_d2 = command_set.name.substr(place1 + 1);
+							pos=data_link[temp_d1].pos;
+							scale=data_link[temp_d1].scale;
 							for(place = 0;place<data_link[temp_d1].array.length;place++)
 							{
 								if(data_link[temp_d1][place].name == temp_d2)
@@ -1222,14 +1224,12 @@ function txt_check()
 								console.error("Data analyze error,use the default char to instead");
 								command_set.name = data_link[temp_d1].array[0].default;
 							}
-							pos=data_link[temp_d1].pos;
-							scale=data_link[temp_d1].scale;
 						}
 						else
 						{
-							command_set.name = data_link[command_set.name].array[0].default;
 							pos=data_link[command_set.name].pos;
 							scale=data_link[command_set.name].scale;
+							command_set.name = data_link[command_set.name].array[0].default;
 						}
 					}
 					if(data_pic_char[command_set.name] == undefined)
@@ -1265,9 +1265,9 @@ function txt_check()
 							console.error("Data analyze error,use the default char to instead");
 							temp_d2 = 0;
 						}
-						command_set.name = data_link[temp_d1].array[temp_d2].default;
 						pos=data_link[temp_d1].pos;
 						scale=data_link[temp_d1].scale;
+						command_set.name = data_link[temp_d1].array[temp_d2].default;
 					}
 					else
 					{
@@ -1276,6 +1276,8 @@ function txt_check()
 						{
 							temp_d1 = command_set.name.substr(0,place);
 							temp_d2 = command_set.name.substr(place1 + 1);
+							pos=data_link[temp_d1].pos;
+							scale=data_link[temp_d1].scale;
 							for(place = 0;place<data_link[temp_d1].array.length;place++)
 							{
 								if(data_link[temp_d1][place].name == temp_d2)
@@ -1289,14 +1291,12 @@ function txt_check()
 								console.error("Data analyze error,use the default char to instead");
 								command_set.name = data_link[temp_d1].array[0].default;
 							}
-							pos=data_link[temp_d1].pos;
-							scale=data_link[temp_d1].scale;
 						}
 						else
 						{
-							command_set.name = data_link[command_set.name].array[0].default;
 							pos=data_link[temp_d1].pos;
 							scale=data_link[temp_d1].scale;
+							command_set.name = data_link[command_set.name].array[0].default;
 						}
 					}
 					place = command_set.name2.lastIndexOf("#");
@@ -1312,9 +1312,9 @@ function txt_check()
 							console.error("Data analyze error,use the default char to instead");
 							temp_d2 = 0;
 						}
-						command_set.name2 = data_link[temp_d1].array[temp_d2].default;
 						pos2=data_link[temp_d1].pos;
 						scale2=data_link[temp_d1].scale;
+						command_set.name2 = data_link[temp_d1].array[temp_d2].default;
 					}
 					else
 					{
@@ -1323,6 +1323,8 @@ function txt_check()
 						{
 							temp_d1 = command_set.name2.substr(0,place);
 							temp_d2 = command_set.name2.substr(place1 + 1);
+							pos2=data_link[temp_d1].pos;
+							scale2=data_link[temp_d1].scale;
 							for(place = 0;place<data_link[temp_d1].array.length;place++)
 							{
 								if(data_link[temp_d1].array[place].name == temp_d2)
@@ -1336,14 +1338,12 @@ function txt_check()
 								console.error("Data analyze error,use the default char to instead");
 								command_set.name2 = data_link[temp_d1].array[0].default;
 							}
-							pos2=data_link[temp_d1].pos;
-							scale2=data_link[temp_d1].scale;
 						}
 						else
 						{
-							command_set.name2 = data_link[command_set.name2].array[0].default;
 							pos2=data_link[command_set.name2].pos;
 							scale2=data_link[command_set.name2].scale;
+							command_set.name2 = data_link[command_set.name2].array[0].default;
 						}
 					}
 					if(data_pic_char[command_set.name] == undefined)
