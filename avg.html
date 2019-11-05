@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="mainimage" onclick="start()" class="frame">
+        <div id="background_b" class="frame">
+        </div>
+        <div id="background_f" class="frame">
+        </div>
+        <div id="character_b" class="frame">
+        </div>
+        <div id="character_f" class="frame">
+        </div>
+        <div id="character2_b" class="frame">
+        </div>
+        <div id="character2_f" class="frame">
+        </div>
+        <div id="image_b" class="frame">
+        </div>
+        <div id="image_f" class="frame">
+        </div>
+        <div id="blocker" class="frame">
+        </div>
+    </div>
+    <style>
+        .frame{
+            width:1280px;
+            height:720px;
+            position:absolute;
+        }
+        #mainimage{
+            background-color:black;
+        }
+    </style>
+    <script>
+        
+        function tween(x = 0, y = 0, sx = 0, sy = 0) {
+            this.x = x;
+            this.y = y;
+            this.sx = sx;
+            this.sy = sy;
+            this.lasttime = (new Date()).getTime();
+            this.duration = 0;
+        }
+
+        function img(x=0, y=0, sx=1.0, sy=1.0,url="") {
+            this.x = x;
+            this.y = y;
+            this.sx = sx;
+            this.sy = sy;
+            this.url = url;
+            this.tween = new tween();
+        }
+
+        function fade() {
+            this.starttime = 0;
+            this.duration = 0;
+        }
+
+        function part() {
+            this.back = new img();
+            this.front = new img();
+            this.fade = new fade();
+        }
+        
+        var frame = {};
+        var currentline;
+        var isonplay=0;
+        var width = 1280;
+        var height = 720;
+
+        function textanalyze() {
+
+            return 1;
+        }
+
+        function exectween(img) {
+            var time = (new Date()).getTime();
+            if (img.tween.duration > 0) {
+                var dt;
+                if (time - img.tween.lasttime > img.tween.duration) {
+                    dt = img.tween.duration;
+                }
+                else {
+                    dt = time - img.tween.lasttime;
+                }
+                img.tween.duration -= dt;
+                img.tween.lasttime = time;
+                img.x += img.tween.x*dt;
+                img.y += img.tween.y*dt;
+                img.sx += img.tween.sx*dt;
+                img.sy += img.tween.sy*dt;
+            }
+            return img;
+        }
+
+        function draw() {
+            var currentele;
+            var x, y, sx, sy;
+            if (frame.background.fade.duration) {
+
+            }
+            else {
+                if (frame.background.front.url) {
+                    x = frame.background.front.x;
+                    y = frame.background.front.y;
+                    sx = frame.background.front.sx;
+                    sy = frame.background.front.sy;
+                    currentele = document.getElementById("background_f");
+                    currentele.style.backgroundImage = "url('" + frame.background.front.url + "')";
+                    currentele.style.backgroundSize = (sx * width) + "px " + (sx * height) + "px";
+                    currentele.style.backgroundPosition = (width * (1.0 - sx) / 2 + x) + "px " + (height * (1.0 - sy) / 2 - y) + "px";
+                    frame.background.front = exectween(frame.background.front);
+                }
+            }
+
+            document.getElementById("blocker").style.backgroundColor = "rgb(" + frame.blocker.x + " " + frame.blocker.y + " " + frame.blocker.sx + ")";
+            document.getElementById("blocker").style.opacity = frame.blocker.sy;
+            frame.blocker = exectween(frame.blocker);
+
+            return 1;
+        }
+
+        function ontimer() {
+            if (draw() == 1) {//need analyze
+                while (true) {
+                    var ret = textanalyze();
+                    if (ret == 1) {//continue
+                        break;
+                    }
+                    else if (ret == -1) {//end
+
+                    }
+                }
+            }
+            window.requestAnimationFrame(ontimer);
+        }
+
+        function start() {
+            if (isonplay == 0) {
+
+                frame.background = new part();
+                frame.character = new part();
+                frame.character1 = new part();
+                frame.character2 = new part();
+                frame.img = new part();
+                frame.characutin = new part();
+                frame.blocker = new img();
+                frame.blocker.x = 0;
+                frame.blocker.y = 0;
+                frame.blocker.sx = 0;
+                frame.blocker.sy = 0;
+                frame.blocker.tween.sy = 1.0 / 2000.0;
+                frame.blocker.tween.duration = 2000;
+                frame.background.front.url = "https://cznull.github.io/28.png";
+                frame.background.front.tween.sx = 1.0 / 1000;
+                frame.background.front.tween.sy = 1.0 / 1000;
+                frame.background.front.tween.duration = 1000;
+
+                ontimer();
+                isonplay = 1;
+            }
+        }
+
+    </script>
+
+
+</body>
+</html>
