@@ -7,248 +7,166 @@
 </head>
 <body>
     <div id="mainimage" onclick="start()">
-        <div id="background_b" class="frame">
+        <div id="background_b" class="frame" style="z-index:0">
         </div>
-        <div id="background_f" class="frame">
+        <div id="background_f" class="frame" style="z-index:1">
         </div>
-        <div id="character_b" class="frame">
+        <div id="character_b" class="frame" style="z-index:2">
         </div>
-        <div id="character_f" class="frame">
+        <div id="character_f" class="frame" style="z-index:5">
         </div>
-        <div id="character1_b" class="frame">
+        <div id="character1_b" class="frame" style="z-index:3">
         </div>
-        <div id="character1_f" class="frame">
+        <div id="character1_f" class="frame" style="z-index:6">
         </div>
-        <div id="character2_b" class="frame">
+        <div id="character2_b" class="frame" style="z-index:4">
         </div>
-        <div id="character2_f" class="frame">
+        <div id="character2_f" class="frame" style="z-index:7">
         </div>
-        <div id="img_b" class="frame">
+        <div id="img_b" class="frame" style="z-index:8">
         </div>
-        <div id="img_f" class="frame">
+        <div id="img_f" class="frame" style="z-index:9">
         </div>
-        <div id="charactercutin1" class="frame">
+        <div id="charactercutin1" class="frame" style="z-index:10">
         </div>
-        <div id="charactercutin2" class="frame">
+        <div id="charactercutin2" class="frame" style="z-index:11">
         </div>
-        <div id="blocker" class="frame">
+        <div id="blocker" class="frame" style="z-index:12">
         </div>
-        <div id="dialogarea" class="frame">
+        <div id="dialogarea" class="frame" style="z-index:13">
             <div id="diamask"></div>
             <div id="name" style="line-height:1.3;position:absolute;left:0px;top:635px;width:330px;text-align:right;color:#929292;font-size:30px;"></div>
             <div id="dialog" style="line-height:1.4;position:absolute;left:384px;top:638px;width:720px;color:#FFFFFF;font-size:24px;">click to start</div>
         </div>
+        <div id="decisions" style="z-index:14">
+        </div>
     </div>
     <div id="avgraw" style="display: none;">
-[HEADER(key="title_test", is_skippable=true, fit_mode="BLACK_MASK")] 第十四关（前）
+[HEADER(key="title_test", is_skippable=true, fit_mode="BLACK_MASK")] 第三关（前）
 
 // Comments
 
-[name="陈"]   进来吧。
-[Delay(time=0.3)]
-[PlaySound(key="$d_gen_dooropen", volume=0.7)]
-[character]
-[Dialog]
 
-[Background(image="bg_lungmen_o", width=1, height=1, fadetime=2)]
-
-[PlayMusic(intro="$mist_loop", key="$mist_loop", volume=0.8, crossfade=1.5, delay=0.5)]
-
-[Character(name="char_003_kalts_1",name2="char_2005_weiyw_1")]
-
-[Character(name="char_002_amiya_1")]
-
-[name="阿米娅"]   ......凯尔希医生！
-
-[Character(name="char_003_kalts_1")]
-[Delay(time=0.6)]
-[name="凯尔希"]   ——阿米娅......
-
-[Character(name="char_003_kalts_1#3")]
-[name="凯尔希"]   ......{@nickname}。
-[name="凯尔希"]   你来了。
-[PlaySound(key="$d_gen_doorclose", volume=0.5)]
-
+[PlayMusic(intro="$darkness01_intro", key="$darkness01_loop", volume=0.8,crossfade=1)]
 [Delay(time=1)]
-[Character(name="char_003_kalts_1#3", focus=-1)]
+[playsound(key="$d_gen_transmissionget", volume=0.4)]
 
-[Decision(options="......", values="1")]
+[Blocker(a=1, r=0,g=0, b=0, fadetime=1, block=true)]
+[Image(image="ac3_volcano",x=0, y=0, xScale=1, yScale=1, fadetime=0, screenadapt="coverall")]
+[Blocker(a=0, r=0,g=0, b=0, fadetime=1, block=true)]
+[name="艾雅法拉"]   最后，根据同位素的对比情况以及多种样本的最终分析，基本可以确认你们的猜想是对的。
+[name="艾雅法拉"]   火山活动频率确实处于一个异常的爬升状态，虽然不至于马上爆发天灾，但是并不能对其视而不见。
+[name="艾雅法拉"]   火山活动应该会在二至四周之内到达临界点，之后就会引起火山天灾的爆发。
+[name="艾雅法拉"]   可能的话，最好马上安排市民进行避难准备。                    
+[name="艾雅法拉"]   ......以上，就是根据你们给出的情报得出的结论。
 
+[Blocker(a=1, r=0,g=0, b=0, fadetime=1, block=true)]
+[Image(fadetime=0)]
+[Background(image="bg_hotel", fadetime=0)]
+[Blocker(a=0, r=0,g=0, b=0, fadetime=1, block=true)]
+[Character(name="char_145_prove_1")]
+[name="普罗旺斯"]   不愧是艾雅法拉，隔着联络竟然也能整整说了40分钟。
+[name="普罗旺斯"]   博士，你听懂了吗？
+[Decision(options="什么都没说一样。;嗯，结论我懂。",values="1;2")]
 [Predicate(references="1")]
-
-[Character(name="char_010_chen_1")]
-
-[name="陈"]   咳咳。
-[name="陈"]   魏长官，罗德岛的另外两位代表也到了。
+[name="普罗旺斯"]   我也觉得，反应过来的时候好像就结束了。
+[Predicate(references="2")]
+[name="普罗旺斯"]   哇，博士真厉害，我完完全全没有听明白......
+[Predicate(references="1;2")]
+[name="普罗旺斯"]   看那边那两个人的样子，我还以为只有我听不懂呢。
+[Character(name="char_348_ceylon_4#7",name2="char_166_skfire_3#2",focus=2)]
+[name="天火"]   不愧是艾雅法拉，连我都重新上了一课呢。
+[Character(name="char_348_ceylon_4#7",name2="char_166_skfire_3#2",focus=1)]
+[name="锡兰"]   原来如此，不愧是专家，收集的这些数据原来还能从这个方向解读。
+[name="锡兰"]   没想到在这里能够学到这样的知识，天哪，我应该全部用笔记下来！
 [Character]
+[name="艾雅法拉"]   虽然目前情报还比较有限，不过我的判断和你们是一样的，这座火山很有可能已经从休眠状态进入了活化状态。
+[name="艾雅法拉"]   可惜我不在现场，没办法对于火山的活动原因进行进一步的探索。
+[name="艾雅法拉"]   ......对不起，如果有更多的现场情报我们甚至能找到火山活动的契机，更精确地确定活动的周期。
+[name="艾雅法拉"]   如果那样的话也能方便市民们做好转移安排。
+[Character(name="char_145_prove_1")]
+[name="普罗旺斯"]   大家都明白你对火山的执着，艾雅法拉。
+[name="普罗旺斯"]   你已经帮了我们大忙了。辛苦你了。
 [Dialog]
-[Character(name="char_2005_weiyw_1")]
-[Delay(time=1)]
+[Blocker(a=1, r=0,g=0, b=0, fadetime=1, block=true)]
+[stopmusic(fadetime=1)]
+[Character]
+[Blocker(a=0, fadetime=1, block=false)]
+[PlayMusic(intro="$farce_intro", key="$farce_loop", volume=0.8, crossfade=1.5)]
+[Character(name="char_348_ceylon_4#4")]
+[name="锡兰"]   有你们这样专业的团队帮助我进行确认实在是太好了。
+[name="锡兰"]   可能是因为仪器的问题，汐斯塔的观测点一直都读不出任何数据异常来。
+[name="锡兰"]   看来为此我的东奔西走还是值得的。
+[name="锡兰"]   我们得赶快把这些消息带给市政府才行，不然后果肯定不堪设想。
+[Character(name="char_145_prove_1",name2="char_166_skfire_3#1",focus=2)]
+[name="天火"]   你的意思不会是说，汐斯塔市在这个时候举办了如此大规模的节日活动，却一点天灾的准备都没有吧。
+[Character(name="char_348_ceylon_4#2")]
+[name="锡兰"]   现在别说准备了，市民和游客甚至连天灾有可能产生都不知道。
+[name="锡兰"]   我父亲在三个月前前往新开发区进行工作了，要在几天后才能回来，现在城里大大小小的事情都交给了他的秘书克洛宁处理。
+[name="锡兰"]   而克洛宁也是这座城市的天灾信使，我们只需要现在回去市政府，带回数据和其他样本，就可以让他了解情况了。
+[name="锡兰"]   虽然我是市长的女儿，但是关于城市政府的事情我并没有太多参与。
+[Character(name="char_348_ceylon_4#4")]
+[name="锡兰"]   不过现在既然已经得到了确实的证明，就可以让家里的人帮助我了。
+[Character(name="char_145_prove_1")]
+[name="普罗旺斯"]   博士，我有一个想法，我去火山进一步确认情况，我想试着找一找艾雅法拉提到的契机。
+[name="普罗旺斯"]   锡兰这边能拜托你和其他人吗？
+[Decision(options="进入火山？那也太危险了？！",values="1")]
+[Predicate(references="1")]
+[Character(name="char_145_prove_1")]
+[name="普罗旺斯"]   天灾信使的工作总是危险的，放心吧，在这方面我还是很有经验的。
+[name="普罗旺斯"]   虽然远程通讯只能在旅馆进行，不过我会随时和博士保持联络的。
+[Character(name="char_145_prove_1",name2="char_166_skfire_3#1",focus=2)]
+[name="天火"]   我也和你一起去。
+[CharacterCutin(widgetID="1")]
+[Character(name="char_145_prove_1",name2="char_166_skfire_3#1",focus=1)]
+[name="普罗旺斯"]   欸。
+[Character(name="char_145_prove_1",name2="char_166_skfire_3#1",focus=2)]
+[name="天火"]   你有什么意见？我可不放心，万一你破坏了重要的研究数据怎么办。
+[name="天火"]   我当然是要跟你一起去。
+[Character(name="char_145_prove_1",name2="char_166_skfire_3#1",focus=1)]
+[name="普罗旺斯"]   呃，没有意见没有意见。
+[name="普罗旺斯"]   说起来，我们需要通知一下阿米娅吗？
+[Character(name="char_145_prove_1",name2="char_166_skfire_3#2",focus=2)]
+[name="天火"]   不用啦。小事一桩而已，有博士知道就够了。
+[Dialog]
+[Character]
+[Delay(time=0.5)]
+[Character(name="char_348_ceylon_4#2")]
+[name="锡兰"]   既然如此那我们就说定了，博士。也请你准备一下资料，我们下午两点就出发去市政厅。
+[Decision(options="没问题。",values="1")]
+[Predicate(references="1")]
+[Character(name="char_348_ceylon_4#4")]
+[name="锡兰"]   呼，事情定下来后，总算可以稍微放松一下了。
+[name="锡兰"]   博士，我这里有一些从维多利亚带来的茶叶，来喝一杯茶吧。
+[Decision(options="好吧。;不必了。",values="2;3")]
+[Predicate(references="2")]
+[name="锡兰"]   我想你一定会喜欢的。
 
-[name="魏彦吾"]   哦，正好。
-[name="魏彦吾"]   请坐。凯尔希小姐正向我说明现在的局势呢。
+[Predicate(references="3")]
+[name="锡兰"]   是不会泡茶吗？那我亲手帮你泡一杯吧。
+[Decision(options="好吧。;......不必了。",values="4;5")]
+[Predicate(references="4")]
+[name="锡兰"]   嗯哼，我想你一定会喜欢的。
+[Predicate(references="5")]
+[name="锡兰"]   真是个麻烦的人。
+[name="锡兰"]   这可是在维多利亚中数一数二的茶叶哦？
 
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=1)]
+[Decision(options="败给你了。;............不必了。",values="6;7")]
+[Predicate(references="6")]
+[name="锡兰"]   这就对了，我想你一定会喜欢的。
+[Predicate(references="7")]
+[name="锡兰"]   我的泡茶手艺可是很好的，不尝一下会抱憾终身哦？
 
-[name="凯尔希"]   那我就继续吧。关于现在的局势，我想魏先生也已经很清楚了。
+[Decision(options="...................好吧。",values="8")]
+[Predicate(references="8")]
+[name="锡兰"]   真是个顽固的人，非要我这么说才能接受。
+[name="锡兰"]   那么，请稍等片刻。
 
-[Blocker(a=1, r=0, g=0, b=0, fadetime=0.6, block=true)]
-[Image(image="bg_0_tv",x=0, y=-20, xScale=1.1, yScale=1.1, fadetime=0)]
-[ImageTween(xFrom=0, yFrom=-20, xTo=0, yTo=0, xScaleFrom=1.1, yScaleFrom=1.1, xScaleTo=1, yScaleTo=1, duration=7, block=false)]
-[Blocker(a=0, fadetime=0.6, block=true)]
+[Predicate(references="2;4;6;8")]
 
-[PlaySound(key="$slideshow", volume=0.2,channel="2", loop=true)]
-[Blocker(a=0, fadetime=1.5, block=false)]
-
-[name="凯尔希"]   龙门的情报网每天都在搜集大量针对整合运动的信息，想必也对这件事情极为重视。
-[name="凯尔希"]   不过仅凭这样，龙门仍然还缺乏一些关键信息。
-
-[Blocker(a=1, r=0, g=0, b=0, fadetime=0.6, block=true)]
-[image]
-[Blocker(a=0, fadetime=0.6, block=true)]
-
-
-[Character(name="char_003_kalts_1", name2="char_010_chen_1", focus=2)]
-
-[name="陈"]   ......
-
-[Character(name="char_003_kalts_1", name2="char_010_chen_1", focus=1)]
-
-[name="凯尔希"]   简单的感染者检疫是不能对抗整合运动的，想必龙门近卫局再清楚不过。
-[name="凯尔希"]   整合运动不会乖乖过检，更不会等到当局反应过来才行动。所以————
-[name="凯尔希"]   如果没有罗德岛的协助，龙门依靠目前对待感染者的策略，抵挡接下来整合运动的攻击会面临巨大损失。
-
-[Character(name="char_003_kalts_1", name2="char_010_chen_1", focus=2)]
-
-[name="陈"]   抱歉，我需要插一句。
-[name="陈"]   关于龙门的防卫情报，龙门近卫局方面比罗德岛更了解。对于整合运动的渗透，也已经做了相应准备。
-[name="陈"]   只是龙门目前没有将相关机密行动的方针通知罗德岛的义务。
-
-
-
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=2)]
-
-[name="魏彦吾"]    ......
-[name="魏彦吾"]    凯尔希小姐，请继续说。
-
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=1)]
-
-[name="凯尔希"]   龙门的确有对付手无寸铁的感染者的经验，但恐怕龙门目前没有面对集团化感染者暴徒的经验，这可能会对龙门造成不必要的损失。
-[name="凯尔希"]   以罗德岛目前的经验来说————只有感染者，才能更好对抗感染者。
-
-[Character(name="char_2005_weiyw_1")]
-
-[name="魏彦吾"]   那么，罗德岛是否已经从针对整合运动的行动中获得了有效的经验？
-
-[Blocker(a=1, r=0, g=0, b=0, fadetime=0.6, block=true)]
-
-[Image(image="bg_0_rhodes2",x=0, y=0, xScale=1.2, yScale=1.2, fadetime=0)]
-[ImageTween(xFrom=0, yFrom=-0, xTo=0, yTo=0, xScaleFrom=1.2, yScaleFrom=1.2, xScaleTo=1, yScaleTo=1, duration=27, block=false)]
-
-[Blocker(a=0, fadetime=0.6, block=true)]
-
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=1)]
-
-[name="凯尔希"]   仅仅是有而已，大概是不敢自称专家的。
-
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=2)]
-[CharacterCutin(widgetID="1", name="char_2005_weiyw_1", style="cutin", fadestyle= "horiz_expand_center", fadetime=0.5, offsetx=300, width=200, block=true)]
-[name="魏彦吾"]   哦——？
-[name="魏彦吾"]   我听说，罗德岛曾卷入过切尔诺伯格事件，并且从中也获得了不少其他整合运动的情报。
-[CharacterCutin(widgetID="1", fadetime=0.5, block=true)]
-
-
-
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=1)]
-[CharacterCutin(widgetID="1", name="char_003_kalts_1", style="cutin", fadestyle= "horiz_expand_center", fadetime=0.5, offsetx=-300, width=200, block=true)]
-[name="凯尔希"]   无论魏先生是从哪里得到这条消息的——
-[name="凯尔希"]   这都不是现阶段能与龙门交换的信息。这只是履历，只是站在这里与魏先生交谈的资格。
-[CharacterCutin(widgetID="1", fadetime=0.5, block=true)]
-
-
-[name="魏彦吾"]   决定是否要和你们进行利益交换的是龙门。如果这种程度的信息罗德岛都无法提供的话——
-[name="魏彦吾"]   呵。
-[name="魏彦吾"]   龙门将无法信任你们的真实实力。
-[Blocker(a=1, r=0, g=0, b=0, fadetime=0.6, block=true)]
-[character]
-[image]
-[Blocker(a=0, fadetime=0.6, block=true)]
-
-[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=1)]
-[name="凯尔希"]   魏先生，我的言辞可能不够清晰。
-[name="凯尔希"]   不过需要强调的是——罗德岛提供的信息，本身就是用实力换来的。
-//[name="凯尔希"]   目前没有什么人有过在天灾的环境之中与整合运动作战的经验。
-
-//[Character(name="char_003_kalts_1", name2="char_2005_weiyw_1", focus=2)]
-
-//[name="魏彦吾"]   嗯——我认可这个说法。
-
-[Character(name="char_003_kalts_1", name2="char_010_chen_1", focus=2)]
-
-[name="陈"]   但，无论怎样，龙门都无法信任同样是一群感染者的罗德岛。
-
-[Character(name="char_003_kalts_1", name2="char_010_chen_1", focus=1)]
-
-///[name="凯尔希"]   魏先生既不强求罗德岛摆明立场，也不怀疑罗德岛对任务的忠诚。
-[name="凯尔希"]   如果陈小姐认为龙门的安危，尚不如对感染者进行盲目的惩罚来的重要————
-[name="凯尔希"]   那我会立刻服从当地法令，任由陈小姐逮捕我。然后在监牢里看着龙门被整合运动焚烧殆尽，默默惋惜。
-[name="凯尔希"]   这次，龙门别无选择。
-
-[Character(name="char_003_kalts_1", name2="char_010_chen_1#5", focus=2)]
-
-[Blocker(a=0.6, r=1, g=1, b=1, fadetime=0.1, block=true)]
-[Blocker(a=0, fadetime=0.1, block=true)]
-[CameraShake(duration=0.5, xstrength=10, ystrength=12, vibrato=15, randomness=90, fadeout=true, block=false)]
-[name="陈"]   ——龙门既不是因为有人出言不逊就拒绝善意的城市——
-[name="陈"]   却也不是收留无用说客的慈善机构。
-
-[Character(name="char_2005_weiyw_1", name2="char_010_chen_1#5", focus=1)]
-
-[name="魏彦吾"]   陈警官。
-
-[Character(name="char_2005_weiyw_1", name2="char_010_chen_1#5", focus=2)]
-
-[name="陈"]   魏长官，让外来的感染者参与龙门的机密事务，我认为并不妥当。
-
-[Character(name="char_2005_weiyw_1", name2="char_010_chen_1#5", focus=1)]
-
-[name="魏彦吾"]   冷静些，陈警官，他们是客人。
-[name="魏彦吾"]   ——我的客人。
-
-[Character(name="char_2005_weiyw_1", name2="char_010_chen_1#5", focus=2)]
-
-[name="陈"]   .....
-[name="陈"]   是。
-
-[Character(name="char_2005_weiyw_1", name2="char_010_chen_1", focus=2)]
-
-[name="陈"]   在他们违反龙门法律之前，我会容忍，长官。
-
-//[Character(name="char_2005_weiyw_1", name2="char_003_kalts_1", focus=1)]
-
-//[name="魏彦吾"]   请放心，罗德岛的诸位，我尊重任何潜在的合作伙伴。
-//[name="魏彦吾"]   但凯尔希小姐，我上了年纪，容易忘记谈话中那些零碎的内容......
-//[name="魏彦吾"]   你还想再说说吗？
-
-//[Character(name="char_2005_weiyw_1", name2="char_003_kalts_1", focus=2)]
-
-//[name="凯尔希"]   ——魏先生的意思是，我所阐述的事实，都不重要？
-
-[Character(name="char_2005_weiyw_1", name2="char_003_kalts_1", focus=1)]
-
-[name="魏彦吾"]   啊，不好意思。我想起来了，有这么一句——
-[name="魏彦吾"]   ——没错，呣......
-[name="魏彦吾"]   我所看重的就只有一点。
-[name="魏彦吾"]   实力。
-[name="魏彦吾"]   据我所知，罗德岛也参与清剿了附近的感染者吧？
-[name="魏彦吾"]   陈警官，以目前确切了解的情报，罗德岛在军事力量的实力如何？
-
-[Character(name="char_010_chen_1")]
-
-[name="陈"]   ......请容我简要描述一下我所见的罗德岛的行动情况。
-[name="陈"]   ——详情如下——
-
-[stopSound(channel="2", fadetime=1)]
+[Dialog]
+[Blocker(a=1, r=0,g=0, b=0, fadetime=2, block=true)]
+[Character]
 [Delay(time=0.6)]
 [Dialog]
 [Blocker(block=true)]
@@ -269,6 +187,22 @@
             height: 720px;
             position: relative;
         }
+
+        .decision{
+            position: absolute;
+            left:458px;
+            width:360px;
+            background-color:#333333;
+            text-align:center;
+            height:44px;
+            padding-top: 16px;
+            font-size:24px;
+            border:solid 2px #FFFFFF;
+            line-height:1.0;
+            color:#FFFFFF;
+            z-index:14;
+        }
+
     </style>
     <script>
 
@@ -342,6 +276,12 @@
             return { "char": charmap[charname], "index": index, "charname": charname };
         }
 
+        function dec(node) {
+            document.getElementById("decisions").innerHTML = "";
+            frame.decision = Number(node.attributes["dec"].value);
+            frame.continue = 1;
+        }
+
         function textanalyze() {
             currentline++;
             if (currentline < totaltxt.length) {
@@ -387,6 +327,25 @@
                         var [type, value] = scs.split("=");
                         sc[type] = value;
                     }
+                    if (cmds[1].toLowerCase() == "predicate") {
+                        frame.preofline = new Array();
+                        if (sc.references) {
+                            for (re of sc.references.split(";")) {
+                                frame.preofline.push(Number(re));
+                            }
+                        }
+                    }
+                    if (frame.preofline.length) {
+                        var inc = 0;
+                        for (pre of frame.preofline) {
+                            if (pre == frame.decision) {
+                                inc = 1;
+                            }
+                        }
+                        if (inc == 0) {
+                            return 0;
+                        }
+                    }
                     switch (cmds[1].toLowerCase()) {
                         case "character":
                             Object.assign(frame.character.back, frame.character.front);
@@ -419,7 +378,7 @@
                                     frame.character1.front.y = char.char.y;
                                     frame.character1.front.sx = char.char.sx;
                                     frame.character1.front.sy = char.char.sy;
-                                    frame.character2.front.url = charurl[char2.char.array[char.index].rgb];
+                                    frame.character2.front.url = charurl[char2.char.array[char2.index].rgb];
                                     frame.character2.front.x = char2.char.x;
                                     frame.character2.front.y = char2.char.y;
                                     frame.character2.front.sx = char2.char.sx;
@@ -648,6 +607,21 @@
                                 frame.block.duration = t;
                                 return 1;
                             }
+                            break;
+                        case "decision":
+                            var options = sc.options.split(";");
+                            var values = sc.values.split(";");
+                            for (var i = 0; i < options.length; i++) {
+                                var deci = document.createElement("div");
+                                deci.className = "decision";
+                                deci.innerHTML = options[i];
+                                deci.style.top = (362 + (i - 0.5 * options.length) * 100) + "px";
+                                deci.setAttribute("dec",values[i])
+                                deci.addEventListener("click", function () { dec(this); });
+                                document.getElementById("decisions").appendChild(deci);
+                            }
+                            frame.continue = 0;
+                            return 1;
                             break;
                         case "delay":
                             var t = 500;
@@ -887,15 +861,19 @@
                 document.getElementById("character1_b").style.filter = "brightness(0.5)";
                 document.getElementById("character2_b").style.filter = "brightness(0.5)";
             }
-            else if (frame.focus.b == 1){
+            else if (frame.focus.b == 1) {
                 document.getElementById("character_b").style.filter = "brightness(0.5)";
                 document.getElementById("character1_b").style.filter = "brightness(1.0)";
+                document.getElementById("character1_b").style.zIndex = "4";
                 document.getElementById("character2_b").style.filter = "brightness(0.5)";
+                document.getElementById("character2_b").style.zIndex = "3";
             }
-            else if (frame.focus.b == 2){
+            else if (frame.focus.b == 2) {
                 document.getElementById("character_b").style.filter = "brightness(0.5)";
                 document.getElementById("character1_b").style.filter = "brightness(0.5)";
+                document.getElementById("character1_b").style.zIndex = "3";
                 document.getElementById("character2_b").style.filter = "brightness(1.0)";
+                document.getElementById("character2_b").style.zIndex = "4";
             }
             else {
                 document.getElementById("character_b").style.filter = "brightness(1.0)";
@@ -908,15 +886,19 @@
                 document.getElementById("character1_f").style.filter = "brightness(0.5)";
                 document.getElementById("character2_f").style.filter = "brightness(0.5)";
             }
-            else if (frame.focus.f == 1){
+            else if (frame.focus.f == 1) {
                 document.getElementById("character_f").style.filter = "brightness(0.5)";
                 document.getElementById("character1_f").style.filter = "brightness(1.0)";
+                document.getElementById("character1_f").style.zIndex = "7";
                 document.getElementById("character2_f").style.filter = "brightness(0.5)";
+                document.getElementById("character2_f").style.zIndex = "6";
             }
-            else if (frame.focus.f == 2){
+            else if (frame.focus.f == 2) {
                 document.getElementById("character_f").style.filter = "brightness(0.5)";
                 document.getElementById("character1_f").style.filter = "brightness(0.5)";
+                document.getElementById("character1_f").style.zIndex = "6";
                 document.getElementById("character2_f").style.filter = "brightness(1.0)";
+                document.getElementById("character2_f").style.zIndex = "7";
             }
             else {
                 document.getElementById("character_f").style.filter = "brightness(1.0)";
@@ -938,8 +920,8 @@
             document.getElementById("blocker").style.backgroundColor = "rgb(" + frame.blocker.x + "," + frame.blocker.y + "," + frame.blocker.sx + ")";
             document.getElementById("blocker").style.opacity = frame.blocker.sy;
 
+            var time = (new Date()).getTime();
             if (frame.block.duration > 0) {
-                var time = (new Date()).getTime();
                 var dt;
                 if (time - frame.block.lasttime > frame.block.duration) {
                     dt = frame.block.duration;
@@ -951,13 +933,13 @@
                 frame.block.lasttime = time;
                 return 0;
             }
-
+            frame.block.lasttime = time;
             return 1;
         }
 
         function ontimer() {
             if (draw() == 1) {//need analyze
-                while (true) {
+                while (frame.continue) {
                     var ret = textanalyze();
                     if (ret == 1) {//continue play
                         break;
@@ -987,6 +969,10 @@
                 frame.focus = {};
                 frame.focus.f = 0;
                 frame.dialog = 0;
+                frame.decision = 0;
+                frame.preofline = new Array();
+                frame.continue = 1;
+
                 frame.blocker.x = 0;
                 frame.blocker.y = 0;
                 frame.blocker.sx = 0;
