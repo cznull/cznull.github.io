@@ -1,0 +1,20 @@
+[Background(image="bg_infirmary", fadetime=0)]
+研究员的声音通过扩音器，在伊芙利特置身的小房间里不断地回荡
+[name="研究员"]现在仔细听好：07号。
+[name="研究员"]这是一次额外的适应性实验。
+[name="研究员"]......开始吧......看好了，我亲爱的“老板”。
+[blocker(a=1,r=0,g=0,b=0,fadetime=0.5, block=true)]
+黑暗的房间中，监控器显示屏的荧光照亮了一个男人的面孔。
+[name="机械女声"]超出理论极限值13.42%，执行者请立即停止实验！
+[blocker(a=0,fadetime=0.5, block=true)]
+[name="研究员"]不可能......不可能......我们精心设计的艺术品，为什么只发挥了这点威力？......07号......你在糊弄我......你在耍我!
+[image(image="bg_light",fadetime=0.5, block=true)]
+杀了他们
+[image(fadetime=0.5, block=true)]
+[blocker(a=1,r=0,g=0,b=0,fadetime=0.5, block=true)]
+[name="机械女声"]......建议您立即启动起爆程序。
+[Background(image="bg_towerinside", fadetime=0)]
+[blocker(a=0,fadetime=0.5, block=true)]
+[Character(name="char_003_kalts_1")]
+[name="塞雷娅"]白面鸮，你联系好罗德岛那边，再从梅尔那”借“辆车来。
+[name="塞雷娅"]事情有些不对劲，我联系不上赫默。
