@@ -23,6 +23,7 @@
         </div>
         <div id="character2_f" class="frame" style="z-index:7">
         </div>
+        <canvas id="img" width="1280" height="720" style="position: absolute;z-index:8"></canvas>
         <div id="img_b" class="frame" style="z-index:8">
         </div>
         <div id="img_f" class="frame" style="z-index:9">
@@ -618,6 +619,56 @@
             return part;
         }
 
+        function drawimg(part) {
+            var x, y, sx, sy;
+            var c = document.getElementById("img");
+            var cxt = c.getContext("2d");
+            var img = new Image();
+            cxt.clearRect(0, 0, width, height);
+            if (part.fade.duration) {
+                if ((new Date()).getTime() - part.fade.starttime < part.fade.duration) {
+                    cxt.globalAlpha = 1.0 - ((new Date()).getTime() - part.fade.starttime) / part.fade.duration;
+                }
+                else {
+                    cxt.globalAlpha = 0.0;
+                    part.fade.duration = 0;
+                }
+                if (part.front.url) {
+                    cxt.globalAlpha = 1.0;
+                }
+                if (part.back.url) {
+                    part.back = exectween(part.back);
+                    x = part.back.x;
+                    y = part.back.y;
+                    sx = part.back.sx;
+                    sy = part.back.sy;
+                    img.src = part.back.url;
+                    cxt.drawImage(img, (width * (1.0 - sx) / 2 + x), (height * (1.0 - sy) / 2 - y), (sx * width), (sx * height));
+                }
+            }
+
+            if (part.front.url) {
+                if (part.fade.duration) {
+                    if ((new Date()).getTime() - part.fade.starttime < part.fade.duration) {
+                        cxt.globalAlpha = ((new Date()).getTime() - part.fade.starttime) / part.fade.duration;
+                    }
+                    else {
+                        cxt.globalAlpha = 1.0;
+                    }
+                }
+                else {
+                    cxt.globalAlpha = 1.0;
+                }
+                part.front = exectween(part.front);
+                x = part.front.x;
+                y = part.front.y;
+                sx = part.front.sx;
+                sy = part.front.sy;
+                img.src = part.front.url;
+                cxt.drawImage(img, (width * (1.0 - sx) / 2 + x), (height * (1.0 - sy) / 2 - y), (sx * width), (sx * height));
+            }
+        }
+
         function drawcharacter(eleidb, eleidf, part, basex) {
             var currentele, x, y, sx, sy;
             currentele = document.getElementById(eleidb);
@@ -738,7 +789,7 @@
 
         function draw() {
             frame.background = drawpart("background_b", "background_f", frame.background);
-            frame.img = drawpart("img_b", "img_f", frame.img);
+            drawimg(frame.img);
             frame.character = drawcharacter("character_b", "character_f", frame.character, 0);
             frame.character1 = drawcharacter("character1_b", "character1_f", frame.character1, -200);
             frame.character2 = drawcharacter("character2_b", "character2_f", frame.character2, 200);
