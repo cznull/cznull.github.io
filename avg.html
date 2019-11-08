@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -259,12 +259,12 @@
                                     if (frame.character2.back.charname == char2.charname) {
                                         t2 = 0;
                                     }
-                                    frame.character1.front.url = charurl[char.char.array[char.index].rgb];
+                                    frame.character1.front.url = charurl[char.char.array[char.index].rgb.toLowerCase()];
                                     frame.character1.front.x = char.char.x;
                                     frame.character1.front.y = char.char.y;
                                     frame.character1.front.sx = char.char.sx;
                                     frame.character1.front.sy = char.char.sy;
-                                    frame.character2.front.url = charurl[char2.char.array[char2.index].rgb];
+                                    frame.character2.front.url = charurl[char2.char.array[char2.index].rgb.toLowerCase()];
                                     frame.character2.front.x = char2.char.x;
                                     frame.character2.front.y = char2.char.y;
                                     frame.character2.front.sx = char2.char.sx;
@@ -277,7 +277,7 @@
                                     }
                                     frame.character1.front.url = "";
                                     frame.character2.front.url = "";
-                                    frame.character.front.url = charurl[char.char.array[char.index].rgb];
+                                    frame.character.front.url = charurl[char.char.array[char.index].rgb.toLowerCase()];
                                     frame.character.front.x = char.char.x;
                                     frame.character.front.y = char.char.y;
                                     frame.character.front.sx = char.char.sx;
@@ -325,7 +325,7 @@
                             }
                             if (sc.name) {
                                 var char = getcharmap(sc.name);
-                                charcutinobj.front.url = charurl[char.char.array[char.index].rgb];
+                                charcutinobj.front.url = charurl[char.char.array[char.index].rgb.toLowerCase()];
                                 charcutinobj.front.x = char.char.x;
                                 charcutinobj.front.y = char.char.y;
                                 charcutinobj.front.sx = char.char.sx;
