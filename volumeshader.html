@@ -253,6 +253,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
         cy = document.body.clientHeight;
         document.getElementById("c1").setAttribute("width", cx);
         document.getElementById("c1").setAttribute("height", cy);
+        alert("width:"+cx+"height:"+cy);
         gl.viewport(0, 0, cx, cy);
     }
     window.onload = function () {
@@ -260,6 +261,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
         cy = document.body.clientHeight;
         document.getElementById("c1").setAttribute("width", cx);
         document.getElementById("c1").setAttribute("height", cy);
+        alert("width:"+cx+"height:"+cy);
         var positions = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
         var VSHADER_SOURCE =
             "#version 100 \n"+
