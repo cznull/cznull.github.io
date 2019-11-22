@@ -36,7 +36,7 @@
 </head>
 <body style="overflow-x:hidden;overflow-y:hidden">
 <div id="main">
-    <canvas id="c1" width="1536" height="1536">
+    <canvas id="c1" width="1024" height="1024">
         <span>不支持canvas浏览器</span>
     </canvas>
 </div>
@@ -95,7 +95,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
     var fragshader;
     var shaderProgram;
     function ontimer() {
-        ang1+=0.02
+        ang1+=0.01;
         draw();
         window.requestAnimationFrame(ontimer);
     }
@@ -248,14 +248,14 @@ var KERNEL="float kernal(vec3 ver){\n"+
         cy = document.body.clientHeight;
         document.getElementById("main").style.width=cx+"px";
         document.getElementById("main").style.height=cy+"px";
-        document.getElementById("main").style.transform="scale("+cx/1536+","+cy/1536+")";
+        document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
     }
     window.onload = function () {
         cx = document.body.clientWidth;
         cy = document.body.clientHeight;
         document.getElementById("main").style.width=cx+"px";
         document.getElementById("main").style.height=cy+"px";
-        document.getElementById("main").style.transform="scale("+cx/1536+","+cy/1536+")";
+        document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
         var positions = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
         var VSHADER_SOURCE =
             "#version 100 \n"+
@@ -449,7 +449,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
         gl.vertexAttribPointer(glposition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(glposition);
 
-        gl.viewport(0, 0, 1536, 1536);
+        gl.viewport(0, 0, 1024, 1024);
         draw();
         window.requestAnimationFrame(ontimer);
         document.getElementById("kernel").value = KERNEL;
