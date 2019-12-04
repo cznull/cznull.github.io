@@ -246,6 +246,12 @@ var KERNEL="float kernal(vec3 ver){\n"+
     window.onresize = function () {
         cx = document.body.clientWidth;
         cy = document.body.clientHeight;
+        if(cx*9>cy*16){
+            cx=cy*16/9;
+        }
+        else{
+            cy=cx*9/16;
+        }
         document.getElementById("main").style.width=cx+"px";
         document.getElementById("main").style.height=cy+"px";
         document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
@@ -253,6 +259,12 @@ var KERNEL="float kernal(vec3 ver){\n"+
     window.onload = function () {
         cx = document.body.clientWidth;
         cy = document.body.clientHeight;
+        if(cx*9>cy*16){
+            cx=cy*16/9;
+        }
+        else{
+            cy=cx*9/16;
+        }
         document.getElementById("main").style.width=cx+"px";
         document.getElementById("main").style.height=cy+"px";
         document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
