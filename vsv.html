@@ -36,7 +36,7 @@
 </head>
 <body style="overflow-x:hidden;overflow-y:hidden">
 <div id="main">
-    <canvas id="c1" width="1280" height="720">
+    <canvas id="c1" width="1920" height="1080">
         <span>不支持canvas浏览器</span>
     </canvas>
 </div>
@@ -103,7 +103,7 @@
                 kcount = 13.0;
             }
             else if (count < 8880 + 200 + 3600) {
-                var u = (count - 8880 - 200) / 14400.0 - 1.0;
+                var u = (count - 8880 - 200) / 1800.0 - 1.0;
                 ang2 = 0.4 + 0.4 * u;
                 ang1 = -1.57 + 1.57 * u;
                 cenz = u * 1.3;
@@ -111,10 +111,10 @@
                 cenx = -0.3 - 1.7 * u * u;
                 len = 2.0;
 
-                cenx -= len * cos(ang1) * cos(ang2);
-                ceny -= len * sin(ang2);
-                cenz -= len * sin(ang1) * cos(ang2);
-                kcount = 13.0, drawn;
+                cenx -= len * Math.cos(ang1) * Math.cos(ang2);
+                ceny -= len * Math.sin(ang2);
+                cenz -= len * Math.sin(ang1) * Math.cos(ang2);
+                kcount = 13.0;
             }
             else if (count < 8880 + 200 + 3600 + 300) {
                 var u = (count - 8880 - 200 - 3600) / 300.0;
@@ -204,9 +204,9 @@
             cy = cx * 9 / 16;
             cy=cx*9/16;
         }
-        document.getElementById("main").style.width=1280+"px";
-        document.getElementById("main").style.height=720+"px";
-        document.getElementById("main").style.transform="scale("+cx/1280+","+cy/720+")";
+        document.getElementById("main").style.width=1920+"px";
+        document.getElementById("main").style.height=1080+"px";
+        document.getElementById("main").style.transform="scale("+cx/1920+","+cy/1080+")";
     }
     window.onload = function () {
         cx = document.body.clientWidth;
@@ -221,9 +221,9 @@
             document.getElementById("main").style.top = cy / 2 - cx * 9 / 16 / 2 + "px";
             cy = cx * 9 / 16;
         }
-        document.getElementById("main").style.width=1280+"px";
-        document.getElementById("main").style.height=720+"px";
-        document.getElementById("main").style.transform="scale("+cx/1280+","+cy/720+")";
+        document.getElementById("main").style.width=1920+"px";
+        document.getElementById("main").style.height=1080+"px";
+        document.getElementById("main").style.transform="scale("+cx/1920+","+cy/1080+")";
         var positions = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
         var VSHADER_SOURCE =
             "#version 100 \n"+
@@ -283,9 +283,9 @@
             "   color.g=0.0;\n" +
             "   color.b=0.0;\n" +
             "   sign=0;" +
-            "   v1 = kernal(origin + dir * (step*len));\n" +
-            "   v2 = kernal(origin);\n" +
-            "   for (int k = 2; k < 1002; k++) {\n" +
+            "   v1 = kernal(origin + dir * (step*len)*3.0);\n" +
+            "   v2 = kernal(origin+ dir * (step*len)*2.0);\n" +
+            "   for (int k = 4; k < 1002; k++) {\n" +
             "      ver = origin + dir * (step*len*float(k));\n" +
             "      v = kernal(ver);\n" +
             "      if (v >= 0.0 && v1 < 0.0) {\n" +
@@ -350,8 +350,8 @@
             "                  m1 = m3;\n" +
             "               }\n" +
             "            }\n" +
-            "            if (r3 < 2.0 * len&&r3> step*len) {\n" +
-            "                   sign=1;" +
+            "            if (r3 < 2.0 * len&&r3> step*len*3.0) {\n" +
+            "               sign=1;" +
             "               break;\n" +
             "            }\n" +
             "         }\n" +
@@ -372,8 +372,8 @@
             "                  m1 = m3;\n" +
             "               }\n" +
             "            }\n" +
-            "            if (r3 < 2.0 * len&&r3> step*len) {\n" +
-            "                   sign=1;" +
+            "            if (r3 < 2.0 * len&&r3> step*len*3.0) {\n" +
+            "               sign=1;" +
             "               break;\n" +
             "            }\n" +
             "         }\n" +
@@ -437,7 +437,7 @@
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
         gl.vertexAttribPointer(glposition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(glposition);
-        gl.viewport(0, 0, 1280, 720);
+        gl.viewport(0, 0, 1920, 1080);
         window.requestAnimationFrame(ontimer);
     }
     </script>
