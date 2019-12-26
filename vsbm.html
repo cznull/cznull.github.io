@@ -64,33 +64,29 @@
     var t2,t1 = date.getTime();
     var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
     var ml = 0, mr = 0, mm = 0;
-    var len = 2.5;
+    var len = 2.0;
     var ang1 = 2.8;
     var ang2 = 0.4;
     var cenx = 0.0;
     var ceny = 0.0;
     var cenz = 0.0;
-//    var KERNEL = "float kernal(vec3 ver){\n" +
-//        "   float x,y,z;\n" +
-//        "   x = cos(1.0 / (ver.x*ver.x + 0.06));\n" +
- //       "   y = cos(1.0 / (ver.y*ver.y + 0.06));\n" +
- //       "   z = cos(1.0 / (ver.z*ver.z + 0.06));\n" +
- //       "   return -x-y-z-1.2;\n" +
-  //      "}";
-var KERNEL="float kernal(vec3 ver){\n"+
-"   float a,b,c;\n"+
-"   a=ver.z;\n"+
-"   b=0.0;\n"+
-"      for(int i=0;i<20;i++){\n"+
-"       c=a*a-b*b+ver.x;\n"+
-"       b=2.0*a*b+ver.y;\n"+
-"       a=c;\n"+
-"       if(a*a+b*b>6.0){\n"+
-"           break;\n"+
-"       }\n"+
-"   }"+
-"   return 4.0-(a*a+b*b);"+
-"}"
+        var KERNEL = "float kernal(vec3 ver){\n" +
+            "   vec3 a;\n" +
+            "float b,c,d,e;\n" +
+            "   a=ver;\n" +
+            "   for(int i=0;i<7;i++){\n" +
+            "       b=sqrt(a.x*a.x+a.y*a.y+a.z*a.z);\n" +
+            "       c=atan(a.y,a.x);\n" +
+            " e=1.0/b;" +
+            "       d=acos(a.z*e);\n" +
+            "   b=pow(b,8.0);\n" +
+            "   a=vec3(b*sin(8.0*d)*cos(8.0*c),b*sin(8.0*d)*sin(8.0*c),b*cos(8.0*d))+ver;\n" +
+            "       if(b>16.0){\n" +
+            "           break;\n" +
+            "       }\n" +
+            "   }" +
+            "   return 4.0-b*b;" +
+            "}";
     var vertshade;
     var fragshader;
     var shaderProgram;
@@ -407,6 +403,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
             "   }\n" +
             "   if (sign==1) {\n" +
             "      ver = origin + dir*r3 ;\n" +
+                "       r1=ver.x*ver.x+ver.y*ver.y+ver.z*ver.z;" +
             "      n.x = kernal(ver - right * (r3*0.001)) - kernal(ver + right * (r3*0.001));\n" +
             "      n.y = kernal(ver - up * (r3*0.001)) - kernal(ver + up * (r3*0.001));\n" +
             "      n.z = kernal(ver + forward * (r3*0.001)) - kernal(ver - forward * (r3*0.001));\n" +
@@ -421,9 +418,9 @@ var KERNEL="float kernal(vec3 ver){\n"+
             "      r3 = max(0.0,r3);\n" +
             "      r3 = r3 * r3*r3*r3;\n" +
             "      r3 = r3 * 0.45 + r4 * 0.25 + 0.3;\n" +
-            "      n.x = 0.0;\n" +
-            "      n.y = 1.0;\n" +
-            "      n.z = 1.0;\n" +
+                "      n.x = sin(r1*10.0)*0.5+0.5;\n" +
+                "      n.y = sin(r1*10.0+2.05)*0.5+0.5;\n" +
+                "      n.z = sin(r1*10.0-2.05)*0.5+0.5;\n" +
             "      color = n*r3;\n" +
             "   }\n" +
             "   gl_FragColor = vec4(color.x, color.y, color.z, 1.0);" +
