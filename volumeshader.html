@@ -66,27 +66,27 @@
     var cenx = 0.0;
     var ceny = 0.0;
     var cenz = 0.0;
-//    var KERNEL = "float kernal(vec3 ver){\n" +
-//        "   float x,y,z;\n" +
-//        "   x = cos(1.0 / (ver.x*ver.x + 0.06));\n" +
- //       "   y = cos(1.0 / (ver.y*ver.y + 0.06));\n" +
- //       "   z = cos(1.0 / (ver.z*ver.z + 0.06));\n" +
- //       "   return -x-y-z-1.2;\n" +
-  //      "}";
-var KERNEL="float kernal(vec3 ver){\n"+
-"   float a,b,c;\n"+
-"   a=ver.z;\n"+
-"   b=0.0;\n"+
-"      for(int i=0;i<20;i++){\n"+
-"       c=a*a-b*b+ver.x;\n"+
-"       b=2.0*a*b+ver.y;\n"+
-"       a=c;\n"+
-"       if(a*a+b*b>6.0){\n"+
-"           break;\n"+
-"       }\n"+
-"   }"+
-"   return 4.0-(a*a+b*b);"+
-"}"
+    var KERNEL = "float kernal(vec3 ver){\n" +
+        "   float x,y,z;\n" +
+        "   x = cos(1.0 / (ver.x*ver.x + 0.06));\n" +
+        "   y = cos(1.0 / (ver.y*ver.y + 0.06));\n" +
+        "   z = cos(1.0 / (ver.z*ver.z + 0.06));\n" +
+        "   return -x-y-z-1.2;\n" +
+        "}";
+//var KERNEL="float kernal(vec3 ver){\n"+
+//"   float a,b,c;\n"+
+//"   a=ver.z;\n"+
+//"   b=0.0;\n"+
+//"      for(int i=0;i<20;i++){\n"+
+//"       c=a*a-b*b+ver.x;\n"+
+//"       b=2.0*a*b+ver.y;\n"+
+//"       a=c;\n"+
+//"       if(a*a+b*b>6.0){\n"+
+//"           break;\n"+
+//"       }\n"+
+//"   }"+
+//"   return 4.0-(a*a+b*b);"+
+//"}"
 
     var vertshade;
     var fragshader;
@@ -294,7 +294,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
             "float v, v1, v2;\n" +
             "float r1, r2, r3, r4, m1, m2, m3, m4;\n" +
             "vec3 n, reflect;\n" +
-            "const float step = 0.002;\n" +
+            "const float step = 0.004;\n" +
             "vec3 color;\n" +
             "void main() {\n" +
             "   color.r=0.0;\n" +
@@ -303,7 +303,7 @@ var KERNEL="float kernal(vec3 ver){\n"+
             "   sign=0;"+
             "   v1 = kernal(origin + dir * (step*len));\n" +
             "   v2 = kernal(origin);\n" +
-            "   for (int k = 2; k < 1002; k++) {\n" +
+            "   for (int k = 2; k < 502; k++) {\n" +
             "      ver = origin + dir * (step*len*float(k));\n" +
             "      v = kernal(ver);\n" +
             "      if (v > 0.0 && v1 < 0.0) {\n" +
