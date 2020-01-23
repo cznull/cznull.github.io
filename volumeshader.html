@@ -294,7 +294,7 @@
             "float v, v1, v2;\n" +
             "float r1, r2, r3, r4, m1, m2, m3, m4;\n" +
             "vec3 n, reflect;\n" +
-            "const float step = 0.004;\n" +
+            "const float step = 0.01;\n" +
             "vec3 color;\n" +
             "void main() {\n" +
             "   color.r=0.0;\n" +
@@ -303,7 +303,7 @@
             "   sign=0;"+
             "   v1 = kernal(origin + dir * (step*len));\n" +
             "   v2 = kernal(origin);\n" +
-            "   for (int k = 2; k < 502; k++) {\n" +
+            "   for (int k = 2; k < 202; k++) {\n" +
             "      ver = origin + dir * (step*len*float(k));\n" +
             "      v = kernal(ver);\n" +
             "      if (v > 0.0 && v1 < 0.0) {\n" +
