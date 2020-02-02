@@ -1,0 +1,876 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable=no">
+    <title>parasur</title>
+    <style>
+
+        body {
+            background: #131115;
+        }
+
+        #c1 {
+            background: #fbf7fe;
+        }
+
+        #btn {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+        }
+
+        #c1 {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+        }
+
+        #config {
+            position: fixed;
+            left: 0px;
+            top: 30px;
+            display: none;
+        }
+    </style>
+</head>
+<body style="overflow-x:hidden;overflow-y:hidden">
+    <canvas id="c1" width="512" height="512">
+        <span>不支持canvas浏览器</span>
+    </canvas>
+    <button id="btn">CONFIG</button>
+    <div id="config">
+        <textarea name="" id="kernel" cols="30" rows="10"></textarea>
+        <br />
+        <button id="apply">APPLY</button>
+        <button id="cancle">CANCLE</button>
+    </div>
+    <script>
+
+
+        var cx, cy;
+        var canvas;
+        var gl, glview, glproject;
+        var md = 0,mx,my;
+        var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
+        var ml = 0, mr = 0, mm = 0;
+        var len = 1.5;
+        var ang1 = 0.0;
+        var ang2 = 0.0;
+        var cenx = 0.0;
+        var ceny = 0.0;
+        var cenz = 0.0;
+        var vbuffer, cbuffer, nbuffer;
+        var points = 0;
+
+        var MapSize = 1048580;
+        var noqi = 32;
+        var Noq = 4096;
+        var coslim = 1.0 - 1.0 / 16, aculim = 0.002;
+        var quaMap = Array(MapSize);
+        var Mapbot = Array(MapSize);
+        var Maprig = Array(MapSize);
+        var Maptop = Array(MapSize);
+        var Maplef = Array(MapSize);
+        var Mapfat = Array(MapSize);
+        var qual = Array(MapSize);
+        var quau = Array(MapSize);
+        var quav = Array(MapSize);
+        var end = 0;
+        var parasur = new Object();
+        var vertexs = Array(), colors = Array(), normals = Array();
+        var s = "x=u;y=v;z=cos((u*u - v * v)*6.2832 * 5)*sqrt(1 - u * u - v * v);";
+
+        cos = Math.cos;
+        sin = Math.sin;
+        sqrt = Math.sqrt;
+        max = Math.max;
+        min = Math.min;
+        parasur.ul = -1;
+        parasur.uh = 1;
+        parasur.vl = -1;
+        parasur.vh = 1;
+
+        function push3(v) {
+            this.push(v.x);
+            this.push(v.y);
+            this.push(v.z);
+            this.push(1.0);
+        }
+        vertexs.push3 = push3;
+        colors.push3 = push3;
+        normals.push3 = push3;
+
+        function convertolinear(a) {
+            var b = [];
+            for (var i = 0; i < a.length; i++) {
+                b.push(a[i].x);
+                b.push(a[i].y);
+                b.push(a[i].z);
+            }
+            return b;
+        }
+
+        function ontimer() {
+            draw();
+            window.requestAnimationFrame(ontimer);
+        }
+
+        function sep() {
+            var i, j;
+            for (i = 0; i < 4; i++) {
+                quaMap[i] = 0;
+            }
+            for (i = 0; i < noqi; i++) {
+                for (j = 0; j < noqi; j++) {
+                    quaMap[i + j * noqi + 4] = 0;
+                    Mapbot[i + j * noqi + 4] = (i + (j + noqi - 1) % noqi * noqi) + 4;
+                    Maprig[i + j * noqi + 4] = ((i + 1) % noqi + j * noqi) + 4;
+                    Maptop[i + j * noqi + 4] = (i + (j + 1) % noqi * noqi) + 4;
+                    Maplef[i + j * noqi + 4] = ((i + noqi - 1) % noqi + j * noqi) + 4;
+                    qual[i + j * noqi + 4] = 1.0 / noqi;
+                    quau[i + j * noqi + 4] = i / noqi;
+                    quav[i + j * noqi + 4] = j / noqi;
+                }
+            }
+            end = noqi * noqi + 4;
+            for (i = 4; i < end; i++) {
+                sepaquad(i, 0);
+            }
+        }
+        function sepaquad(cur, force) {
+            var u, v, l;
+            u = quau[cur];
+            v = quav[cur];
+            l = qual[cur];
+            if (l < (1.4 / Noq)) {
+                return;
+            }
+            if (end > MapSize - 4) {
+                return;
+            }
+            if (force | needsep(u, v, l)) {
+                if (Mapbot[cur] < 4) {
+                    sepaquad(Mapbot[Mapfat[cur]], 1);
+                }
+                if (Maprig[cur] < 4) {
+                    sepaquad(Maprig[Mapfat[cur]], 1);
+                }
+                if (Maptop[cur] < 4) {
+                    sepaquad(Maptop[Mapfat[cur]], 1);
+                }
+                if (Maplef[cur] < 4) {
+                    sepaquad(Maplef[Mapfat[cur]], 1);
+                }
+                if (end > MapSize - 4) {
+                    return;
+                }
+                quaMap[cur] = end;
+                end += 4;
+
+                quaMap[quaMap[cur] + 0] = 0;
+                quaMap[quaMap[cur] + 1] = 0;
+                quaMap[quaMap[cur] + 2] = 0;
+                quaMap[quaMap[cur] + 3] = 0;
+
+                Mapfat[quaMap[cur] + 0] = cur;
+                Mapfat[quaMap[cur] + 1] = cur;
+                Mapfat[quaMap[cur] + 2] = cur;
+                Mapfat[quaMap[cur] + 3] = cur;
+
+                qual[quaMap[cur] + 0] = l / 2;
+                qual[quaMap[cur] + 1] = l / 2;
+                qual[quaMap[cur] + 2] = l / 2;
+                qual[quaMap[cur] + 3] = l / 2;
+
+                quau[quaMap[cur] + 0] = u;
+                quau[quaMap[cur] + 1] = u + l / 2;
+                quau[quaMap[cur] + 2] = u;
+                quau[quaMap[cur] + 3] = u + l / 2;
+
+                quav[quaMap[cur] + 0] = v;
+                quav[quaMap[cur] + 1] = v;
+                quav[quaMap[cur] + 2] = v + l / 2;
+                quav[quaMap[cur] + 3] = v + l / 2;
+
+                Mapbot[quaMap[cur] + 0] = quaMap[Mapbot[cur]] + 2;
+                Mapbot[quaMap[cur] + 1] = quaMap[Mapbot[cur]] + 3;
+                Mapbot[quaMap[cur] + 2] = quaMap[cur] + 0;
+                Mapbot[quaMap[cur] + 3] = quaMap[cur] + 1;
+                if (quaMap[Mapbot[cur]]) {
+                    Maptop[quaMap[Mapbot[cur]] + 2] = quaMap[cur] + 0;
+                    Maptop[quaMap[Mapbot[cur]] + 3] = quaMap[cur] + 1;
+                }
+
+                Maprig[quaMap[cur] + 0] = quaMap[cur] + 1;
+                Maprig[quaMap[cur] + 1] = quaMap[Maprig[cur]] + 0;
+                Maprig[quaMap[cur] + 2] = quaMap[cur] + 3;
+                Maprig[quaMap[cur] + 3] = quaMap[Maprig[cur]] + 2;
+                if (quaMap[Maprig[cur]]) {
+                    Maplef[quaMap[Maprig[cur]] + 0] = quaMap[cur] + 1;
+                    Maplef[quaMap[Maprig[cur]] + 2] = quaMap[cur] + 3;
+                }
+
+                Maptop[quaMap[cur] + 0] = quaMap[cur] + 2;
+                Maptop[quaMap[cur] + 1] = quaMap[cur] + 3;
+                Maptop[quaMap[cur] + 2] = quaMap[Maptop[cur]] + 0;
+                Maptop[quaMap[cur] + 3] = quaMap[Maptop[cur]] + 1;
+                if (quaMap[Maptop[cur]]) {
+                    Mapbot[quaMap[Maptop[cur]] + 0] = quaMap[cur] + 2;
+                    Mapbot[quaMap[Maptop[cur]] + 1] = quaMap[cur] + 3;
+                }
+
+                Maplef[quaMap[cur] + 0] = quaMap[Maplef[cur]] + 1;
+                Maplef[quaMap[cur] + 1] = quaMap[cur] + 0;
+                Maplef[quaMap[cur] + 2] = quaMap[Maplef[cur]] + 3;
+                Maplef[quaMap[cur] + 3] = quaMap[cur] + 2;
+                if (quaMap[Maplef[cur]]) {
+                    Maprig[quaMap[Maplef[cur]] + 1] = quaMap[cur] + 0;
+                    Maprig[quaMap[Maplef[cur]] + 3] = quaMap[cur] + 2;
+                }
+            }
+        }
+        function needsep(u, v, l) {
+            var vertex = Array(6), normal = Array(5), vector = Array(6);
+            var sca = Array(8), a, b, c, d, cosx = Array(4);
+            var i, invalidcount;
+
+            invalidcount = 0;
+            vertex[0] = getv(u, v);
+            vertex[1] = getv(u + l, v);
+            vertex[2] = getv(u + l, v + l);
+            vertex[3] = getv(u, v + l);
+            vertex[4] = getv(u + l / 2, v + l / 2);
+            for (i = 0; i < 5; i++) {
+                if (invalid(vertex[i])) {
+                    invalidcount++;
+                }
+            }
+            if (invalidcount == 5) {
+                return 0;
+            }
+            if (invalidcount) {
+                return 1;
+            }
+            for (i = 0; i < 4; i++) {
+                vector[i] = sub(vertex[i], vertex[4]);
+                sca[i] = norm(vector[i]);
+            }
+            a = max(sca[0], sca[1]);
+            b = max(sca[2], sca[3]);
+            c = max(a, b);
+            normal[0] = cross(vector[0], vector[1]);
+            normal[1] = cross(vector[1], vector[2]);
+            normal[2] = cross(vector[2], vector[3]);
+            normal[3] = cross(vector[3], vector[0]);
+            for (i = 0; i < 4; i++) {
+                sca[i] = sqrt(norm(normal[i]));
+            }
+            for (i = 1; i < 4; i++) {
+                cosx[i] = dot(normal[i], normal[i - 1]) / (sca[i] * sca[i - 1]);
+            }
+            cosx[0] = dot(normal[0], normal[3]) / (sca[0] * sca[3]);
+            a = min(cosx[0], cosx[1]);
+            b = min(cosx[2], cosx[3]);
+            d = min(a, b);
+            if (d < coslim || (1 - d * d) > aculim * aculim / c / c) {
+                return 1;
+            }
+            if ((v - 0.5 * l) > 0) {
+                vertex[5] = getv(u + l / 2, v - l * 0.5);
+                vector[4] = sub(vertex[0], vertex[5]);
+                vector[5] = sub(vertex[1], vertex[5]);
+                normal[4] = cross(vector[5], vector[4]);
+                a = dot(normal[0], normal[4]) / (sca[0] * sqrt(norm(normal[4])));
+                d = min(d, a);
+            }
+            if ((u + 1.5 * l) < 1) {
+                vertex[5] = getv(u + l * 1.5, v + l * 0.5);
+                vector[4] = sub(vertex[1], vertex[5]);
+                vector[5] = sub(vertex[2], vertex[5]);
+                normal[4] = cross(vector[5], vector[4]);
+                a = dot(normal[1], normal[4]) / (sca[1] * sqrt(norm(normal[4])));
+                d = min(d, a);
+            }
+            if ((v + 1.5 * l) < 1) {
+                vertex[5] = getv(u + l * 0.5, v + l * 1.5);
+                vector[4] = sub(vertex[2], vertex[5]);
+                vector[5] = sub(vertex[3], vertex[5]);
+                normal[4] = cross(vector[5], vector[4]);
+                a = dot(normal[2], normal[4]) / (sca[2] * sqrt(norm(normal[4])));
+                d = min(d, a);
+            }
+            if ((u - 0.5 * l) > 0) {
+                vertex[5] = getv(u - l * 0.5, v + l * 0.5);
+                vector[4] = sub(vertex[3], vertex[5]);
+                vector[5] = sub(vertex[0], vertex[5]);
+                normal[4] = cross(vector[5], vector[4]);
+                a = dot(normal[3], normal[4]) / (sca[3] * sqrt(norm(normal[4])));
+                d = min(d, a);
+            }
+            if (d < coslim || (1 - d * d) > aculim * aculim / c / c) {
+                return 1;
+            }
+            return 0;
+        }
+
+        function getv(u, v) {
+            var i;
+            u = u * (parasur.uh - parasur.ul) + parasur.ul;
+            v = v * (parasur.vh - parasur.vl) + parasur.vl;
+            //return { u,v,cos((u*u - v * v)*6.2832 * 6)*sqrt(1 - u * u - v * v) };
+            eval(s);
+            return { "x": x, "y": y, "z": z };
+        }
+        function invalid(vertex) {
+            if (!isFinite(vertex.x)) {
+                return 1;
+            }
+            if (!isFinite(vertex.y)) {
+                return 1;
+            }
+            if (!isFinite(vertex.z)) {
+                return 1;
+            }
+            return 0;
+        }
+        function norm(x1) {
+            return x1.x * x1.x + x1.y * x1.y + x1.z * x1.z;
+        }
+        function cross(x1, x2) {
+            return { "x": x1.y * x2.z - x1.z * x2.y, "y": x1.z * x2.x - x1.x * x2.z, "z": x1.x * x2.y - x1.y * x2.x };
+        }
+        function dot(x1, x2) {
+            return x1.x * x2.x + x1.y * x2.y + x1.z * x2.z;
+        }
+
+        function scan() {
+            var i;
+            var u, v, l;
+            var vertex = Array(5), normal = Array(5);
+            var c = Array(5);
+            for (i = 4; i < end; i++) {
+                if (quaMap[i] == 0) {
+                    u = quau[i];
+                    v = quav[i];
+                    l = qual[i];
+                    vertex[0] = getv(u, v);
+                    vertex[1] = getv(u + l, v);
+                    vertex[2] = getv(u + l, v + l);
+                    vertex[3] = getv(u, v + l);
+                    vertex[4] = getv(u + l / 2, v + l / 2);
+                    if (!invalid(vertex[0])) {
+                        normal[0] = getn(u, v, l);
+                    }
+                    if (!invalid(vertex[1])) {
+                        normal[1] = getn(u + l, v, l);
+                    }
+                    if (!invalid(vertex[2])) {
+                        normal[2] = getn(u + l, v + l, l);
+                    }
+                    if (!invalid(vertex[3])) {
+                        normal[3] = getn(u, v + l, l);
+                    }
+                    if (!invalid(vertex[4])) {
+                        normal[4] = getn(u + l / 2, v + l / 2, l);
+                    }
+
+                    c[0] = { "x": u, "y": v };
+                    c[1] = { "x": u + l, "y": v };
+                    c[2] = { "x": u + l, "y": v + l };
+                    c[3] = { "x": u, "y": v + l };
+                    c[4] = { "x": u + l / 2, "y": v + l / 2 };
+
+                    if (quaMap[Mapbot[i]]) {
+                        tri2(vertexs, colors, normals, vertex[0], vertex[1], vertex[4], normal[0], normal[1], normal[4], c[0], c[1], c[4], l);
+                    }
+                    else {
+                        tri1(vertexs, colors, normals, vertex[0], vertex[1], vertex[4], normal[0], normal[1], normal[4], c[0], c[1], c[4], l);
+                    }
+                    if (quaMap[Maprig[i]]) {
+                        tri2(vertexs, colors, normals, vertex[1], vertex[2], vertex[4], normal[1], normal[2], normal[4], c[1], c[2], c[4], l);
+                    }
+                    else {
+                        tri1(vertexs, colors, normals, vertex[1], vertex[2], vertex[4], normal[1], normal[2], normal[4], c[1], c[2], c[4], l);
+                    }
+                    if (quaMap[Maptop[i]]) {
+                        tri2(vertexs, colors, normals, vertex[2], vertex[3], vertex[4], normal[2], normal[3], normal[4], c[2], c[3], c[4], l);
+                    }
+                    else {
+                        tri1(vertexs, colors, normals, vertex[2], vertex[3], vertex[4], normal[2], normal[3], normal[4], c[2], c[3], c[4], l);
+                    }
+                    if (quaMap[Maplef[i]]) {
+                        tri2(vertexs, colors, normals, vertex[3], vertex[0], vertex[4], normal[3], normal[0], normal[4], c[3], c[0], c[4], l);
+                    }
+                    else {
+                        tri1(vertexs, colors, normals, vertex[3], vertex[0], vertex[4], normal[3], normal[0], normal[4], c[3], c[0], c[4], l);
+                    }
+                }
+            }
+            vercount = normals.end;
+        }
+
+        function tri1(vertexs, colors, normals, v1, v2, v3, n1, n2, n3, c1, c2, c3, l) {
+            var inv = Array(3), invcount;
+            inv[0] = invalid(v1);
+            inv[1] = invalid(v2);
+            inv[2] = invalid(v3);
+            invcount = inv[0] + inv[1] + inv[2];
+            switch (invcount) {
+                case 0: {
+                    vertexs.push3(v1);
+                    vertexs.push3(v2);
+                    vertexs.push3(v3);
+                    normals.push3(n1);
+                    normals.push3(n2);
+                    normals.push3(n3);
+                    colors.push3(getc(c1.x, c1.y));
+                    colors.push3(getc(c2.x, c2.y));
+                    colors.push3(getc(c3.x, c3.y));
+                    break;
+                }
+                case 1: {
+                    break;
+                }
+                case 2: {
+                    break;
+                }
+            }
+        }
+
+        function tri2(vertexs, colors, normals, v1, v2, v3, n1, n2, n3, c1, c2, c3, l) {
+            var v4, n4;
+            var c4;
+            var inv = Array(4), invcountl, invcountr;
+            c4 = { "x": (c1.x + c2.x) / 2, "y": (c1.y + c2.y) / 2 };
+            v4 = getv(c4.x, c4.y);
+            inv[0] = invalid(v1);
+            inv[1] = invalid(v2);
+            inv[2] = invalid(v3);
+            inv[3] = invalid(v4);
+            if (!inv[3]) {
+                n4 = getn(c4.x, c4.y, l);
+            }
+            invcountl = inv[0] + inv[3] + inv[2];
+            invcountr = inv[3] + inv[1] + inv[2];
+            switch (invcountl) {
+                case 0: {
+                    vertexs.push3(v1);
+                    vertexs.push3(v4);
+                    vertexs.push3(v3);
+                    normals.push3(n1);
+                    normals.push3(n4);
+                    normals.push3(n3);
+                    colors.push3(getc(c1.x, c1.y));
+                    colors.push3(getc((c1.x + c2.x) / 2, (c1.y + c2.y) / 2));
+                    colors.push3(getc(c3.x, c3.y));
+                    break;
+                }
+                case 1: {
+                    break;
+                }
+                case 2: {
+                    break;
+                }
+            }
+            switch (invcountl) {
+                case 0: {
+                    vertexs.push3(v4);
+                    vertexs.push3(v2);
+                    vertexs.push3(v3);
+                    normals.push3(n4);
+                    normals.push3(n2);
+                    normals.push3(n3);
+                    colors.push3(getc((c1.x + c2.x) / 2, (c1.y + c2.y) / 2));
+                    colors.push3(getc(c2.x, c2.y));
+                    colors.push3(getc(c3.x, c3.y));
+                    break;
+                }
+                case 1: {
+                    break;
+                }
+                case 2: {
+                    break;
+                }
+            }
+        }
+
+        function sub(x, y) {
+            return { "x": x.x - y.x, "y": x.y - y.y, "z": x.z - y.z };
+        }
+
+        function getn(u, v, l) {
+            var abnor, ltemp, ltemp1, x0;
+            var vec = Array(2), nor;
+            var i, isnan;
+            ltemp = l / 16;
+            vec[0] = sub(getv(u + ltemp, v), getv(u - ltemp, v));
+            vec[1] = sub(getv(u, v + ltemp), getv(u, v - ltemp));
+            if (!invalid(vec[0]) && !invalid(vec[1])) {
+                ltemp /= 4;
+                vec[0] = sub(getv(u + ltemp, v), getv(u - ltemp, v));
+                vec[1] = sub(getv(u, v + ltemp), getv(u, v - ltemp));
+                nor = cross(vec[0], vec[1]);
+                var odbl = 1.0 / sqrt(norm(nor));
+                return { "x": nor.x * odbl, "y": nor.y * odbl, "z": nor.z * odbl };
+            }
+            return { "x": 1.0, "y": 0.0, "z": 0.0 };
+        }
+        function getr(u, v) {
+            //return 1.0f;
+            //return float(rand() % 256) / 256;
+            return sin(v * 3.1416) / 2 + 0.5;
+        }
+
+        function getg(u, v) {
+            //return 1.0f;
+            //return float(rand() % 256) / 256;
+            return sin(u * 3.1416) / 2 + 0.5;
+        }
+
+        function getb(u, v) {
+            return 1.0;
+            //return float(rand() % 256) / 256;
+            return cos(u * 6.2832 * 2) * 0.5 + 0.5;
+        }
+
+        function getc(u, v) {
+            return { "x": getr(u, v), "y": getg(u, v), "z": getb(u, v) };
+        }
+        window.onload = function () {
+            cx = document.body.clientWidth;
+            cy = document.body.clientHeight;
+            document.getElementById("c1").setAttribute("width", cx);
+            document.getElementById("c1").setAttribute("height", cy);
+            var VSHADER_SOURCE =
+                "#version 100 \n" +
+                "precision highp float;\n" +
+                "attribute vec4 vertex,normal,color;" +
+                "varying vec4 fc;" +
+                "varying vec4 a;" +
+                "float l;" +
+                "varying vec4 ntemp;" +
+                "uniform mat4 view,project;" +
+                "void main() {" +
+                "   ntemp=normal;" +
+                "   ntemp.w=0.0;" +
+                "	ntemp = view * ntemp;" +
+                "	a = view* vertex;" +
+                "	fc = color;" +
+                "	gl_Position =  project*a;" +
+                "}";
+
+            var FSHADER_SOURCE =
+                "#version 100 \n" +
+                "precision highp float;\n" +
+                "varying vec4 fc;" +
+                "float s,t,u;" +
+                "vec3 texdir;" +
+                "varying vec4 a;" +
+                "vec3 b,c;" +
+                "varying vec4 ntemp;" +
+                "void main(){" +
+                "	b=vec3(a);" +
+                "	b=normalize(b);" +
+                "	c=vec3(ntemp);" +
+                "	c=normalize(c);" +
+                "	c=(gl_FrontFacing)?c:-c;" +
+                "	texdir=reflect(b,c);" +
+                "	s=texdir.x*0.276+texdir.y*0.920+texdir.z*0.276;" +
+                "	t=c.x*0.276+c.y*0.920+c.z*0.276;" +
+                "	t=0.6*t+0.4*sqrt(t*t+0.21);" +
+                "	s=(s>0.0)?s:0.0;" +
+                "	s=s*s;" +
+                "	s=s*s;" +
+                "	s=s*0.55+t*0.30+0.10;" +
+                "	s=pow(s,0.5);" +
+                "	gl_FragColor.r = fc.r*s;" +
+                "	gl_FragColor.g = fc.g*s;" +
+                "	gl_FragColor.b = fc.b*s;" +
+                "	gl_FragColor.a = fc.a;" +
+                "}";
+            canvas = document.getElementById('c1');
+            gl = canvas.getContext('webgl');
+
+            gl.enable(gl.DEPTH_TEST);
+
+            vertshader = gl.createShader(gl.VERTEX_SHADER);
+            fragshader = gl.createShader(gl.FRAGMENT_SHADER);
+            shaderProgram = gl.createProgram();
+
+            gl.shaderSource(vertshader, VSHADER_SOURCE);
+            gl.compileShader(vertshader);
+            var infov = gl.getShaderInfoLog(vertshader);
+
+            gl.shaderSource(fragshader, FSHADER_SOURCE);
+            gl.compileShader(fragshader);
+            var infof = gl.getShaderInfoLog(fragshader);
+
+            gl.attachShader(shaderProgram, vertshader);
+            gl.attachShader(shaderProgram, fragshader);
+            gl.linkProgram(shaderProgram);
+            gl.useProgram(shaderProgram);
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                var info = gl.getProgramInfoLog(shaderProgram);
+                alert('Could not compile WebGL program. \n\n' + infov + infof + info);
+            }
+            glvertex = gl.getAttribLocation(shaderProgram, 'vertex');
+            glnormal = gl.getAttribLocation(shaderProgram, 'normal');
+            glcolor = gl.getAttribLocation(shaderProgram, 'color');
+            glview = gl.getUniformLocation(shaderProgram, 'view');
+            glproject = gl.getUniformLocation(shaderProgram, 'project');
+
+            vbuffer = gl.createBuffer();
+            nbuffer = gl.createBuffer();
+            cbuffer = gl.createBuffer();
+            gl.viewport(0, 0, cx, cy);
+            draw();
+            window.requestAnimationFrame(ontimer);
+
+            sep();
+            alert("end:" + end);
+            scan();
+            alert("triangles:" + vertexs.length / 12);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(glvertex, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(glvertex);
+            gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(glnormal, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(glnormal);
+            gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(glcolor, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(glcolor);
+            points = vertexs.length / 4;
+        }
+        function ontimer() {
+            //ang1+=0.01;
+            draw();
+            window.requestAnimationFrame(ontimer);
+        }
+        function draw() {
+            mat = Array(16);
+            mat[0] = cos(ang1);
+            mat[1] = sin(ang1) * sin(ang2);
+            mat[2] = -sin(ang1) * cos(ang2);
+            mat[3] = 0.0;
+
+            mat[4] = 0.0;
+            mat[5] = cos(ang2);
+            mat[6] = sin(ang2);
+            mat[7] = 0.0;
+
+            mat[8] = sin(ang1);
+            mat[9] = -cos(ang1) * sin(ang2);
+            mat[10] = cos(ang1) * cos(ang2);
+            mat[11] = 0.0;
+
+            mat[12] = -cenx*mat[0]-ceny*mat[4]-cenz*mat[8];
+            mat[13] = -cenx*mat[1]-ceny*mat[5]-cenz*mat[9];
+            mat[14] = -len-cenx*mat[2]-ceny*mat[6]-cenz*mat[10];
+            mat[15] = 1.0;
+
+            gl.uniformMatrix4fv(glview, false,new Float32Array(mat));
+
+            var near = 0.01 * len;
+            var far = 10.0 * len;
+
+            mat[0] = (cx + cy) / cx / 2.0;
+            mat[1] = 0.0;
+            mat[2] =0.0;
+            mat[3] = 0.0;
+
+            mat[4] = 0.0;
+            mat[5] =  (cx + cy) / cy / 2.0;;
+            mat[6] = 0.0;
+            mat[7] = 0.0;
+
+            mat[8] = 0.0;
+            mat[9] =0.0;
+            mat[10] = -(near + far) / (far - near);
+            mat[11] = -1.0;
+
+            mat[12] = 0.0;
+            mat[13] = 0.0;
+            mat[14] = -near * far * 2.0 / (far-near);
+            mat[15] = 0.0;
+            gl.uniformMatrix4fv(glproject, false, new Float32Array(mat));
+            if (points > 2) {
+                gl.drawArrays(gl.TRIANGLES, 0, points);
+            }
+            //gl.finish();
+        }
+        document.addEventListener("mousedown",
+            function (ev) {
+                var oEvent = ev || event;
+                if (oEvent.button == 0) {
+                    ml = 1;
+                    mm = 0;
+                }
+                if (oEvent.button == 2) {
+                    mr = 1;
+                    mm = 0;
+                }
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            },
+            false);
+        document.addEventListener("mouseup",
+            function (ev) {
+                var oEvent = ev || event;
+                if (oEvent.button == 0) {
+                    ml = 0;
+                }
+                if (oEvent.button == 2) {
+                    mr = 0;
+                }
+            },
+            false);
+        document.addEventListener("mousemove",
+            function (ev) {
+                var oEvent = ev || event;
+                if (ml == 1) {
+                    ang1 += (oEvent.clientX - mx) * 0.002;
+                    ang2 += (oEvent.clientY - my) * 0.002;
+                    if (oEvent.clientX != mx || oEvent.clientY != my) {
+                        mm = 1;
+                    }
+                }
+                if (mr == 1) {
+                    var l = len * 4.0 / (cx + cy);
+                    cenx += l * (-(oEvent.clientX - mx) * Math.cos(ang1) + (oEvent.clientY - my) * Math.sin(ang2) * Math.sin(ang1));
+                    ceny += l * ((oEvent.clientY - my) * Math.cos(ang2));
+                    cenz += l * (-(oEvent.clientX - mx) * Math.sin(ang1) - (oEvent.clientY - my) * Math.sin(ang2) * Math.cos(ang1));
+                    if (oEvent.clientX != mx || oEvent.clientY != my) {
+                        mm = 1;
+                    }
+                }
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            },
+            false);
+        document.addEventListener("mousewheel",
+            function (ev) {
+                ev.preventDefault();
+                var oEvent = ev || event;
+                len *= Math.exp(-0.001 * oEvent.wheelDelta);
+            },
+            false);
+        document.addEventListener("touchstart",
+            function (ev) {
+                var n = ev.touches.length;
+                if (n == 1) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                }
+                else if (n == 2) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                    oEvent = ev.touches[1];
+                    mx1 = oEvent.clientX;
+                    my1 = oEvent.clientY;
+                }
+                lasttimen = n;
+            },
+            false);
+        document.addEventListener("touchend",
+            function (ev) {
+                var n = ev.touches.length;
+                if (n == 1) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                }
+                else if (n == 2) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                    oEvent = ev.touches[1];
+                    mx1 = oEvent.clientX;
+                    my1 = oEvent.clientY;
+                }
+                lasttimen = n;
+            },
+            false);
+        document.addEventListener("touchmove",
+            function (ev) {
+                ev.preventDefault();
+                var n = ev.touches.length;
+                if (n == 1 && lasttimen == 1) {
+                    var oEvent = ev.touches[0];
+                    ang1 += (oEvent.clientX - mx) * 0.002;
+                    ang2 += (oEvent.clientY - my) * 0.002;
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                }
+                else if (n == 2) {
+                    var oEvent = ev.touches[0];
+                    var oEvent1 = ev.touches[1];
+                    var l = len * 2.0 / (cx + cy), l1;
+                    cenx += l * (-(oEvent.clientX + oEvent1.clientX - mx - mx1) * Math.cos(ang1) + (oEvent.clientY + oEvent1.clientY - my - my1) * Math.sin(ang2) * Math.sin(ang1));
+                    ceny += l * ((oEvent.clientY + oEvent1.clientY - my - my1) * Math.cos(ang2));
+                    cenz += l * (-(oEvent.clientX + oEvent1.clientX - mx - mx1) * Math.sin(ang1) - (oEvent.clientY + oEvent1.clientY - my - my1) * Math.sin(ang2) * Math.cos(ang1));
+                    l1 = Math.sqrt((mx - mx1) * (mx - mx1) + (my - my1) * (my - my1) + 1.0);
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                    mx1 = oEvent1.clientX;
+                    my1 = oEvent1.clientY;
+                    l = Math.sqrt((mx - mx1) * (mx - mx1) + (my - my1) * (my - my1) + 1.0);
+                    len *= l1 / l;
+                }
+                lasttimen = n;
+            },
+            false);
+        document.oncontextmenu = function (event) {
+            if (mm == 1) {
+                event.preventDefault();
+            }
+        };
+        window.onresize = function () {
+            cx = document.body.clientWidth;
+            cy = document.body.clientHeight;
+            document.getElementById("c1").setAttribute("width", cx);
+            document.getElementById("c1").setAttribute("height", cy);
+            gl.viewport(0, 0, cx, cy);
+        }
+        document.getElementById("kernel").value = s;
+        document.getElementById("btn").addEventListener("click", function() {
+            var state = this.innerText == "CONFIG";
+            this.innerText = state ? "HIDE" : "CONFIG";
+            document.getElementById("config").style.display = state ? "inline" : "none";
+        });
+        document.getElementById("apply").addEventListener("click", function() {
+            s = document.getElementById("kernel").value;
+            sep();
+            alert("end:" + end);
+            vertexs.length = 0;
+            normals.length = 0;
+            colors.length = 0;
+            scan();
+            alert("triangles:" + vertexs.length / 12);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(glvertex, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(glvertex);
+            gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(glnormal, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(glnormal);
+            gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(glcolor, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(glcolor);
+            points = vertexs.length / 4;
+        });
+        document.getElementById("cancle").addEventListener("click", function() {
+            document.getElementById("kernel").value = s;
+        });
+    </script>
+</body>
+</html>
