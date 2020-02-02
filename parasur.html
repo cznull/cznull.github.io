@@ -62,10 +62,10 @@
         var vbuffer, cbuffer, nbuffer;
         var points = 0;
 
-        var MapSize = 1048580;
+        var MapSize =1048580;
         var noqi = 32;
         var Noq = 4096;
-        var coslim = 1.0 - 1.0 / 16, aculim = 0.002;
+        var coslim = 1.0 - 1.0 / 16, aculim = 0.001;
         var quaMap = Array(MapSize);
         var Mapbot = Array(MapSize);
         var Maprig = Array(MapSize);
@@ -429,9 +429,27 @@
                     break;
                 }
                 case 1: {
+                    if (inv[0]) {
+                        invtri1(vertexs, colors, normals, v2, v3, n2, n3, c2, c3, c1, l);
+                    }
+                    if (inv[1]) {
+                        invtri1(vertexs, colors, normals, v3, v1, n3, n1, c3, c1, c2, l);
+                    }
+                    if (inv[2]) {
+                        invtri1(vertexs, colors, normals, v1, v2, n1, n2, c1, c2, c3, l);
+                    }
                     break;
                 }
                 case 2: {
+                    if (!inv[0]) {
+                        invtri2(vertexs, colors, normals, v1, n1, c1, c2, c3, l);
+                    }
+                    if (!inv[1]) {
+                        invtri2(vertexs, colors, normals, v2, n2, c2, c3, c1, l);
+                    }
+                    if (!inv[2]) {
+                        invtri2(vertexs, colors, normals, v3, n3, c3, c1, c2, l);
+                    }
                     break;
                 }
             }
@@ -466,13 +484,31 @@
                     break;
                 }
                 case 1: {
+                    if (inv[0]) {
+                        invtri1(vertexs, colors, normals, v4, v3, n4, n3, c4, c3, c1, l);
+                    }
+                    if (inv[3]) {
+                        invtri1(vertexs, colors, normals, v3, v1, n3, n1, c3, c1, c4, l);
+                    }
+                    if (inv[2]) {
+                        invtri1(vertexs, colors, normals, v1, v4, n1, n4, c1, c4, c3, l);
+                    }
                     break;
                 }
                 case 2: {
+                    if (!inv[0]) {
+                        invtri2(vertexs, colors, normals, v1, n1, c1, c4, c3, l);
+                    }
+                    if (!inv[3]) {
+                        invtri2(vertexs, colors, normals, v4, n4, c4, c3, c1, l);
+                    }
+                    if (!inv[2]) {
+                        invtri2(vertexs, colors, normals, v3, n3, c3, c1, c4, l);
+                    }
                     break;
                 }
             }
-            switch (invcountl) {
+            switch (invcountr) {
                 case 0: {
                     vertexs.push3(v4);
                     vertexs.push3(v2);
@@ -486,12 +522,150 @@
                     break;
                 }
                 case 1: {
+                    if (inv[3]) {
+                        invtri1(vertexs, colors, normals, v2, v3, n2, n3, c2, c3, c4, l);
+                    }
+                    if (inv[1]) {
+                        invtri1(vertexs, colors, normals, v3, v4, n3, n4, c3, c4, c2, l);
+                    }
+                    if (inv[2]) {
+                        invtri1(vertexs, colors, normals, v4, v2, n4, n2, c4, c2, c3, l);
+                    }
                     break;
                 }
                 case 2: {
+                    if (!inv[3]) {
+                        invtri2(vertexs, colors, normals, v4, n4, c4, c2, c3, l);
+                    }
+                    if (!inv[1]) {
+                        invtri2(vertexs, colors, normals, v2, n2, c2, c3, c4, l);
+                    }
+                    if (!inv[2]) {
+                        invtri2(vertexs, colors, normals, v3, n3, c3, c4, c2, l);
+                    }
                     break;
                 }
             }
+        }
+
+        function double2() {
+            this.x = 0.0;
+            this.y = 0.0;
+        }
+        
+        function invtri1(vertexs, colors, normals, v1, v2, n1, n2, c1, c2, c3, l) {
+            var left, right, mid;
+            var c4 = new double2(), c5 = new double2();
+            var v4, v5, n4, n5;
+            left = 0;
+            right = 1;
+            while ((right - left) > (1.0e-6)) {
+                mid = (left + right) / 2;
+                c4.x = c3.x * mid + c1.x * (1.0 - mid);
+                c4.y = c3.y * mid + c1.y * (1.0 - mid);
+                v4 = getv(c4.x, c4.y);
+                if (invalid(v4)) {
+                    right = mid;
+                }
+                else {
+                    left = mid;
+                }
+            }
+            c4.x = c3.x * left + c1.x * (1.0 - left);
+            c4.y = c3.y * left + c1.y * (1.0 - left);
+
+            left = 0;
+            right = 1;
+            while ((right - left) > (1.0e-6)) {
+                mid = (left + right) / 2;
+                c5.x = c3.x * mid + c2.x * (1.0 - mid);
+                c5.y = c3.y * mid + c2.y * (1.0 - mid);
+                v5 = getv(c5.x, c5.y);
+                if (invalid(v5)) {
+                    right = mid;
+                }
+                else {
+                    left = mid;
+                }
+            }
+            c5.x = c3.x * left + c2.x * (1.0 - left);
+            c5.y = c3.y * left + c2.y * (1.0 - left);
+
+            v4 = getv(c4.x, c4.y);
+            n4 = getn(c4.x, c4.y, l);
+            v5 = getv(c5.x, c5.y);
+            n5 = getn(c5.x, c5.y, l);
+            vertexs.push3(v1);
+            vertexs.push3(v2);
+            vertexs.push3(v5);
+            normals.push3(n1);
+            normals.push3(n2);
+            normals.push3(n5);
+            colors.push3(getc(c1.x, c1.y));
+            colors.push3(getc(c2.x, c2.y));
+            colors.push3(getc(c5.x, c5.y));
+            vertexs.push3(v1);
+            vertexs.push3(v5);
+            vertexs.push3(v4);
+            normals.push3(n1);
+            normals.push3(n5);
+            normals.push3(n4);
+            colors.push3(getc(c1.x, c1.y));
+            colors.push3(getc(c5.x, c5.y));
+            colors.push3(getc(c4.x, c4.y));
+        }
+
+        function invtri2(vertexs, colors, normals, v1, n1, c1, c2, c3, l) {
+            var left, right, mid;
+            var c4 = new double2(), c5 = new double2();
+            var v4, v5, n4, n5;
+            left = 0;
+            right = 1;
+            while ((right - left) > (1.0e-6)) {
+                mid = (left + right) / 2;
+                c4.x = c2.x * mid + c1.x * (1.0 - mid);
+                c4.y = c2.y * mid + c1.y * (1.0 - mid);
+                v4 = getv(c4.x, c4.y);
+                if (invalid(v4)) {
+                    right = mid;
+                }
+                else {
+                    left = mid;
+                }
+            }
+            c4.x = c2.x * left + c1.x * (1.0 - left);
+            c4.y = c2.y * left + c1.y * (1.0 - left);
+
+            left = 0;
+            right = 1;
+            while ((right - left) > (1.0e-6)) {
+                mid = (left + right) / 2;
+                c5.x = c3.x * mid + c1.x * (1.0 - mid);
+                c5.y = c3.y * mid + c1.y * (1.0 - mid);
+                v5 = getv(c5.x, c5.y);
+                if (invalid(v5)) {
+                    right = mid;
+                }
+                else {
+                    left = mid;
+                }
+            }
+            c5.x = c3.x * left + c1.x * (1.0 - left);
+            c5.y = c3.y * left + c1.y * (1.0 - left);
+
+            v4 = getv(c4.x, c4.y);
+            n4 = getn(c4.x, c4.y, l);
+            v5 = getv(c5.x, c5.y);
+            n5 = getn(c5.x, c5.y, l);
+            vertexs.push3(v1);
+            vertexs.push3(v4);
+            vertexs.push3(v5);
+            normals.push3(n1);
+            normals.push3(n4);
+            normals.push3(n5);
+            colors.push3(getc(c1.x, c1.y));
+            colors.push3(getc(c4.x, c4.y));
+            colors.push3(getc(c5.x, c5.y));
         }
 
         function sub(x, y) {
@@ -513,8 +687,130 @@
                 var odbl = 1.0 / sqrt(norm(nor));
                 return { "x": nor.x * odbl, "y": nor.y * odbl, "z": nor.z * odbl };
             }
-            return { "x": 1.0, "y": 0.0, "z": 0.0 };
+            else {
+                ltemp = l / 8;
+                while (ltemp > l * 1.0e-4) {
+                    var dl = [0.9659, 0.2588, 0.2588, 0.9659];
+                    var dlt;
+
+                    vec[0] = getv(u + ltemp, v);
+                    vec[1] = getv(u, v + ltemp);
+                    if (!invalid(vec[0]) && !invalid(vec[1])) {
+                        return getn1(u, v, ltemp / 2, dl);
+                    }
+                    for (i = 0; i < 2; i++) {
+                        dlt = 0.5 * dl[i * 2] - 0.86603 * dl[i * 2 + 1];
+                        dl[i * 2 + 1] = 0.5 * dl[i * 2 + 1] + 0.86603 * dl[i * 2];
+                        dl[i * 2] = dlt;
+                    }
+
+                    vec[0] = getv(u + ltemp * 0.5, v + ltemp * 0.866);
+                    vec[1] = getv(u - ltemp * 0.866, v + ltemp * 0.5);
+                    if (!invalid(vec[0]) && !invalid(vec[1])) {
+                        return getn1(u, v, ltemp / 2, dl);
+                    }
+                    for (i = 0; i < 2; i++) {
+                        dlt = 0.5 * dl[i * 2] - 0.86603 * dl[i * 2 + 1];
+                        dl[i * 2 + 1] = 0.5 * dl[i * 2 + 1] + 0.86603 * dl[i * 2];
+                        dl[i * 2] = dlt;
+                    }
+
+                    vec[0] = getv(u - ltemp * 0.5, v + ltemp * 0.866);
+                    vec[1] = getv(u - ltemp * 0.866, v - ltemp * 0.5);
+                    if (!invalid(vec[0]) && !invalid(vec[1])) {
+                        return getn1(u, v, ltemp / 2, dl);
+                    }
+                    for (i = 0; i < 2; i++) {
+                        dlt = 0.5 * dl[i * 2] - 0.86603 * dl[i * 2 + 1];
+                        dl[i * 2 + 1] = 0.5 * dl[i * 2 + 1] + 0.86603 * dl[i * 2];
+                        dl[i * 2] = dlt;
+                    }
+
+                    vec[0] = getv(u - ltemp, v);
+                    vec[1] = getv(u, v - ltemp);
+                    if (!invalid(vec[0]) && !invalid(vec[1])) {
+                        return getn1(u, v, ltemp / 2, dl);
+                    }
+                    for (i = 0; i < 2; i++) {
+                        dlt = 0.5 * dl[i * 2] - 0.86603 * dl[i * 2 + 1];
+                        dl[i * 2 + 1] = 0.5 * dl[i * 2 + 1] + 0.86603 * dl[i * 2];
+                        dl[i * 2] = dlt;
+                    }
+
+                    vec[0] = getv(u - ltemp * 0.5, v - ltemp * 0.866);
+                    vec[1] = getv(u + ltemp * 0.866, v - ltemp * 0.5);
+                    if (!invalid(vec[0]) && !invalid(vec[1])) {
+                        return getn1(u, v, ltemp / 2, dl);
+                    }
+                    for (i = 0; i < 2; i++) {
+                        dlt = 0.5 * dl[i * 2] - 0.86603 * dl[i * 2 + 1];
+                        dl[i * 2 + 1] = 0.5 * dl[i * 2 + 1] + 0.86603 * dl[i * 2];
+                        dl[i * 2] = dlt;
+                    }
+
+                    vec[0] = getv(u + ltemp * 0.5, v - ltemp * 0.866);
+                    vec[1] = getv(u + ltemp * 0.866, v + ltemp * 0.5);
+                    if (!invalid(vec[0]) && !invalid(vec[1])) {
+                        return getn1(u, v, ltemp / 2, dl);
+                    }
+
+                    ltemp /= 2;
+                }
+                debugger;
+                return { "x": 1.0, "y": 0.0, "z": 0.0 };
+            }
         }
+
+        
+        function getn1(u, v, ltemp, dl) {
+            var la, lb, absa, absb, left, right;
+            var vertexo, vertexa, vertexb, veca, vecb;
+            la = ltemp;
+            lb = ltemp;
+            left = 0.0;
+            right = 1.0;
+            var i;
+            vertexo = getv(u, v);
+            vertexa = getv(u + la * dl[0], v + la * dl[1]);
+            vertexb = getv(u + lb * dl[2], v + lb * dl[3]);
+            veca = sub(vertexa, vertexo);
+            vecb = sub(vertexb, vertexo);
+            absa = norm(veca);
+            absb = norm(vecb);
+            if (absa > absb) {
+                for (i = 0; i < 10; i++) {
+                    la = ltemp * (left + right);
+                    vertexa = getv(u + la * dl[0], v + la * dl[1]);
+                    veca = sub(vertexa, vertexo);
+                    absa = norm(veca);
+                    if (absa > absb) {
+                        right = 0.5 * (left + right);
+                    }
+                    else {
+                        left = 0.5 * (left + right);
+                    }
+                }
+            }
+            else {
+                for (i = 0; i < 10; i++) {
+                    lb = ltemp * (left + right);
+                    vertexb = getv(u + lb * dl[2], v + lb * dl[3]);
+                    vecb = sub(vertexb, vertexo);
+                    absb = norm(vecb);
+                    if (absb > absa) {
+                        right = 0.5 * (left + right);
+                    }
+                    else {
+                        left = 0.5 * (left + right);
+                    }
+                }
+            }
+            vertexo = cross(veca, vecb);
+            var odbl = 1.0 / sqrt(norm(vertexo));
+            return { "x": vertexo.x * odbl, "y": vertexo.y * odbl, "z": vertexo.z * odbl };
+        }
+
+
         function getr(u, v) {
             //return 1.0f;
             //return float(rand() % 256) / 256;
