@@ -29,7 +29,7 @@
             position: fixed;
             left: 0px;
             top: 30px;
-            display: none;
+            display: inline;
         }
     </style>
 </head>
@@ -37,7 +37,7 @@
     <canvas id="c1" width="512" height="512">
         <span>不支持canvas浏览器</span>
     </canvas>
-    <button id="btn">CONFIG</button>
+    <button id="btn">HIDE</button>
     <div id="config">
         <textarea name="" id="kernel" cols="30" rows="10"></textarea>
         <br />
@@ -66,19 +66,24 @@
         var noqi = 32;
         var Noq = 4096;
         var coslim = 1.0 - 1.0 / 16, aculim = 0.001;
-        var quaMap = Array(MapSize);
-        var Mapbot = Array(MapSize);
-        var Maprig = Array(MapSize);
-        var Maptop = Array(MapSize);
-        var Maplef = Array(MapSize);
-        var Mapfat = Array(MapSize);
-        var qual = Array(MapSize);
-        var quau = Array(MapSize);
-        var quav = Array(MapSize);
+        var quaMap = Array();
+        var Mapbot = Array();
+        var Maprig = Array();
+        var Maptop = Array();
+        var Maplef = Array();
+        var Mapfat = Array();
+        var qual = Array();
+        var quau = Array();
+        var quav = Array();
         var end = 0;
         var parasur = new Object();
         var vertexs = Array(), colors = Array(), normals = Array();
-        var s = "x=u;y=v;z=cos((u*u - v * v)*6.2832 * 5)*sqrt(1 - u * u - v * v);";
+        var s = "getv = function (u,v){\n\treturn {\"x\":u,\"y\":v,\"z\":cos((u*u - v * v)*6.2832 * 5)*sqrt(1 - u * u - v * v)};\n};" +
+            "\nMapSize = 1048580;" +
+            "\nnoqi = 32;" +
+            "\nNoq = 4096;" +
+            "\ncoslim = 1.0 - 1.0 / 16;" +
+            "\naculim = 0.001;";
 
         cos = Math.cos;
         sin = Math.sin;
@@ -127,9 +132,9 @@
                     Maprig[i + j * noqi + 4] = ((i + 1) % noqi + j * noqi) + 4;
                     Maptop[i + j * noqi + 4] = (i + (j + 1) % noqi * noqi) + 4;
                     Maplef[i + j * noqi + 4] = ((i + noqi - 1) % noqi + j * noqi) + 4;
-                    qual[i + j * noqi + 4] = 1.0 / noqi;
-                    quau[i + j * noqi + 4] = i / noqi;
-                    quav[i + j * noqi + 4] = j / noqi;
+                    qual[i + j * noqi + 4] = 2.0 / noqi;
+                    quau[i + j * noqi + 4] = 2.0 * i / noqi - 1.0;
+                    quav[i + j * noqi + 4] = 2.0 * j / noqi - 1.0;
                 }
             }
             end = noqi * noqi + 4;
@@ -142,7 +147,7 @@
             u = quau[cur];
             v = quav[cur];
             l = qual[cur];
-            if (l < (1.4 / Noq)) {
+            if (l < (2.8 / Noq)) {
                 return;
             }
             if (end > MapSize - 4) {
@@ -314,12 +319,7 @@
         }
 
         function getv(u, v) {
-            var i;
-            u = u * (parasur.uh - parasur.ul) + parasur.ul;
-            v = v * (parasur.vh - parasur.vl) + parasur.vl;
-            //return { u,v,cos((u*u - v * v)*6.2832 * 6)*sqrt(1 - u * u - v * v) };
-            eval(s);
-            return { "x": x, "y": y, "z": z };
+            return { "x": u, "y": u * v, "z": v };
         }
         function invalid(vertex) {
             if (!isFinite(vertex.x)) {
@@ -814,19 +814,18 @@
         function getr(u, v) {
             //return 1.0f;
             //return float(rand() % 256) / 256;
-            return sin(v * 3.1416) / 2 + 0.5;
+            return cos(v * 1.5708) / 2 + 0.5;
         }
 
         function getg(u, v) {
             //return 1.0f;
             //return float(rand() % 256) / 256;
-            return sin(u * 3.1416) / 2 + 0.5;
+            return cos(u * 1.5708) / 2 + 0.5;
         }
 
         function getb(u, v) {
             return 1.0;
             //return float(rand() % 256) / 256;
-            return cos(u * 6.2832 * 2) * 0.5 + 0.5;
         }
 
         function getc(u, v) {
@@ -1142,6 +1141,7 @@
         });
         document.getElementById("apply").addEventListener("click", function() {
             s = document.getElementById("kernel").value;
+            eval(s);
             sep();
             alert("end:" + end);
             vertexs.length = 0;
