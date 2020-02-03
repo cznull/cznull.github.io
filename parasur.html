@@ -39,7 +39,7 @@
     </canvas>
     <button id="btn">HIDE</button>
     <div id="config">
-        <textarea name="" id="kernel" cols="30" rows="10"></textarea>
+        <textarea name="" id="kernel" cols="50" rows="10"></textarea>
         <br />
         <button id="apply">APPLY</button>
         <button id="cancle">CANCLE</button>
@@ -61,9 +61,6 @@
         var cenz = 0.0;
         var vbuffer, cbuffer, nbuffer;
         var points = 0;
-
-        var tl = 0;
-
         var MapSize =1048580;
         var noqi = 32;
         var Noq = 4096;
@@ -78,12 +75,20 @@
         var quau = Array();
         var quav = Array();
         var end = 0;
-        var s = "getv = function (u,v){u=u*2-1;v=v*2-1;\n\treturn {\n\t\"x\":u,\n\t\"y\":v,\n\t\"z\":cos((u*u - v * v)*6.2832 * 10)\n};\n};" +//*sqrt(1 - u * u - v * v)
-            "\nMapSize = 2883584;" +
-            "\nnoqi = 32;" +
-            "\nNoq = 8192;" +
-            "\ncoslim = 1.0 - 1.0 / 1.34375;" +
-            "\naculim = 0.0012;";
+        var s =
+            "getv = function (u,v){\n" +
+            "   u=u*2-1;v=v*2-1;\n" +
+            "   return {\n" +
+            "       \"x\":u,\n" +
+            "       \"y\":v,\n" +
+            "       \"z\":cos((u*u - v * v)*6.2832 * 10)\n" +
+            "   };\n" +
+            "};\n"
+            "MapSize = 2883584;\n" +
+            "noqi = 32;\n" +
+            "Noq = 8192;\n" +
+            "coslim = 1.0 - 1.0 / 1.3125;\n" +
+            "aculim = 0.001;\n";
 
         cos = Math.cos;
         sin = Math.sin;
@@ -357,7 +362,6 @@
             var vertex = Array(5), normal = Array(5);
             var c = Array(5);
             for (i = 4; i < end; i++) {
-                tl = vertexs.length;
                 if (quaMap[i] == 0) {
                     u = quau[i];
                     v = quav[i];
