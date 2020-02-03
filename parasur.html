@@ -62,6 +62,8 @@
         var vbuffer, cbuffer, nbuffer;
         var points = 0;
 
+        var tl = 0;
+
         var MapSize =1048580;
         var noqi = 32;
         var Noq = 4096;
@@ -78,18 +80,19 @@
         var end = 0;
         var parasur = new Object();
         var vertexs = Array(), colors = Array(), normals = Array();
-        var s = "getv = function (u,v){\n\treturn {\"x\":u,\"y\":v,\"z\":cos((u*u - v * v)*6.2832 * 5)*sqrt(1 - u * u - v * v)};\n};" +
-            "\nMapSize = 1048580;" +
+        var s = "getv = function (u,v){u=u*2-1;v=v*2-1;\n\treturn {\n\t\"x\":u,\n\t\"y\":v,\n\t\"z\":cos((u*u - v * v)*6.2832 * 10)\n};\n};" +//*sqrt(1 - u * u - v * v)
+            "\nMapSize = 2883584;" +
             "\nnoqi = 32;" +
-            "\nNoq = 4096;" +
-            "\ncoslim = 1.0 - 1.0 / 16;" +
-            "\naculim = 0.001;";
+            "\nNoq = 8192;" +
+            "\ncoslim = 1.0 - 1.0 / 1.34375;" +
+            "\naculim = 0.002;";
 
         cos = Math.cos;
         sin = Math.sin;
         sqrt = Math.sqrt;
         max = Math.max;
         min = Math.min;
+        abs = Math.abs;
         parasur.ul = -1;
         parasur.uh = 1;
         parasur.vl = -1;
@@ -99,7 +102,7 @@
             this.push(v.x);
             this.push(v.y);
             this.push(v.z);
-            this.push(1.0);
+        //    this.push(1.0);
         }
         vertexs.push3 = push3;
         colors.push3 = push3;
@@ -132,9 +135,9 @@
                     Maprig[i + j * noqi + 4] = ((i + 1) % noqi + j * noqi) + 4;
                     Maptop[i + j * noqi + 4] = (i + (j + 1) % noqi * noqi) + 4;
                     Maplef[i + j * noqi + 4] = ((i + noqi - 1) % noqi + j * noqi) + 4;
-                    qual[i + j * noqi + 4] = 2.0 / noqi;
-                    quau[i + j * noqi + 4] = 2.0 * i / noqi - 1.0;
-                    quav[i + j * noqi + 4] = 2.0 * j / noqi - 1.0;
+                    qual[i + j * noqi + 4] = 1.0 / noqi;
+                    quau[i + j * noqi + 4] = 1.0 * i / noqi - 0.0;
+                    quav[i + j * noqi + 4] = 1.0 * j / noqi - 0.0;
                 }
             }
             end = noqi * noqi + 4;
@@ -147,7 +150,8 @@
             u = quau[cur];
             v = quav[cur];
             l = qual[cur];
-            if (l < (2.8 / Noq)) {
+            if (l < (1.4 / Noq)) {
+                debugger;
                 return;
             }
             if (end > MapSize - 4) {
@@ -234,10 +238,16 @@
                 }
             }
         }
+
+        function distanceofline(a, b, c) {
+            return abs(dot(cross(a, b), c) / sqrt(norm(cross(sub(a, b), c))));
+        }
+
         function needsep(u, v, l) {
             var vertex = Array(6), normal = Array(5), vector = Array(6);
-            var sca = Array(8), a, b, c, d, cosx = Array(4);
+            var sca = Array(4), a, b, c, d, cosx = Array(4);
             var i, invalidcount;
+            var disofl = 0.0;
 
             invalidcount = 0;
             vertex[0] = getv(u, v);
@@ -258,11 +268,12 @@
             }
             for (i = 0; i < 4; i++) {
                 vector[i] = sub(vertex[i], vertex[4]);
-                sca[i] = norm(vector[i]);
             }
-            a = max(sca[0], sca[1]);
-            b = max(sca[2], sca[3]);
-            c = max(a, b);
+            for (i = 0; i < 2; i++) {
+                disofl = max(disofl, distanceofline(vector[i], vector[i + 2], vector[i + 1]));
+            }
+            disofl = max(disofl, distanceofline(vector[2], vector[0], vector[3]));
+            disofl = max(disofl, distanceofline(vector[3], vector[1], vector[0]));
             normal[0] = cross(vector[0], vector[1]);
             normal[1] = cross(vector[1], vector[2]);
             normal[2] = cross(vector[2], vector[3]);
@@ -277,7 +288,7 @@
             a = min(cosx[0], cosx[1]);
             b = min(cosx[2], cosx[3]);
             d = min(a, b);
-            if (d < coslim || (1 - d * d) > aculim * aculim / c / c) {
+            if (d < coslim || disofl > aculim) {
                 return 1;
             }
             if ((v - 0.5 * l) > 0) {
@@ -287,6 +298,7 @@
                 normal[4] = cross(vector[5], vector[4]);
                 a = dot(normal[0], normal[4]) / (sca[0] * sqrt(norm(normal[4])));
                 d = min(d, a);
+                disofl = max(disofl, distanceofline(vector[5], vector[4], sub(vertex[4], vertex[5])));
             }
             if ((u + 1.5 * l) < 1) {
                 vertex[5] = getv(u + l * 1.5, v + l * 0.5);
@@ -295,6 +307,7 @@
                 normal[4] = cross(vector[5], vector[4]);
                 a = dot(normal[1], normal[4]) / (sca[1] * sqrt(norm(normal[4])));
                 d = min(d, a);
+                disofl = max(disofl, distanceofline(vector[5], vector[4], sub(vertex[4], vertex[5])));
             }
             if ((v + 1.5 * l) < 1) {
                 vertex[5] = getv(u + l * 0.5, v + l * 1.5);
@@ -303,6 +316,7 @@
                 normal[4] = cross(vector[5], vector[4]);
                 a = dot(normal[2], normal[4]) / (sca[2] * sqrt(norm(normal[4])));
                 d = min(d, a);
+                disofl = max(disofl, distanceofline(vector[5], vector[4], sub(vertex[4], vertex[5])));
             }
             if ((u - 0.5 * l) > 0) {
                 vertex[5] = getv(u - l * 0.5, v + l * 0.5);
@@ -311,14 +325,17 @@
                 normal[4] = cross(vector[5], vector[4]);
                 a = dot(normal[3], normal[4]) / (sca[3] * sqrt(norm(normal[4])));
                 d = min(d, a);
+                disofl = max(disofl, distanceofline(vector[5], vector[4], sub(vertex[4], vertex[5])));
             }
-            if (d < coslim || (1 - d * d) > aculim * aculim / c / c) {
+            if (d < coslim || disofl > aculim) {
                 return 1;
             }
             return 0;
         }
 
         function getv(u, v) {
+            u = u * 2 - 1;
+            v = v * 2 - 1;
             return { "x": u, "y": u * v, "z": v };
         }
         function invalid(vertex) {
@@ -349,6 +366,7 @@
             var vertex = Array(5), normal = Array(5);
             var c = Array(5);
             for (i = 4; i < end; i++) {
+                tl = vertexs.length;
                 if (quaMap[i] == 0) {
                     u = quau[i];
                     v = quav[i];
@@ -814,13 +832,13 @@
         function getr(u, v) {
             //return 1.0f;
             //return float(rand() % 256) / 256;
-            return cos(v * 1.5708) / 2 + 0.5;
+            return sin(v * 3.1416) / 2 + 0.5;
         }
 
         function getg(u, v) {
             //return 1.0f;
             //return float(rand() % 256) / 256;
-            return cos(u * 1.5708) / 2 + 0.5;
+            return sin(u * 3.1416) / 2 + 0.5;
         }
 
         function getb(u, v) {
@@ -839,18 +857,18 @@
             var VSHADER_SOURCE =
                 "#version 100 \n" +
                 "precision highp float;\n" +
-                "attribute vec4 vertex,normal,color;" +
+                "attribute vec3 vertex,normal,color;" +
                 "varying vec4 fc;" +
                 "varying vec4 a;" +
                 "float l;" +
                 "varying vec4 ntemp;" +
                 "uniform mat4 view,project;" +
                 "void main() {" +
-                "   ntemp=normal;" +
-                "   ntemp.w=0.0;" +
+                "   ntemp=vec4(normal,0.0);" +
                 "	ntemp = view * ntemp;" +
-                "	a = view* vertex;" +
-                "	fc = color;" +
+                "   a=vec4(vertex,1.0);" +
+                "	a = view* a;" +
+                "	fc = vec4(color,1.0);" +
                 "	gl_Position =  project*a;" +
                 "}";
 
@@ -872,11 +890,10 @@
                 "	texdir=reflect(b,c);" +
                 "	s=texdir.x*0.276+texdir.y*0.920+texdir.z*0.276;" +
                 "	t=c.x*0.276+c.y*0.920+c.z*0.276;" +
-                "	t=0.6*t+0.4*sqrt(t*t+0.21);" +
+                "	t=0.5*t+0.46875*sqrt(t*t+0.137778);" +
                 "	s=(s>0.0)?s:0.0;" +
-                "	s=s*s;" +
-                "	s=s*s;" +
-                "	s=s*0.55+t*0.30+0.10;" +
+                "	s=pow(s,4.0);" +
+                "	s=s*0.54+t*0.40+0.05;" +
                 "	s=pow(s,0.5);" +
                 "	gl_FragColor.r = fc.r*s;" +
                 "	gl_FragColor.g = fc.g*s;" +
@@ -923,28 +940,22 @@
             window.requestAnimationFrame(ontimer);
 
             sep();
-            alert("end:" + end);
             scan();
-            alert("triangles:" + vertexs.length / 12);
+            alert("end:"+end+"\ntriangles:" + vertexs.length / 9);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glvertex, 4, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(glvertex, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(glvertex);
             gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glnormal, 4, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(glnormal, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(glnormal);
             gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glcolor, 4, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(glcolor, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(glcolor);
-            points = vertexs.length / 4;
-        }
-        function ontimer() {
-            //ang1+=0.01;
-            draw();
-            window.requestAnimationFrame(ontimer);
+            points = vertexs.length / 3;
         }
         function draw() {
             mat = Array(16);
@@ -1143,26 +1154,25 @@
             s = document.getElementById("kernel").value;
             eval(s);
             sep();
-            alert("end:" + end);
             vertexs.length = 0;
             normals.length = 0;
             colors.length = 0;
             scan();
-            alert("triangles:" + vertexs.length / 12);
+            alert("end:"+end+"\ntriangles:" + vertexs.length / 9);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glvertex, 4, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(glvertex, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(glvertex);
             gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glnormal, 4, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(glnormal, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(glnormal);
             gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glcolor, 4, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(glcolor, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(glcolor);
-            points = vertexs.length / 4;
+            points = vertexs.length / 3;
         });
         document.getElementById("cancle").addEventListener("click", function() {
             document.getElementById("kernel").value = s;
