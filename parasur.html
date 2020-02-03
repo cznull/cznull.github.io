@@ -78,14 +78,12 @@
         var quau = Array();
         var quav = Array();
         var end = 0;
-        var parasur = new Object();
-        var vertexs = Array(), colors = Array(), normals = Array();
         var s = "getv = function (u,v){u=u*2-1;v=v*2-1;\n\treturn {\n\t\"x\":u,\n\t\"y\":v,\n\t\"z\":cos((u*u - v * v)*6.2832 * 10)\n};\n};" +//*sqrt(1 - u * u - v * v)
             "\nMapSize = 2883584;" +
             "\nnoqi = 32;" +
             "\nNoq = 8192;" +
             "\ncoslim = 1.0 - 1.0 / 1.34375;" +
-            "\naculim = 0.002;";
+            "\naculim = 0.0012;";
 
         cos = Math.cos;
         sin = Math.sin;
@@ -93,20 +91,13 @@
         max = Math.max;
         min = Math.min;
         abs = Math.abs;
-        parasur.ul = -1;
-        parasur.uh = 1;
-        parasur.vl = -1;
-        parasur.vh = 1;
 
-        function push3(v) {
+        Array.prototype.push3 = function (v) {
             this.push(v.x);
             this.push(v.y);
             this.push(v.z);
-        //    this.push(1.0);
         }
-        vertexs.push3 = push3;
-        colors.push3 = push3;
-        normals.push3 = push3;
+        var vertexs = Array(), colors = Array(), normals = Array();
 
         function convertolinear(a) {
             var b = [];
@@ -941,7 +932,7 @@
 
             sep();
             scan();
-            alert("end:"+end+"\ntriangles:" + vertexs.length / 9);
+            alert("end:"+end+"\ntriangles:" + vertexs.length / 9+"\ncreated by Admin_12306@bilibili\nclick apply to generate a new model\nit will take several seconeds");
 
             gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
