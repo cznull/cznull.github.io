@@ -59,8 +59,8 @@
         var cenx = 0.0;
         var ceny = 0.0;
         var cenz = 0.0;
-        var vbuffer, cbuffer, nbuffer;
-        var points = 0;
+        var vbuffer=[], cbuffer=[], nbuffer=[];
+        var points = [];
         var MapSize =1048580;
         var noqi = 32;
         var Noq = 4096;
@@ -84,10 +84,10 @@
             "       \"z\":cos((u*u - v * v)*6.2832 * 10)\n" +
             "   };\n" +
             "};\n"+
-            "MapSize = 2883584;\n" +
+            "MapSize = 4194304;\n" +
             "noqi = 32;\n" +
             "Noq = 8192;\n" +
-            "coslim = 1.0 - 1.0 / 1.3125;\n" +
+            "coslim = 1.0 - 1.0 / 12;\n" +
             "aculim = 0.001;\n";
 
         cos = Math.cos;
@@ -102,7 +102,7 @@
             this.push(v.y);
             this.push(v.z);
         }
-        var vertexs = Array(), colors = Array(), normals = Array();
+        var vertexs = [], colors = [], normals = [];
 
         function convertolinear(a) {
             var b = [];
@@ -357,6 +357,20 @@
         }
 
         function scan() {
+            for (var i = 0; i < vbuffer.length; i++) {
+                gl.deleteBuffer(vbuffer[i]);
+                gl.deleteBuffer(cbuffer[i]);
+                gl.deleteBuffer(nbuffer[i]);
+            }
+            vbuffer = [];
+            nbuffer = [];
+            cbuffer = [];
+            points = [];
+
+            vertexs.length = 0;
+            normals.length = 0;
+            colors.length = 0;
+
             var i;
             var u, v, l;
             var vertex = Array(5), normal = Array(5);
@@ -418,8 +432,33 @@
                         tri1(vertexs, colors, normals, vertex[3], vertex[0], vertex[4], normal[3], normal[0], normal[4], c[3], c[0], c[4], l);
                     }
                 }
+                if (vertexs.length > 1048576 * 16) {
+                    pushv();
+                }
             }
-            vercount = normals.end;
+            pushv();
+        }
+
+        function pushv() {
+            if (vertexs.length > 2) {
+                vbuffer.push(gl.createBuffer());
+                gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer[vbuffer.length - 1]);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
+
+                nbuffer.push(gl.createBuffer());
+                gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer[nbuffer.length - 1]);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+
+                cbuffer.push(gl.createBuffer());
+                gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer[cbuffer.length - 1]);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+                points.push(vertexs.length / 3);
+            }
+            vertexs.length = 0;
+            normals.length = 0;
+            colors.length = 0;
+
         }
 
         function tri1(vertexs, colors, normals, v1, v2, v3, n1, n2, n3, c1, c2, c3, l) {
@@ -926,32 +965,22 @@
             glcolor = gl.getAttribLocation(shaderProgram, 'color');
             glview = gl.getUniformLocation(shaderProgram, 'view');
             glproject = gl.getUniformLocation(shaderProgram, 'project');
+            
+            gl.enableVertexAttribArray(glvertex);
+            gl.enableVertexAttribArray(glnormal);
+            gl.enableVertexAttribArray(glcolor);
 
-            vbuffer = gl.createBuffer();
-            nbuffer = gl.createBuffer();
-            cbuffer = gl.createBuffer();
             gl.viewport(0, 0, cx, cy);
-            draw();
             window.requestAnimationFrame(ontimer);
 
             sep();
             scan();
-            alert("end:"+end+"\ntriangles:" + vertexs.length / 9+"\ncreated by Admin_12306@bilibili\nclick apply to generate a new model\nit will take several seconeds");
+            var tric = 0;
+            for (i = 0; i < points.length; i++) { tric += points[i] / 3; }
+            alert("end:" + end + "\ntriangles:" + tric + "\ncreated by Admin_12306@bilibili\nclick apply to generate a new model\nit will take several seconeds");
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glvertex, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(glvertex);
-            gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glnormal, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(glnormal);
-            gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glcolor, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(glcolor);
-            points = vertexs.length / 3;
         }
+
         function draw() {
             mat = Array(16);
             mat[0] = cos(ang1);
@@ -999,8 +1028,16 @@
             mat[14] = -near * far * 2.0 / (far-near);
             mat[15] = 0.0;
             gl.uniformMatrix4fv(glproject, false, new Float32Array(mat));
-            if (points > 2) {
-                gl.drawArrays(gl.TRIANGLES, 0, points);
+            for (var i = 0; i < points.length; i++) {
+                if (points[i] > 2) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer[i]);
+                    gl.vertexAttribPointer(glvertex, 3, gl.FLOAT, false, 0, 0);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer[i]);
+                    gl.vertexAttribPointer(glnormal, 3, gl.FLOAT, false, 0, 0);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer[i]);
+                    gl.vertexAttribPointer(glcolor, 3, gl.FLOAT, false, 0, 0);
+                    gl.drawArrays(gl.TRIANGLES, 0, points[i]);
+                }
             }
             //gl.finish();
         }
@@ -1149,25 +1186,10 @@
             s = document.getElementById("kernel").value;
             eval(s);
             sep();
-            vertexs.length = 0;
-            normals.length = 0;
-            colors.length = 0;
             scan();
-            alert("end:"+end+"\ntriangles:" + vertexs.length / 9);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexs), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glvertex, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(glvertex);
-            gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glnormal, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(glnormal);
-            gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(glcolor, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(glcolor);
-            points = vertexs.length / 3;
+            var tric = 0;
+            for (i = 0; i < points.length; i++) { tric += points[i] / 3; }
+            alert("end:"+end+"\ntriangles:" + tric);
         });
         document.getElementById("cancle").addEventListener("click", function() {
             document.getElementById("kernel").value = s;
