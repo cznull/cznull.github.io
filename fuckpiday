@@ -1,0 +1,231 @@
+
+struct opt {
+	double a, b;
+	int o;
+};
+
+double f(int x) {
+	double fa = 1;
+	for (int i = 2; i <= x; i++) {
+		fa *= i;
+	}
+	return fa;
+}
+
+int pisearch(const double* x, int n, double* ws, opt* ov, double& dmin, int ft) {
+	double d;
+	opt& o = ov[0];
+	int nm = 0, nmo;
+
+	if (n == 1) {
+		d = abs(PI - x[0]);
+		if (d < dmin) {
+			dmin = d;
+			ov[0].a = 0.0;
+			ov[0].b = 0.0;
+			ov[0].o = 11;
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	if (ft > 0 && floor(x[n - 1]) == x[n - 1] && x[n - 1] > 1 && x[n - 1] > 2.0 && x[n - 1] <= 150.0) {
+		for (int k = 0; k < n - 1; k++) {
+			ws[k] = x[k];
+		}
+		ws[n - 1] = f(x[n - 1]);
+		nmo = pisearch(ws, n, ws + n, ov + 1, dmin, ft - 1);
+		if (nmo) {
+			o.a = x[n - 1];
+			o.b = x[n - 1];
+			o.o = 10;
+			nm = 1;
+		}
+	}
+
+	for (int i = 1; i < n; i++) {
+		for (int j = 0; j < i; j++) {
+			int k;
+			for (k = 0; k < j; k++) {
+				ws[k] = x[k];
+			}
+			for (k++; k < i; k++) {
+				ws[k - 1] = x[k];
+			}
+			for (k++; k < n; k++) {
+				ws[k - 2] = x[k];
+			}
+			double &c=ws[n-2];
+
+			c = x[i] * x[j];
+			nmo=pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 0;
+				nm = 1;
+			}
+
+			c = x[i] / x[j];
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 1;
+				nm = 1;
+			}
+
+			c = x[j] / x[i];
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 2;
+				nm = 1;
+			}
+
+			c = x[i] + x[j];
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 3;
+				nm = 1;
+			}
+
+			c = x[i] - x[j];
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 4;
+				nm = 1;
+			}
+
+			c = x[j] - x[i];
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 5;
+				nm = 1;
+			}
+
+			c = log(x[i])/log(x[j]);
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 6;
+				nm = 1;
+			}
+
+			c = log(x[j])/log(x[i]);
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 7;
+				nm = 1;
+			}
+
+			c = exp(log(x[i]) * x[j]);
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 8;
+				nm = 1;
+			}
+
+			c = exp(log(x[j]) * x[i]);
+			nmo = pisearch(ws, n - 1, ws + n - 1, ov + 1, dmin, ft);
+			if (nmo) {
+				o.a = x[i];
+				o.b = x[j];
+				o.o = 9;
+				nm = 1;
+			}
+
+		}
+	}
+	return nm;
+}
+
+const char* otable[12] = { "*","/","_/","+","-","_-","log","_log","exp","exp","!","\\" };
+
+
+int pis4(const double* x, int ft, double* ws, double& dmin, opt* ov) {
+	memcpy(ws, x, 4 * sizeof(double));
+	int nm = 0, nmo;
+	nm = pisearch(ws, 4, ws + 4, ov, dmin, ft);
+	for (int i = 0; i < 3; i++) {
+		if (ws[i] > 2 && ws[i] <= 150) {
+			memcpy(ws, x, 4 * sizeof(double));
+			ws[i] = f(ws[i]);
+			nmo = pis4(ws, ft - 1, ws + 4, dmin, ov + 1);
+			if (nmo) {
+				ov[0].a = x[i];
+				ov[0].b = x[i];
+				ov[0].o = 10;
+				nm = 1;
+			}
+		}
+	}
+	return nm;
+}
+
+int pis(double *x,int n) {
+	double ws[128];
+	opt o[128] = { 0 };
+	double dmin = 10.0;
+	int nmo;
+
+	int index[4] = { 0,1,2,3 };
+	for (;;) {
+		for (int i = 0; i < 4; i++) {
+			ws[i] = x[index[i]-i];
+		//	printf("%d,", index[i]);
+		}
+		//printf("\n");
+		nmo=pis4(ws, 50, ws + 4, dmin, o);
+		if (nmo) {
+			printf("%e\n", dmin);
+			for (int i = 0; i < 10; i++) {
+				printf("%f,%f,%s\n", o[i].a, o[i].b, otable[o[i].o]);
+			}
+		}
+
+		if (index[3] < n - 1) {
+			index[3]++;
+		}
+		else {
+			int j;
+			for (j = 3; j >= 0; j--) {
+				if (index[j] < n - 4 + j) {
+					break;
+				}
+			}
+			if (j >= 0) {
+				index[j]++;
+				for (int k = j + 1; k < 4; k++) {
+					index[k] = k - j + index[j];
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int main(int argc,char **argv)
+{
+	double x[20] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+	pis(x, 23);
+  return 0;
+}
