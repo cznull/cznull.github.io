@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+    </style>
+</head>
+<body>
+    <input type="file" onchange="upload(this)" multiple/>
+    <table id="result" rules="all"></table>
+<script>
+    
+    function gfit() {
+
+        function g(x, p) {
+            return p[0] * Math.exp(- 2 * (x - p[2]) * (x - p[2]) / p[1] / p[1]) + p[3];
+        }
+
+        function l(x, y, p) {
+            var ls = 0;
+            for (var i = 0; i < x.length; i++) {
+                d = y[i] - g(x[i], p);
+                ls += d * d;
+            }
+            return ls;
+        }
+
+        function fit(x, y, start) {
+            var r = new Array(start.length);
+            var d = new Array(start.length);
+            var dl = new Array(start.length);
+            var cur = new Array(start.length);
+            var temp = new Array(start.length);
+
+            for (var i = 0; i < start.length; i++) {
+                d[i] = 0.001;
+                cur[i] = start[i];
+                r[i] = 1e-6;
+            }
+
+            var l1, l2;
+
+            for (var j = 0; j < 200; j++) {
+
+                for (var i = 0; i < start.length; i++) {
+                    temp[i] = start[i];
+                }
+
+                for (var i = 0; i < start.length; i++) {
+
+                    temp[i] = start[i] + d[i] * 0.5;
+                    dl[i] = l(x, y, temp);
+                    temp[i] = start[i] - d[i] * 0.5;
+                    dl[i] = (dl[i] - l(x, y, temp)) / d[i];
+
+                    cur[i] = start[i] - r[i] * dl[i];
+                    l1 = l(x, y, start);
+                    l2 = l(x, y, cur);
+                    //console.log("l1=" + l1 + ",l2=" + l2);
+
+                    if (l2 < l1) {
+                        start[i] = (cur[i] - start[i]) * 0.2 + start[i];
+                        d[i] = r[i] * dl[i] * 0.25;
+                        r[i] = r[i] * 1.25;
+                    }
+                    else {
+                        r[i] = r[i] * 0.5;
+                    }
+                    cur[i] = start[i];
+                    temp[i] = start[i];
+
+                }
+                //console.log(start);
+                //console.log(cur);
+                //console.log(dl);
+                //console.log(r);
+            }
+        }
+        return [fit,g];
+    }
+    function upload(files) {
+        for (var i = 0; i < files.files.length; i++) {
+            var reader = new FileReader();
+
+            reader.onload = (function (i) {
+                return function () {
+                    var x = new Array();
+                    var y = new Array();
+                    line = this.result.split('\r\n');
+                    for (var j = 0; j < line.length; j++) {
+                        ds = line[j].split('\t');
+                        if (ds.length == 2 && isFinite(Number(ds[0])) && isFinite(Number(ds[0]))) {
+                            x.push(Number(ds[0]));
+                            y.push(Number(ds[1]));
+                        }
+                    }
+                    if (x.length) {
+                        xc = x[0];
+                        ym = y[0];
+                        ic = 0;
+                        xl = x[0];
+                        xr = x[0];
+                        var k;
+                        for (k = 0; k < x.length; k++) {
+                            if (y[k] > ym) {
+                                ym = y[k];
+                                xc = x[k];
+                                ic = k;
+                            }
+                        }
+                        for (k = 0; k < ic; k++) {
+                            if (y[k] > 0.5 * ym) {
+                                xl = x[k];
+                                break;
+                            }
+                        }
+
+                        for (k = ic; k < x.length; k++) {
+                            if (y[k] < 0.5 * ym) {
+                                xr = x[k];
+                                break;
+                            }
+                        }
+                    }
+                    var start = [ym, (xr - xl) / 2 / Math.log(2), xc, 0];
+                    var fitf = gfit();
+                    fitf[0](x, y, start);
+                    e = document.createElement("tr");
+                    e.innerHTML = "<th>" + files.files[i].name + "</th><th>" + start[2] + "</th><th>" + start[1] + "</th>";
+                    s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    s.style.width = "320px";
+                    s.style.height = "180px";
+                    var ps = "";
+                    var k; 
+                    
+                    for (k = 0; k < x.length; k++) {
+                        var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * 320;
+                        p.style.cy = "" + (y[k] / ym * -0.8 + 0.9) * 180;
+                        p.style.fill = "blue";
+                        p.style.r = "1";
+                        s.appendChild(p);
+                    }
+
+                    for (k = 0; k < 200; ) {
+                        var curve = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        curve.setAttribute("x1", "" + (320 * k / 200));
+                        curve.setAttribute("y1", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * 180);
+                        k++;
+                        curve.setAttribute("x2", "" + (320 * k / 200));
+                        curve.setAttribute("y2", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * 180);
+                        curve.style.stroke = "red";
+                        curve.style.strokeWidth = "1";
+                        s.appendChild(curve);
+                    }
+                    t=document.createElement("th");
+                    t.appendChild(s);
+                    e.appendChild(t);
+                    document.getElementById("result").appendChild(e);
+                }
+            })(i);
+            reader.readAsText(files.files[i]);
+        }
+    }
+
+</script>
+</body>
+</html>
