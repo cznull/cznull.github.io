@@ -5,22 +5,26 @@
     <meta charset="utf-8" />
     <title></title>
     <style>
+        #main{
+        }
     </style>
 </head>
 <body>
-    <table id="result" rules="all">
-        <thead>
-            <tr>
-                <th>filename</th>
-                <th>x0</th>
-                <th>w</th>
-                <th>dx</th>
-                <th>image</th>
-                <th>data</th>
-            </tr>
-        </thead>
-    </table>
-    <input type="file" id="main" multiple />
+    <div id="main">
+        <table id="result" rules="all">
+            <thead>
+                <tr>
+                    <th>filename</th>
+                    <th>x0</th>
+                    <th>w</th>
+                    <th>dx</th>
+                    <th>image</th>
+                    <th>data</th>
+                </tr>
+            </thead>
+        </table>
+        <input type="file" id="in" multiple />
+    </div>
     <script>
         "use strict";
         function gfit() {
@@ -479,22 +483,75 @@
                         var lh = document.createElement("tr");
                         lh.innerHTML = "<th>index</th><th>x</th>";
                         subtable.appendChild(lh);
-                        for (k = 0; k < xi.length; k++) {
-                            var l = document.createElement("tr");
-                            l.innerHTML = "<td contenteditable=\"true\">" + (xi[k] - Math.floor((start[2] - autop.x0) / autop.dx + 0.5)) + "</td><td contenteditable=\"true\">" + maxx[k] + "</td>";
-                            var b = document.createElement("button");
-                            b.innerText = "remove";
-                            b.addEventListener("click", function () {
-                                this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
-                            });
-                            var td = document.createElement("td");
-                            td.style.border = "none";
-                            td.appendChild(b);
-                            l.appendChild(td);
-                            subtable.appendChild(l);
+
+                        function addtable() {
+                            for (k = 0; k < xi.length; k++) {
+                                var l = document.createElement("tr");
+                                l.innerHTML = "<td contenteditable=\"true\">" + (xi[k] - Math.floor((start[2] - autop.x0) / autop.dx + 0.5)) + "</td><td contenteditable=\"true\">" + maxx[k] + "</td>";
+                                var b = document.createElement("button");
+                                b.innerText = "remove";
+                                b.addEventListener("click", function () {
+                                    this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+                                });
+                                var td = document.createElement("td");
+                                td.style.border = "none";
+                                td.appendChild(b);
+                                l.appendChild(td);
+                                subtable.appendChild(l);
+                            }
                         }
+                        addtable();
+
                         t.appendChild(subtable);
 
+                        var b = document.createElement("button");
+                        b.innerText = "reset";
+                        var re = function () {
+                            for (k = Math.floor(fitf[6](xi).v); k <= fitf[4](xi).v; k++) {
+                                s.removeChild(s.lastChild);
+                            }
+                            for (k = 0; k < maxx.length; k++) {
+                                s.removeChild(s.lastChild);
+                            }
+                            xi.length = 0;
+                            maxx.length = 0;
+                            if (x.length > 1000) {
+                                for (k = 50; k < x.length - 50; k++) {
+                                    for (l = -50; l < 51; l++) {
+                                        if (y2[k] < y2[k + l]) {
+                                            break;
+                                        }
+                                    }
+                                    if (l == 51) {
+                                        if (Math.abs(x[k] - start[2]) > start[1]) {
+                                            maxx.push(x[k]);
+                                        }
+                                    }
+                                }
+                            }
+                            if (maxx.length > 1) {
+                                var autop = fitf[5](maxx, x[x.length - 1] - x[0]);
+                                for (j = 0; j < maxx.length; j++) {
+                                    xi[j] = Math.floor((maxx[j] - autop.x0) / autop.dx + 0.5);
+                                }
+                                x0 = 0; dx = 0;
+                                var m = fitf[3](xi, 2);
+                                for (j = 0; j < maxx.length; j++) {
+                                    x0 += m[j] * maxx[j];
+                                    dx += m[j + maxx.length] * maxx[j];
+                                }
+                                e.children[3].innerText = "" + dx;
+
+                                while (subtable.children.length > 1) {
+                                    subtable.removeChild(subtable.children[subtable.children.length - 1]);
+                                }
+                                addtable();
+                            }
+                            afl();
+                        }
+                        b.addEventListener("click", re);
+                        t.appendChild(b);
+                            
                         var b = document.createElement("button");
                         b.innerText = "autoindex";
                         var ai = function () {
@@ -531,8 +588,8 @@
                         t.appendChild(b);
 
                         var b = document.createElement("button");
-                        b.innerText = "re";
-                        var re = function () {
+                        b.innerText = "update";
+                        var update = function () {
                             for (k = Math.floor(fitf[6](xi).v); k <= fitf[4](xi).v; k++) {
                                 s.removeChild(s.lastChild);
                             }
@@ -556,7 +613,7 @@
                             }
                             afl();
                         }
-                        b.addEventListener("click", re);
+                        b.addEventListener("click", update);
                         t.appendChild(b);
 
                         var b = document.createElement("button");
@@ -584,7 +641,7 @@
                 reader.readAsText(this.files[i]);
             }
         }
-        document.getElementById("main").addEventListener("change", upload);
+        document.getElementById("in").addEventListener("change", upload);
 
     </script>
 </body>
