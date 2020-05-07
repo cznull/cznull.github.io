@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -8,163 +8,586 @@
     </style>
 </head>
 <body>
-    <input type="file" onchange="upload(this)" multiple/>
-    <table id="result" rules="all"></table>
-<script>
-    
-    function gfit() {
-
-        function g(x, p) {
-            return p[0] * Math.exp(- 2 * (x - p[2]) * (x - p[2]) / p[1] / p[1]) + p[3];
-        }
-
-        function l(x, y, p) {
-            var ls = 0;
-            for (var i = 0; i < x.length; i++) {
-                d = y[i] - g(x[i], p);
-                ls += d * d;
-            }
-            return ls;
-        }
-
-        function fit(x, y, start) {
-            var r = new Array(start.length);
-            var d = new Array(start.length);
-            var dl = new Array(start.length);
-            var cur = new Array(start.length);
-            var temp = new Array(start.length);
-
-            for (var i = 0; i < start.length; i++) {
-                d[i] = 0.001;
-                cur[i] = start[i];
-                r[i] = 1e-6;
+    <table id="result" rules="all">
+        <thead>
+            <tr>
+                <th>filename</th>
+                <th>x0</th>
+                <th>w</th>
+                <th>dx</th>
+                <th>image</th>
+                <th>data</th>
+            </tr>
+        </thead>
+    </table>
+    <input type="file" id="main" multiple />
+    <script>
+        "use strict";
+        function gfit() {
+            function g(x, p) {
+                return p[0] * Math.exp(- 2 * (x - p[2]) * (x - p[2]) / p[1] / p[1]) + p[3];
             }
 
-            var l1, l2;
+            function dg(x, p) {
+                return [
+                    Math.exp(- 2 * (x - p[2]) * (x - p[2]) / p[1] / p[1]),
+                    p[0] * Math.exp(- 2 * (x - p[2]) * (x - p[2]) / p[1] / p[1]) * 4 * (x - p[2]) * (x - p[2]) / p[1] / p[1] / p[1],
+                    p[0] * Math.exp(- 2 * (x - p[2]) * (x - p[2]) / p[1] / p[1]) * 4 * (x - p[2]) / p[1] / p[1],
+                    1
+                ];
+            }
 
-            for (var j = 0; j < 200; j++) {
-
-                for (var i = 0; i < start.length; i++) {
-                    temp[i] = start[i];
+            function l(x, y, p) {
+                var ls = 0;
+                for (var i = 0; i < x.length; i++) {
+                    var d = y[i] - g(x[i], p);
+                    ls += d * d;
                 }
-
-                for (var i = 0; i < start.length; i++) {
-
-                    temp[i] = start[i] + d[i] * 0.5;
-                    dl[i] = l(x, y, temp);
-                    temp[i] = start[i] - d[i] * 0.5;
-                    dl[i] = (dl[i] - l(x, y, temp)) / d[i];
-
-                    cur[i] = start[i] - r[i] * dl[i];
-                    l1 = l(x, y, start);
-                    l2 = l(x, y, cur);
-                    //console.log("l1=" + l1 + ",l2=" + l2);
-
-                    if (l2 < l1) {
-                        start[i] = (cur[i] - start[i]) * 0.2 + start[i];
-                        d[i] = r[i] * dl[i] * 0.25;
-                        r[i] = r[i] * 1.25;
-                    }
-                    else {
-                        r[i] = r[i] * 0.5;
-                    }
-                    cur[i] = start[i];
-                    temp[i] = start[i];
-
-                }
-                //console.log(start);
-                //console.log(cur);
-                //console.log(dl);
-                //console.log(r);
+                return ls;
             }
-        }
-        return [fit,g];
-    }
-    function upload(files) {
-        for (var i = 0; i < files.files.length; i++) {
-            var reader = new FileReader();
 
-            reader.onload = (function (i) {
-                return function () {
-                    var x = new Array();
-                    var y = new Array();
-                    line = this.result.split('\r\n');
-                    for (var j = 0; j < line.length; j++) {
-                        ds = line[j].split('\t');
-                        if (ds.length == 2 && isFinite(Number(ds[0])) && isFinite(Number(ds[0]))) {
-                            x.push(Number(ds[0]));
-                            y.push(Number(ds[1]));
-                        }
-                    }
-                    if (x.length) {
-                        xc = x[0];
-                        ym = y[0];
-                        ic = 0;
-                        xl = x[0];
-                        xr = x[0];
-                        var k;
-                        for (k = 0; k < x.length; k++) {
-                            if (y[k] > ym) {
-                                ym = y[k];
-                                xc = x[k];
-                                ic = k;
-                            }
-                        }
-                        for (k = 0; k < ic; k++) {
-                            if (y[k] > 0.5 * ym) {
-                                xl = x[k];
-                                break;
-                            }
-                        }
-
-                        for (k = ic; k < x.length; k++) {
-                            if (y[k] < 0.5 * ym) {
-                                xr = x[k];
-                                break;
-                            }
-                        }
-                    }
-                    var start = [ym, (xr - xl) / 2 / Math.log(2), xc, 0];
-                    var fitf = gfit();
-                    fitf[0](x, y, start);
-                    e = document.createElement("tr");
-                    e.innerHTML = "<th>" + files.files[i].name + "</th><th>" + start[2] + "</th><th>" + start[1] + "</th>";
-                    s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    s.style.width = "320px";
-                    s.style.height = "180px";
-                    var ps = "";
-                    var k; 
-                    
+            function fitm2m(x, y, start) {
+                var mt = new Array(start.length * x.length);
+                var dy = new Array(x.length);
+                var ds = new Array(start.length);
+                for (var i = 0; i < 8; i++) {
+                    var j, k;
                     for (k = 0; k < x.length; k++) {
-                        var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                        p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * 320;
-                        p.style.cy = "" + (y[k] / ym * -0.8 + 0.9) * 180;
-                        p.style.fill = "blue";
-                        p.style.r = "1";
-                        s.appendChild(p);
+                        var dp = dg(x[k], start);
+                        for (j = 0; j < start.length; j++) {
+                            mt[j * x.length + k] = dp[j];
+                        }
+                    }
+                    mt = solvem2m(mt, start.length, x.length);
+                    for (k = 0; k < x.length; k++) {
+                        dy[k] = y[k] - g(x[k], start);
                     }
 
-                    for (k = 0; k < 200; ) {
-                        var curve = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                        curve.setAttribute("x1", "" + (320 * k / 200));
-                        curve.setAttribute("y1", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * 180);
-                        k++;
-                        curve.setAttribute("x2", "" + (320 * k / 200));
-                        curve.setAttribute("y2", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * 180);
-                        curve.style.stroke = "red";
-                        curve.style.strokeWidth = "1";
-                        s.appendChild(curve);
+                    for (j = 0; j < start.length; j++) {
+                        ds[j] = 0;
+                        for (k = 0; k < x.length; k++) {
+                            ds[j] += dy[k] * mt[j * x.length + k];
+                        }
                     }
-                    t=document.createElement("th");
-                    t.appendChild(s);
-                    e.appendChild(t);
-                    document.getElementById("result").appendChild(e);
+                    for (j = 0; j < start.length; j++) {
+                        start[j] = start[j] + ds[j];
+                    }
                 }
-            })(i);
-            reader.readAsText(files.files[i]);
-        }
-    }
+            }
 
-</script>
+
+            function fit(x, y, start) {
+                var r = new Array(start.length);
+                var d = new Array(start.length);
+                var dl = new Array(start.length);
+                var cur = new Array(start.length);
+                var temp = new Array(start.length);
+
+                for (var i = 0; i < start.length; i++) {
+                    d[i] = 0.001;
+                    cur[i] = start[i];
+                    r[i] = 1e-6;
+                }
+
+                var l1, l2;
+
+                for (var j = 0; j < 200; j++) {
+
+                    for (var i = 0; i < start.length; i++) {
+                        temp[i] = start[i];
+                    }
+
+                    for (var i = 0; i < start.length; i++) {
+                        temp[i] = start[i] + d[i] * 0.5;
+                        dl[i] = l(x, y, temp);
+                        temp[i] = start[i] - d[i] * 0.5;
+                        dl[i] = (dl[i] - l(x, y, temp)) / d[i];
+
+                        cur[i] = start[i] - r[i] * dl[i];
+                        l1 = l(x, y, start);
+                        l2 = l(x, y, cur);
+
+                        if (l2 < l1) {
+                            start[i] = (cur[i] - start[i]) * 0.2 + start[i];
+                            d[i] = r[i] * dl[i] * 0.25;
+                            r[i] = r[i] * 1.25;
+                        }
+                        else {
+                            r[i] = r[i] * 0.5;
+                        }
+                        cur[i] = start[i];
+                        temp[i] = start[i];
+                    }
+                }
+            }
+
+            function solvem2m(mt, n, l) {
+                var m = new Array(n * n);
+                var i, j, k;
+                for (i = 0; i < n; i++) {
+                    for (j = 0; j < n; j++) {
+                        m[i * n + j] = 0;
+                        for (k = 0; k < l; k++) {
+                            m[i * n + j] += mt[j * l + k] * mt[i * l + k];
+                        }
+                    }
+                }
+                var e;
+                for (i = 0; i < n; i++) {
+                    e = 1 / m[i * n + i];
+                    m[i * n + i] = 1;
+                    for (k = i + 1; k < n; k++) {
+                        m[i * n + k] *= e;
+                    }
+                    for (k = 0; k < l; k++) {
+                        mt[i * l + k] *= e;
+                    }
+                    for (j = i + 1; j < n; j++) {
+                        e = m[j * n + i];
+                        m[j * n + i] = 0;
+                        for (k = i + 1; k < n; k++) {
+                            m[j * n + k] -= m[i * n + k] * e;
+                        }
+                        for (k = 0; k < l; k++) {
+                            mt[j * l + k] -= mt[i * l + k] * e;
+                        }
+                    }
+                }
+                for (i = n - 1; i > 0; i--) {
+                    for (j = i - 1; j >= 0; j--) {
+                        e = m[j * n + i];
+                        for (k = 0; k < l; k++) {
+                            mt[j * l + k] -= mt[i * l + k] * e;
+                        }
+                    }
+                }
+                return mt;
+            }
+
+            function m2m(x, n) {
+                var mt = new Array(n * x.length);
+                var j, k;
+                for (j = 0; j < n; j++) {
+                    for (k = 0; k < x.length; k++) {
+                        mt[j * x.length + k] = Math.pow(x[k], j);
+                    }
+                }
+                return solvem2m(mt, n, x.length);
+            }
+
+            function s(x, y, l, n) {
+                var xs = new Array(l);
+                var i;
+                for (i = 0; i < l; i++) {
+                    xs[i] = x[i] - x[(l - 1) / 2];
+                }
+                var xc = m2m(xs, n);
+                var ys = new Array(x.length);
+
+                var c = new Array(n);
+
+                for (var k = 0; k < n; k++) {
+                    c[k] = 0.0;
+                    for (var j = 0; j < l; j++) {
+                        c[k] += y[j] * xc[k * l + j];
+                    }
+                }
+                for (i = 0; i < (l - 1) / 2; i++) {
+                    ys[i] = 0;
+                    for (var k = 0; k < n; k++) {
+                        ys[i] += c[k] * Math.pow(xs[i], k);
+                    }
+                }
+
+                for (; i < x.length - (l - 1) / 2; i++) {
+                    ys[i] = 0.0;
+                    for (var j = 0; j < l; j++) {
+                        ys[i] += y[i - (l - 1) / 2 + j] * xc[j];
+                    }
+                }
+
+                for (var k = 0; k < n; k++) {
+                    c[k] = 0.0;
+                    for (var j = 0; j < l; j++) {
+                        c[k] += y[x.length - l + j] * xc[k * l + j];
+                    }
+                }
+                for (; i < x.length; i++) {
+                    ys[i] = 0;
+                    for (var k = 0; k < n; k++) {
+                        ys[i] += c[k] * Math.pow(xs[i - x.length + l], k);
+                    }
+                }
+
+                return ys;
+            }
+
+            function max(x) {
+                var m = x[0];
+                var mi = 0;
+                for (var i = 0; i < x.length; i++) {
+                    if (x[i] > m) {
+                        m = x[i];
+                        mi = i;
+                    }
+                }
+                return { "v": m, "i": mi };
+            }
+
+            function min(x) {
+                var m = x[0];
+                var mi = 0;
+                for (var i = 0; i < x.length; i++) {
+                    if (x[i] < m) {
+                        m = x[i];
+                        mi = i;
+                    }
+                }
+                return { "v": m, "i": mi };
+            }
+
+            function sbi(x, r) {
+                var i, j;
+                var m = 0, mx0, mf;
+                for (i = 64; i < 1024; i++) {
+                    var f = i / 32 * 2 * Math.PI / r;
+                    var c = 0, s = 0;
+                    for (j = 0; j < x.length; j++) {
+                        c += Math.cos(x[j] * f);
+                        s += Math.sin(x[j] * f);
+                    }
+                    if (Math.sqrt(s * s + c * c) > m) {
+                        m = Math.sqrt(s * s + c * c);
+                        mf = f;
+                        mx0 = Math.atan2(s, c) / f;
+                    }
+                }
+                return { "x0": mx0, "dx": 2 * Math.PI / mf };
+            }
+            return [fitm2m, g, s, m2m, max, sbi, min];
+        }
+
+        function upload() {
+            for (var i = 0; i < this.files.length; i++) {
+                var reader = new FileReader();
+                reader.onload = function (filename) {
+                    return function () {
+                        var fitf = gfit();
+                        var x = new Array();
+                        var y = new Array();
+                        var j, k, l;
+                        var info = new Object();
+                        var line = this.result.split('\r\n');
+                        for (var j = 0; j < line.length; j++) {
+                            var ds = line[j].split('\t');
+                            if (ds.length == 2) {
+                                if (isFinite(Number(ds[0])) && isFinite(Number(ds[0]))) {
+                                    x.push(Number(ds[0]));
+                                    y.push(Number(ds[1]));
+                                }
+                                else {
+                                    info[ds[0]] = ds[1];
+                                }
+                            }
+                        }
+                        console.log(info);
+
+                        if (x.length) {
+                            var xc = x[0];
+                            var ym = y[0];
+                            var ic = 0;
+                            var xl = x[0];
+                            var xr = x[0];
+                            var k;
+                            for (k = 0; k < x.length; k++) {
+                                if (y[k] > ym) {
+                                    ym = y[k];
+                                    xc = x[k];
+                                    ic = k;
+                                }
+                            }
+                            for (k = 0; k < ic; k++) {
+                                if (y[k] > 0.5 * ym) {
+                                    xl = x[k];
+                                    break;
+                                }
+                            }
+
+                            for (k = ic; k < x.length; k++) {
+                                if (y[k] < 0.5 * ym) {
+                                    xr = x[k];
+                                    break;
+                                }
+                            }
+                        }
+
+                        var start = [ym, (xr - xl) / Math.sqrt(2 * Math.log(2)), xc, 0];
+                        //var start = [ym, 0.1, 34.4, 0];
+                        fitf[0](x, y, start);
+
+                        /*for (k = 64; k < y2.length-64; k++) {
+                            y2[k] = 2*yl[k]-yl[k-1]-yl[k+1];
+                        }
+                        for (k = 0; k < 64; k++) {
+                            y2[k] = 0;
+                            y2[x.length - k - 1] = 0;
+                        }*/
+
+
+
+                        var yl = new Array(x.length);
+                        var fr = new Array(3);
+                        for (k = 0; k < 3; k++) {
+                            fr[k] = start[k];
+                        }
+                        fr[3] = 0
+
+                        for (k = 0; k < x.length; k++) {
+                            yl[k] = Math.asinh(y[k]);
+                        }
+                        var ys = fitf[2](x, yl, 63, 3);
+
+                        var y2 = fitf[2](x, yl, 601, 3);
+                        for (k = 0; k < y2.length; k++) {
+                            y2[k] = Math.asinh(Math.sinh(ys[k]) - Math.sinh(y2[k]));
+                        }
+
+                        /* var y2 = fitf[2](x, y, 31, 3);
+                         for (k = 0; k < y2.length; k++) {
+                             y2[k] = y2[k] - fitf[1](x[k], start);
+                         }*/
+
+                        var maxx = new Array();
+                        for (k = 50; k < x.length - 50; k++) {
+                            for (l = -50; l < 51; l++) {
+                                if (y2[k] < y2[k + l]) {
+                                    break;
+                                }
+                            }
+                            if (l == 51) {
+                                if (Math.abs(x[k] - start[2]) > start[1] * 2) {
+                                    maxx.push(x[k]);
+                                }
+                                else if (Math.abs(x[k] - start[2]) > start[1]) {
+                                    maxx.push(x[k]);
+                                    //maxx.push(start[2]);
+                                }
+                                else {
+                                    //maxx.push(x[k]);
+                                }
+                            }
+                        }
+
+                        var dx = 0, x0 = 0;
+                        var xi = [];
+                        if (maxx.length > 1) {
+                            var autop = fitf[5](maxx, x[x.length - 1] - x[0]);
+                            for (j = 0; j < maxx.length; j++) {
+                                xi[j] = Math.floor((maxx[j] - autop.x0) / autop.dx + 0.5);
+                            }
+                            var m = fitf[3](xi, 2);
+                            for (j = 0; j < maxx.length; j++) {
+                                x0 += m[j] * maxx[j];
+                                dx += m[j + maxx.length] * maxx[j];
+                            }
+                        }
+
+                        var e = document.createElement("tr");
+                        e.innerHTML = "<td>" + filename + "</td><td>" + start[2] + "</td><td>" + start[1] + "</td><td>" + dx + "</td>";
+                        var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+                        var width = 640, height = 360;
+                        s.style.width = width + "px";
+                        s.style.height = height + "px";
+                        
+                        for (k = 0; k < x.length; k++) {
+                            var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width;
+                            p.style.cy = "" + (y[k] / ym * -0.8 + 0.9) * height;
+                            p.style.fill = "blue";
+                            p.style.r = "1";
+                            s.appendChild(p);
+                        }
+
+                        var y2max = fitf[4](y2).v;
+                        var y2min = fitf[6](y2).v;
+                        
+                        for (k = 0; k < x.length; k++) {
+                            var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width;
+                            p.style.cy = "" + ((y2[k] - y2min) / (y2max - y2min) * -0.8 + 0.9) * height;
+                            p.style.fill = "blue";
+                            p.style.r = "1";
+                            s.appendChild(p);
+                        }
+
+                        var y2max = fitf[4](ys).v;
+                        var y2min = fitf[6](ys).v;
+
+                        for (k = 0; k < x.length; k++) {
+                            var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width;
+                            p.style.cy = "" + ((ys[k] - y2min) / (y2max - y2min) * -0.8 + 0.9) * height;
+                            p.style.fill = "#00ffff";
+                            p.style.r = "1";
+                            s.appendChild(p);
+                        }
+
+                        for (k = 0; k < 200;) {
+                            var curve = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            curve.setAttribute("x1", "" + (width * k / 200));
+                            curve.setAttribute("y1", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * height);
+                            k++;
+                            curve.setAttribute("x2", "" + (width * k / 200));
+                            curve.setAttribute("y2", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * height);
+                            curve.style.stroke = "red";
+                            curve.style.strokeWidth = "1";
+                            s.appendChild(curve);
+                        }
+                        
+                        function afl() {
+                            for (k = 0; k < maxx.length; k++) {
+                                var curve = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                                curve.setAttribute("x1", "" + (maxx[k] - x[0]) / (x[x.length - 1] - x[0]) * width);
+                                curve.setAttribute("y1", "" + 0);
+                                curve.setAttribute("x2", "" + (maxx[k] - x[0]) / (x[x.length - 1] - x[0]) * width);
+                                curve.setAttribute("y2", "" + height);
+                                curve.style.stroke = "green";
+                                curve.style.strokeWidth = "1";
+                                s.appendChild(curve);
+                            }
+
+                            for (k = Math.floor(fitf[6](xi).v); k <= fitf[4](xi).v; k++) {
+                                var curve = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                                curve.setAttribute("x1", "" + (x0 + k * dx - x[0]) / (x[x.length - 1] - x[0]) * width);
+                                curve.setAttribute("y1", "" + (0));
+                                curve.setAttribute("x2", "" + (x0 + k * dx - x[0]) / (x[x.length - 1] - x[0]) * width);
+                                curve.setAttribute("y2", "" + (height));
+                                curve.style.stroke = "#ffff00";
+                                curve.style.strokeWidth = "1";
+                                s.appendChild(curve);
+                            }
+                        }
+                        afl();
+
+                        var t = document.createElement("td");
+                        t.appendChild(s);
+                        e.appendChild(t);
+                        document.getElementById("result").appendChild(e);
+
+                        t = document.createElement("td");
+                        var subtable = document.createElement("table");
+                        subtable.setAttribute("rules", "all");
+                        var lh = document.createElement("tr");
+                        lh.innerHTML = "<th>index</th><th>x</th>";
+                        subtable.appendChild(lh);
+                        for (k = 0; k < xi.length; k++) {
+                            var l = document.createElement("tr");
+                            l.innerHTML = "<td contenteditable=\"true\">" + (xi[k] - Math.floor((start[2] - autop.x0) / autop.dx + 0.5)) + "</td><td contenteditable=\"true\">" + maxx[k] + "</td>";
+                            var b = document.createElement("button");
+                            b.innerText = "remove";
+                            b.addEventListener("click", function () {
+                                this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+                            });
+                            var td = document.createElement("td");
+                            td.style.border = "none";
+                            td.appendChild(b);
+                            l.appendChild(td);
+                            subtable.appendChild(l);
+                        }
+                        t.appendChild(subtable);
+
+                        var b = document.createElement("button");
+                        b.innerText = "autoindex";
+                        var ai = function () {
+                            for (k = Math.floor(fitf[6](xi).v); k <= fitf[4](xi).v; k++) {
+                                s.removeChild(s.lastChild);
+                            }
+                            for (k = 0; k < maxx.length; k++) {
+                                s.removeChild(s.lastChild);
+                            }
+                            xi.length = 0;
+                            maxx.length = 0;
+                            for (k = 0; k < subtable.children.length - 1; k++) {
+                                maxx[k] = Number(subtable.children[k + 1].children[1].innerText);
+                            }
+                            if (maxx.length > 1) {
+                                var autop = fitf[5](maxx, x[x.length - 1] - x[0]);
+                                for (j = 0; j < maxx.length; j++) {
+                                    xi[j] = Math.floor((maxx[j] - autop.x0) / autop.dx + 0.5);
+                                }
+                                x0 = 0; dx = 0;
+                                var m = fitf[3](xi, 2);
+                                for (j = 0; j < maxx.length; j++) {
+                                    x0 += m[j] * maxx[j];
+                                    dx += m[j + maxx.length] * maxx[j];
+                                }
+                                e.children[3].innerText = "" + dx;
+                                for (k = 0; k < subtable.children.length - 1; k++) {
+                                    subtable.children[k + 1].children[0].innerText = "" + (xi[k] - Math.floor((start[2] - autop.x0) / autop.dx + 0.5));
+                                }
+                            }
+                            afl();
+                        }
+                        b.addEventListener("click", ai);
+                        t.appendChild(b);
+
+                        var b = document.createElement("button");
+                        b.innerText = "re";
+                        var re = function () {
+                            for (k = Math.floor(fitf[6](xi).v); k <= fitf[4](xi).v; k++) {
+                                s.removeChild(s.lastChild);
+                            }
+                            for (k = 0; k < maxx.length; k++) {
+                                s.removeChild(s.lastChild);
+                            }
+                            xi.length = 0;
+                            maxx.length = 0;
+                            for (k = 0; k < subtable.children.length - 1; k++) {
+                                xi[k] = Number(subtable.children[k + 1].children[0].innerText);
+                                maxx[k] = Number(subtable.children[k + 1].children[1].innerText);
+                            }
+                            x0 = 0; dx = 0;
+                            if (maxx.length > 1) {
+                                var m = fitf[3](xi, 2);
+                                for (j = 0; j < maxx.length; j++) {
+                                    x0 += m[j] * maxx[j];
+                                    dx += m[j + maxx.length] * maxx[j];
+                                }
+                                e.children[3].innerText = "" + dx;
+                            }
+                            afl();
+                        }
+                        b.addEventListener("click", re);
+                        t.appendChild(b);
+
+                        var b = document.createElement("button");
+                        b.innerText = "add";
+                        var addline = function () {
+                            var l = document.createElement("tr");
+                            l.innerHTML = "<td contenteditable=\"true\"></td><td contenteditable=\"true\"></td>";
+                            var b = document.createElement("button");
+                            b.innerText = "remove";
+                            b.addEventListener("click", function () {
+                                this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+                            });
+                            var td = document.createElement("td");
+                            td.style.border = "none";
+                            td.appendChild(b);
+                            l.appendChild(td);
+                            subtable.appendChild(l);
+                        }
+                        b.addEventListener("click", addline);
+                        t.appendChild(b);
+                        e.appendChild(t);
+                        document.getElementById("result").appendChild(e);
+                    }
+                }(this.files[i].name);
+                reader.readAsText(this.files[i]);
+            }
+        }
+        document.getElementById("main").addEventListener("change", upload);
+
+    </script>
 </body>
 </html>
