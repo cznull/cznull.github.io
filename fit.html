@@ -341,39 +341,37 @@
                             fr[k] = start[k];
                         }
                         fr[3] = 0
-
-                        for (k = 0; k < x.length; k++) {
-                            yl[k] = Math.asinh(y[k]);
-                        }
-                        var ys = fitf[2](x, yl, 63, 3);
-
-                        var y2 = fitf[2](x, yl, 601, 3);
-                        for (k = 0; k < y2.length; k++) {
-                            y2[k] = Math.asinh(Math.sinh(ys[k]) - Math.sinh(y2[k]));
-                        }
-
-                        /* var y2 = fitf[2](x, y, 31, 3);
-                         for (k = 0; k < y2.length; k++) {
-                             y2[k] = y2[k] - fitf[1](x[k], start);
-                         }*/
-
+                        
                         var maxx = new Array();
-                        for (k = 50; k < x.length - 50; k++) {
-                            for (l = -50; l < 51; l++) {
-                                if (y2[k] < y2[k + l]) {
-                                    break;
-                                }
+                        var y2 = new Array();
+                        var ys = new Array();
+                        if (x.length > 1000) {
+                            for (k = 0; k < x.length; k++) {
+                                yl[k] = Math.asinh(y[k]);
                             }
-                            if (l == 51) {
-                                if (Math.abs(x[k] - start[2]) > start[1] * 2) {
-                                    maxx.push(x[k]);
+                            var ys = fitf[2](x, yl, 63, 3);
+                            var y2 = fitf[2](x, yl, 601, 3);
+                            for (k = 0; k < y2.length; k++) {
+                                y2[k] = Math.asinh(Math.sinh(ys[k]) - Math.sinh(y2[k]));
+                            }
+
+                            for (k = 50; k < x.length - 50; k++) {
+                                for (l = -50; l < 51; l++) {
+                                    if (y2[k] < y2[k + l]) {
+                                        break;
+                                    }
                                 }
-                                else if (Math.abs(x[k] - start[2]) > start[1]) {
-                                    maxx.push(x[k]);
-                                    //maxx.push(start[2]);
-                                }
-                                else {
-                                    //maxx.push(x[k]);
+                                if (l == 51) {
+                                    if (Math.abs(x[k] - start[2]) > start[1] * 2) {
+                                        maxx.push(x[k]);
+                                    }
+                                    else if (Math.abs(x[k] - start[2]) > start[1]) {
+                                        maxx.push(x[k]);
+                                        //maxx.push(start[2]);
+                                    }
+                                    else {
+                                        //maxx.push(x[k]);
+                                    }
                                 }
                             }
                         }
@@ -402,34 +400,34 @@
                         
                         for (k = 0; k < x.length; k++) {
                             var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                            p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width;
-                            p.style.cy = "" + (y[k] / ym * -0.8 + 0.9) * height;
-                            p.style.fill = "blue";
-                            p.style.r = "1";
+                            p.setAttribute("cx", "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width);
+                            p.setAttribute("cy", "" + (y[k] / ym * -0.8 + 0.9) * height);
+                            p.setAttribute("fill", "blue");
+                            p.setAttribute("r", "1");
                             s.appendChild(p);
                         }
 
                         var y2max = fitf[4](y2).v;
                         var y2min = fitf[6](y2).v;
                         
-                        for (k = 0; k < x.length; k++) {
+                        for (k = 0; k < y2.length; k++) {
                             var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                            p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width;
-                            p.style.cy = "" + ((y2[k] - y2min) / (y2max - y2min) * -0.8 + 0.9) * height;
-                            p.style.fill = "blue";
-                            p.style.r = "1";
+                            p.setAttribute("cx", "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width);
+                            p.setAttribute("cy", "" + ((y2[k] - y2min) / (y2max - y2min) * -0.8 + 0.9) * height);
+                            p.setAttribute("fill", "blue");
+                            p.setAttribute("r", "1");
                             s.appendChild(p);
                         }
 
                         var y2max = fitf[4](ys).v;
                         var y2min = fitf[6](ys).v;
 
-                        for (k = 0; k < x.length; k++) {
+                        for (k = 0; k < ys.length; k++) {
                             var p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                            p.style.cx = "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width;
-                            p.style.cy = "" + ((ys[k] - y2min) / (y2max - y2min) * -0.8 + 0.9) * height;
-                            p.style.fill = "#00ffff";
-                            p.style.r = "1";
+                            p.setAttribute("cx", "" + (x[k] - x[0]) / (x[x.length - 1] - x[0]) * width);
+                            p.setAttribute("cy", "" + ((ys[k] - y2min) / (y2max - y2min) * -0.8 + 0.9) * height);
+                            p.setAttribute("fill", "#00ffff");
+                            p.setAttribute("r", "1");
                             s.appendChild(p);
                         }
 
@@ -440,8 +438,8 @@
                             k++;
                             curve.setAttribute("x2", "" + (width * k / 200));
                             curve.setAttribute("y2", "" + (fitf[1]((x[x.length - 1] - x[0]) * k / 200 + x[0], start) / ym * -0.8 + 0.9) * height);
-                            curve.style.stroke = "red";
-                            curve.style.strokeWidth = "1";
+                            curve.setAttribute("stroke", "red");
+                            curve.setAttribute("strokeWidth", "1");
                             s.appendChild(curve);
                         }
                         
@@ -452,8 +450,8 @@
                                 curve.setAttribute("y1", "" + 0);
                                 curve.setAttribute("x2", "" + (maxx[k] - x[0]) / (x[x.length - 1] - x[0]) * width);
                                 curve.setAttribute("y2", "" + height);
-                                curve.style.stroke = "green";
-                                curve.style.strokeWidth = "1";
+                                curve.setAttribute("stroke", "green");
+                                curve.setAttribute("strokeWidth", "1");
                                 s.appendChild(curve);
                             }
 
@@ -463,8 +461,8 @@
                                 curve.setAttribute("y1", "" + (0));
                                 curve.setAttribute("x2", "" + (x0 + k * dx - x[0]) / (x[x.length - 1] - x[0]) * width);
                                 curve.setAttribute("y2", "" + (height));
-                                curve.style.stroke = "#ffff00";
-                                curve.style.strokeWidth = "1";
+                                curve.setAttribute("stroke", "#ffff00");
+                                curve.setAttribute("strokeWidth", "1");
                                 s.appendChild(curve);
                             }
                         }
