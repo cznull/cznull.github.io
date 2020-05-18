@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 #include <spine/spine.h>
-#include "lz4.h"
+#include <lz4.h>
 #pragma comment(lib,"liblz4_static.lib")
 
 struct block_t {
