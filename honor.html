@@ -38,6 +38,7 @@
                 }
             );
             canvas.addEventListener("mouseup", setitem);
+            canvas.addEventListener("mouseleave", setitem);
             canvas.addEventListener("touchend",
                 function (ev) {
                     if (ev.touches.length == 0) {
@@ -62,10 +63,11 @@
                 return { "x": ix, "y": iy };
             }
             function additem(name, id) {
-                var x = id + 4, y = Math.floor(id / 2) + 5 + 5 * (id % 4);//h
+                var x = id + 11, y = Math.floor(id / 2) + 26 + 2 * (id % 2);//h
                 var ax, ay;
                 var img = new Image();
                 var drawline = 0;
+                var inbox = 1;
                 var r;
                 img.src = name;
                 img.onload = function () {
@@ -83,12 +85,23 @@
                     );
                 };
                 function checkvalid(x, y) {
-                    return true;
+                    if (x > 0.5 && x < 46.5 && y - 0.5 * x > 0.25 && y - 0.5 * x < 22.75) {
+                        if (y - 0.5 * x < 19.75) {
+                            return 1;
+                        }
+                        else {
+                            return -1;
+                        }
+                    }
+                    else {
+                        return 0;
+                    }
                 }
                 function checkfocus(mx, my) {
+                    var rb = (inbox ? 1 : r);
                     var dx = otoh(mx,my).x - x;
                     var dy = otoh(mx, my).y - y;
-                    return dx < r && dx > -r && dy < r && dy > -r && dx - dy < r && dx - dy > -r;
+                    return dx < rb && dx > -rb && dy < rb && dy > -rb && dx - dy < rb && dx - dy > -rb;
                 }
                 function pick() {
                     drawline = 1;
@@ -98,9 +111,17 @@
                     x = x + otoh(dx, dy).x;
                     y = y + otoh(dx, dy).y;
                     var temp = nearest(x, y);
-                    if (checkvalid(temp.x, temp.y)) {
-                        ax = temp.x;
-                        ay = temp.y;
+                    switch (checkvalid(temp.x, temp.y)) {
+                        case 1:
+                            ax = temp.x;
+                            ay = temp.y;
+                            inbox = 0;
+                            break;
+                        case -1:
+                            ax = temp.x;
+                            ay = temp.y;
+                            inbox = 1;
+                            break;
                     }
                     needupdate = 1;
                 }
@@ -111,7 +132,7 @@
                     drawline = 0;
                 }
                 function predraw() {
-                    var rb = r - 0.2;
+                    var rb = (inbox ? 1 : r) - 0.2;
                     context.fillStyle = "#444444";
                     context.beginPath();
                     context.moveTo(htoo(x - rb, y - rb).x, htoo(x - rb, y - rb).y);
@@ -125,8 +146,9 @@
                 }
                 function draw() {
                     if (drawline) {
-                        var rb = r - 0.1;
+                        var rb = (inbox ? 1 : r) - 0.1;
                         context.strokeStyle = "#8080f0";
+                        context.lineWidth = 2;
                         context.beginPath();
                         context.moveTo(htoo(ax - rb, ay - rb).x, htoo(ax - rb, ay - rb).y);
                         context.lineTo(htoo(ax - rb, ay).x, htoo(ax - rb, ay).y);
@@ -135,10 +157,14 @@
                         context.lineTo(htoo(ax + rb, ay).x, htoo(ax + rb, ay).y);
                         context.lineTo(htoo(ax, ay - rb).x, htoo(ax, ay - rb).y);
                         context.closePath();
-                        context.lineWidth = 2;
                         context.stroke();
                     }
-                    context.drawImage(img, htoo(x, y).x - img.width / 2, htoo(x, y).y - img.height / 2);
+                    if (inbox) {
+                        context.drawImage(img, htoo(x, y).x - img.width / 2 / r, htoo(x, y).y - img.height / 2 / r, img.width / r, img.height / r);
+                    }
+                    else {
+                        context.drawImage(img, htoo(x, y).x - img.width / 2, htoo(x, y).y - img.height / 2);
+                    }
                 }
             }
 
@@ -194,8 +220,24 @@
                 if (needupdate) {
                     needupdate = 0;
                     context.clearRect(0, 0, canvas.width, canvas.height); 
-                    context.fillStyle = "#eeeeee";
+                    context.fillStyle = "#ffffff";
                     context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.strokeStyle = "#eeeeee";
+                    context.lineWidth = 3;
+                    for (var i = 0; i < 50; i++) {
+                        context.beginPath();
+                        context.moveTo(htoo(0, i).x, htoo(0, i).y);
+                        context.lineTo(htoo(50, i).x, htoo(50, i).y);
+                        context.stroke();
+                        context.beginPath();
+                        context.moveTo(htoo(i, 0).x, htoo(i, 0).y);
+                        context.lineTo(htoo(i, 50).x, htoo(i, 50).y);
+                        context.stroke();
+                        context.beginPath();
+                        context.moveTo(htoo(0, -25 + i).x, htoo(0, -25 + i).y);
+                        context.lineTo(htoo(50, 25 + i).x, htoo(50, 25 + i).y);
+                        context.stroke();
+                    }
                     for (var i = 0; i < data.items.length; i++) {
                         data.items[i].predraw();
                         data.items[i].draw();
