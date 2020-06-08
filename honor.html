@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div style="width:1280px">
+        <canvas id="item_canvas" width="1280" height="720">
+        </canvas>
+    </div>
+    <script>
+        "use strict";
+        function honor(items) {
+            var data = { "items": [], "lines": [] };
+            var canvas = document.getElementById("item_canvas");
+            var context = canvas.getContext('2d');
+            var focus = -1;
+            var needupdate;
+            var mousex, mousey;
+            var scale = 31.25;
+
+            canvas.addEventListener("mousedown", pickitem);
+            canvas.addEventListener("mousemove", moveitem);
+            canvas.addEventListener("mouseup", setitem);
+            loaditems();
+            draw();
+            setsaveandload();
+
+            function otoh(x, y) {
+                return { "x": Math.sqrt(4 / 3) * x / scale, "y": (y + Math.sqrt(1 / 3) * x) / scale };
+            }
+            function htoo(x, y) {
+                return { "x": Math.sqrt(3 / 4) * x * scale, "y": (y - 0.5 * x) * scale };
+            }
+            function additem(name, id) {
+                var x = id + 4, y = Math.floor(id / 2) + 5 + 5 * (id % 4);//h
+                var floatx, floaty;//h
+                var img = new Image();
+                var drawline = 0;
+                var r;
+                img.src = name;
+                img.onload = function () {
+                    r = Math.floor(img.height / scale / 2 + 0.5);
+                    needupdate = 1;
+                    data.items.push(
+                        {
+                            "predraw": predraw,
+                            "draw": draw,
+                            "pick": pick,
+                            "move": move,
+                            "set": set,
+                            "checkfocus": checkfocus
+                        }
+                    );
+                };
+                function checkvalid(x, y) {
+                    return true;
+                }
+                function checkfocus(mx, my) {
+                    var dx = otoh(mx,my).x - x;
+                    var dy = otoh(mx, my).y - y;
+                    return dx < r && dx > -r && dy < r && dy > -r && dx - dy < r && dx - dy > -r;
+                }
+                function pick() {
+                    drawline = 1;
+                    needupdate = 1;
+                }
+                function move(dx, dy) {
+                    floatx = x + otoh(dx, dy).x;
+                    floaty = y + otoh(dx, dy).y;
+                    var tempx = Math.floor(floatx + 0.5);
+                    var tempy = Math.floor(floaty + 0.5);
+                    x = floatx;
+                    y = floaty;
+                    if (checkvalid(tempx, tempy)) {
+                    }
+                    needupdate = 1;
+                }
+                function set() {
+                    var tempx = Math.floor(x + 0.5);
+                    var tempy = Math.floor(y + 0.5);
+                    if (checkvalid(tempx, tempy)) {
+                        x = tempx;
+                        y = tempy;
+                    }
+                    data.lines = [];
+                    needupdate = 1;
+                    drawline = 0;
+                }
+                function predraw() {
+                    var rb = r - 0.2;
+                    context.fillStyle = "#444444";
+                    context.beginPath();
+                    context.moveTo(htoo(x - rb, y - rb).x, htoo(x - rb, y - rb).y);
+                    context.lineTo(htoo(x - rb, y).x, htoo(x - rb, y).y);
+                    context.lineTo(htoo(x, y + rb).x, htoo(x, y + rb).y);
+                    context.lineTo(htoo(x + rb, y + rb).x, htoo(x + rb, y + rb).y);
+                    context.lineTo(htoo(x + rb, y).x, htoo(x + rb, y).y);
+                    context.lineTo(htoo(x, y - rb).x, htoo(x, y - rb).y);
+                    context.closePath();
+                    context.fill();
+                }
+                function draw() {
+                    if (drawline) {
+                        var rb = r - 0.1;
+                        var tempx = Math.floor(x + 0.5);
+                        var tempy = Math.floor(y + 0.5);
+                        context.strokeStyle = "#8080f0";
+                        context.beginPath();
+                        context.moveTo(htoo(tempx - rb, tempy - rb).x, htoo(tempx - rb, tempy - rb).y);
+                        context.lineTo(htoo(tempx - rb, tempy).x, htoo(tempx - rb, tempy).y);
+                        context.lineTo(htoo(tempx, tempy + rb).x, htoo(tempx, tempy + rb).y);
+                        context.lineTo(htoo(tempx + rb, tempy + rb).x, htoo(tempx + rb, tempy + rb).y);
+                        context.lineTo(htoo(tempx + rb, tempy).x, htoo(tempx + rb, tempy).y);
+                        context.lineTo(htoo(tempx, tempy - rb).x, htoo(tempx, tempy - rb).y);
+                        context.closePath();
+                        context.lineWidth = 2;
+                        context.stroke();
+                    }
+                    context.drawImage(img, htoo(x, y).x - img.width / 2, htoo(x, y).y - img.height / 2);
+                }
+            }
+
+            
+            function choosefocus(x, y) {
+                for (var i = 0; i < data.items.length; i++) {
+                    if (data.items[i].checkfocus(x, y)) {
+                        focus = i;
+                    }
+                }
+            }
+            function pickitem(ev) {
+                choosefocus(ev.layerX, ev.layerY);
+                if (focus >= 0) {
+                    data.items[focus].pick();
+                }
+                mousex = ev.layerX;
+                mousey = ev.layerY;
+            }
+
+            function moveitem(ev) {
+                if (focus >= 0) {
+                    data.items[focus].move(ev.layerX - mousex, ev.layerY - mousey);
+                }
+                mousex = ev.layerX;
+                mousey = ev.layerY;
+            }
+
+            function setitem(ev) {
+                if (focus >= 0) {
+                    data.items[focus].set();
+                }
+                focus = -1;
+            }
+
+            function draw() {
+                if (needupdate) {
+                    needupdate = 0;
+                    context.clearRect(0, 0, canvas.width, canvas.height); 
+                    context.fillStyle = "#eeeeee";
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    for (var i = 0; i < data.items.length; i++) {
+                        data.items[i].predraw();
+                        data.items[i].draw();
+                    }
+                }
+                window.requestAnimationFrame(draw);
+            }
+            function loaditems() {
+                for (var i = 0; i < items.length; i++) {
+                    additem(items[i], i);
+                }
+            }
+            function setsaveandload() {
+                function load() {
+
+                }
+                function save() {
+
+                }
+                //document.getElementById("item_save").onclick = save;
+                //document.getElementById("item_load").onclick = load;
+            }
+        }
+        var names = [
+            "http://ak.mooncell.wiki/images/2/23/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%83%E9%94%A4%E7%99%BE%E7%82%BC%E5%A5%96%E7%AB%A0%C2%B7I.png",
+            "http://ak.mooncell.wiki/images/7/77/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%83%E9%94%A4%E7%99%BE%E7%82%BC%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://ak.mooncell.wiki/images/6/6f/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%83%E9%94%A4%E7%99%BE%E7%82%BC%E5%A5%96%E7%AB%A0%C2%B7III.png",
+            "http://ak.mooncell.wiki/images/d/d4/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E7%99%BE%E6%97%A5%E7%9A%84%E6%80%9D%E7%B4%A2%E4%B8%8E%E5%86%B3%E7%AD%96%E2%80%9D.png",
+            "http://ak.mooncell.wiki/images/2/29/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E4%B8%80%E5%B9%B4%E7%9A%84%E9%8F%96%E6%88%98%E4%B8%8E%E5%AE%88%E6%9C%9B%E2%80%9D.png",
+            "http://ak.mooncell.wiki/images/8/86/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7I.png",
+            "http://ak.mooncell.wiki/images/f/fa/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://ak.mooncell.wiki/images/9/97/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7III.png",
+            "http://ak.mooncell.wiki/images/b/bb/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7IV.png",
+            "http://ak.mooncell.wiki/images/8/8c/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7I.png",
+            "http://ak.mooncell.wiki/images/2/25/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://ak.mooncell.wiki/images/c/c9/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7III.png",
+            "http://ak.mooncell.wiki/images/a/aa/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7IV.png",
+            "http://ak.mooncell.wiki/images/a/a8/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7V.png",
+            "http://ak.mooncell.wiki/images/7/79/%E8%9A%80%E5%88%BB%E7%AB%A0_%E6%83%85%E6%8A%A5%E5%BD%92%E6%A1%A3%E7%A1%AE%E8%AE%A4%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/6/6e/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B4%E7%9A%84%E5%8D%B0%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/2/25/%E8%9A%80%E5%88%BB%E7%AB%A0_%E4%B8%8B%E5%8D%88%E8%8C%B6%E9%9B%86%E6%8D%A2%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/a/a9/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E9%87%8D%E9%93%B8%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/1/10/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/e/e4/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://ak.mooncell.wiki/images/6/61/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0%C2%B7II_%E9%95%80%E5%B1%82.png",
+            "http://ak.mooncell.wiki/images/f/f7/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E6%88%98%E6%9C%8D%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/b/bb/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E9%98%B5%E5%9C%B0%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/6/66/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%93%8D%E5%BA%94%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/5/54/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%93%8D%E5%BA%94%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://ak.mooncell.wiki/images/a/af/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E8%B7%8B%E6%B6%89%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/0/00/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E6%BC%94%E4%B9%A0%E5%A5%96%E7%AB%A0.png",
+            "http://ak.mooncell.wiki/images/e/e3/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E4%BD%9C%E5%A5%96%E7%AB%A0.png"
+        ]
+        honor(names);
+    </script>
+</body>
+</html>
