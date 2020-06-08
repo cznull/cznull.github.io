@@ -40,8 +40,8 @@
             canvas.addEventListener("mouseup", setitem);
             canvas.addEventListener("touchend",
                 function (ev) {
-                    if (ev.touches.length == 1) {
-                        setitem(ev.touches[0]);
+                    if (ev.touches.length == 0) {
+                        setitem(null);
                     }
                 }
             );
@@ -152,7 +152,22 @@
                     }
                 }
             }
+
+            function getlayerpos(ev) {
+                if (!ev.layerX) {
+                    ev.layerX = ev.pageX;
+                    ev.layerY = ev.pageY;
+                    var t = ev.target;
+                    while (t.offsetParent) {
+                        ev.layerX -= t.offsetLeft;
+                        ev.layerY -= t.offsetTop;
+                        t = t.offsetParent;
+                    }
+                }
+            }
+
             function pickitem(ev) {
+                getlayerpos(ev);
                 choosefocus(ev.layerX, ev.layerY);
                 if (focus >= 0) {
                     data.items[focus].pick();
@@ -162,6 +177,7 @@
             }
 
             function moveitem(ev) {
+                getlayerpos(ev);
                 if (focus >= 0) {
                     data.items[focus].move(ev.layerX - mousex, ev.layerY - mousey);
                 }
