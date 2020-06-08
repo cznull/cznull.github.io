@@ -104,6 +104,8 @@
                     return dx < rb && dx > -rb && dy < rb && dy > -rb && dx - dy < rb && dx - dy > -rb;
                 }
                 function pick() {
+                    ax = x;
+                    ay = y;
                     drawline = 1;
                     needupdate = 1;
                 }
