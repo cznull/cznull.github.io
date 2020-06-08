@@ -13,7 +13,7 @@
     <script>
         "use strict";
         function honor(items) {
-            var data = { "items": [], "lines": [] };
+            var data = { "items": [] };
             var canvas = document.getElementById("item_canvas");
             var context = canvas.getContext('2d');
             var focus = -1;
@@ -55,9 +55,15 @@
             function htoo(x, y) {
                 return { "x": Math.sqrt(3 / 4) * x * scale, "y": (y - 0.5 * x) * scale };
             }
+            function nearest(x, y) {
+                var xay = Math.floor(x + y);
+                var ix = Math.floor((x - 0.5 * y + 0.5 * xay + 1.0) / 1.5);
+                var iy = Math.floor((y - 0.5 * x + 0.5 * xay + 1.0) / 1.5);
+                return { "x": ix, "y": iy };
+            }
             function additem(name, id) {
                 var x = id + 4, y = Math.floor(id / 2) + 5 + 5 * (id % 4);//h
-                var floatx, floaty;//h
+                var ax, ay;
                 var img = new Image();
                 var drawline = 0;
                 var r;
@@ -89,24 +95,18 @@
                     needupdate = 1;
                 }
                 function move(dx, dy) {
-                    floatx = x + otoh(dx, dy).x;
-                    floaty = y + otoh(dx, dy).y;
-                    var tempx = Math.floor(floatx + 0.5);
-                    var tempy = Math.floor(floaty + 0.5);
-                    x = floatx;
-                    y = floaty;
-                    if (checkvalid(tempx, tempy)) {
+                    x = x + otoh(dx, dy).x;
+                    y = y + otoh(dx, dy).y;
+                    var temp = nearest(x, y);
+                    if (checkvalid(temp.x, temp.y)) {
+                        ax = temp.x;
+                        ay = temp.y;
                     }
                     needupdate = 1;
                 }
                 function set() {
-                    var tempx = Math.floor(x + 0.5);
-                    var tempy = Math.floor(y + 0.5);
-                    if (checkvalid(tempx, tempy)) {
-                        x = tempx;
-                        y = tempy;
-                    }
-                    data.lines = [];
+                    x = ax;
+                    y = ay;
                     needupdate = 1;
                     drawline = 0;
                 }
@@ -126,16 +126,14 @@
                 function draw() {
                     if (drawline) {
                         var rb = r - 0.1;
-                        var tempx = Math.floor(x + 0.5);
-                        var tempy = Math.floor(y + 0.5);
                         context.strokeStyle = "#8080f0";
                         context.beginPath();
-                        context.moveTo(htoo(tempx - rb, tempy - rb).x, htoo(tempx - rb, tempy - rb).y);
-                        context.lineTo(htoo(tempx - rb, tempy).x, htoo(tempx - rb, tempy).y);
-                        context.lineTo(htoo(tempx, tempy + rb).x, htoo(tempx, tempy + rb).y);
-                        context.lineTo(htoo(tempx + rb, tempy + rb).x, htoo(tempx + rb, tempy + rb).y);
-                        context.lineTo(htoo(tempx + rb, tempy).x, htoo(tempx + rb, tempy).y);
-                        context.lineTo(htoo(tempx, tempy - rb).x, htoo(tempx, tempy - rb).y);
+                        context.moveTo(htoo(ax - rb, ay - rb).x, htoo(ax - rb, ay - rb).y);
+                        context.lineTo(htoo(ax - rb, ay).x, htoo(ax - rb, ay).y);
+                        context.lineTo(htoo(ax, ay + rb).x, htoo(ax, ay + rb).y);
+                        context.lineTo(htoo(ax + rb, ay + rb).x, htoo(ax + rb, ay + rb).y);
+                        context.lineTo(htoo(ax + rb, ay).x, htoo(ax + rb, ay).y);
+                        context.lineTo(htoo(ax, ay - rb).x, htoo(ax, ay - rb).y);
                         context.closePath();
                         context.lineWidth = 2;
                         context.stroke();
