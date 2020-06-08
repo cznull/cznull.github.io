@@ -22,8 +22,29 @@
             var scale = 31.25;
 
             canvas.addEventListener("mousedown", pickitem);
+            canvas.addEventListener("touchstart",
+                function (ev) {
+                    if (ev.touches.length == 1) {
+                        pickitem(ev.touches[0]);
+                    }
+                }
+            );
             canvas.addEventListener("mousemove", moveitem);
+            canvas.addEventListener("touchmove",
+                function (ev) {
+                    if (ev.touches.length == 1) {
+                        moveitem(ev.touches[0]);
+                    }
+                }
+            );
             canvas.addEventListener("mouseup", setitem);
+            canvas.addEventListener("touchend",
+                function (ev) {
+                    if (ev.touches.length == 1) {
+                        setitem(ev.touches[0]);
+                    }
+                }
+            );
             loaditems();
             draw();
             setsaveandload();
