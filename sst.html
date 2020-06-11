@@ -8,7 +8,9 @@
 <body>
     <canvas id="honor_canvas" width="1280" height="720">
     </canvas>
-    <input type="file" id="in" />
+    <div>
+        <input type="file" id="in" />
+    </div>
     <script>
         "use strict";
         
@@ -84,9 +86,15 @@
             }
 
             for (var k = 0; k < N; k++) {
-                var temp = add(mul(c, Hij[k][i]), mul(conj(s), Hij[k][j]));
-                Hij[k][j] = sub(mul(c, Hij[k][j]), mul(s, Hij[k][i]));
-                Hij[k][i] = temp;
+                if (k != i && k != j) {
+                    Hij[k][j] = conj(Hij[j][k]);
+                    Hij[k][i] = conj(Hij[i][k]);
+                }
+                else {
+                    var temp = add(mul(c, Hij[k][i]), mul(conj(s), Hij[k][j]));
+                    Hij[k][j] = sub(mul(c, Hij[k][j]), mul(s, Hij[k][i]));
+                    Hij[k][i] = temp;
+                }
             }
             return Hij;
         }
@@ -113,26 +121,39 @@
 
         function diag(x) {
             var N = x.length;
-            var e0 = Math.abs(1e-10 / N);
+            var e0 = 1;
             var psi;
-            //var Sij = new Array(N); // Sij is Identity Matrix
 
-            //for (var i = 0; i < N; i++) {
-            //    Sij[i] = createArray(N, [0, 0]);
-            //    Sij[i][i] = [1, 0];
-            //}
-
-
-            var Vab = getAij(x);
-            while (Vab[1] >= e0) {
-                var _i = Vab[0][0];
-                var j = Vab[0][1];
-                psi = getTheta(x[_i][_i], x[j][j], x[_i][j]);
-                //log(x);
-                x = x1(x, psi, _i, j);
-                //     Sij = Sij1(Sij, psi, _i, j);
-                Vab = getAij(x);
-                //debugger;
+            while (e0 > 1e-7) {
+                var flag = 1;
+                while (flag) {
+                    flag = 0;
+                    for (var i = 0; i < N; i++) {
+                        for (var j = i + 1; j < N; j++) {
+                            if (abs(x[i][j]) >= e0) {
+                                psi = getTheta(x[i][i], x[j][j], x[i][j]);
+                                x = x1(x, psi, i, j);
+                                flag++;
+                            }
+                        }
+                    }
+                }
+                if (flag < N / 2) {
+                    e0 = e0 * 0.5;
+                }
+            }
+            var flag = 1;
+            while (flag) {
+                flag = 0;
+                for (var i = 0; i < N; i++) {
+                    for (var j = i + 1; j < N; j++) {
+                        if (abs(x[i][j]) >= e0) {
+                            psi = getTheta(x[i][i], x[j][j], x[i][j]);
+                            x = x1(x, psi, i, j);
+                            flag++;
+                        }
+                    }
+                }
             }
 
             var Ei = createArray(N, [0, 0]); // eigenvalues
@@ -220,7 +241,7 @@
             }
         }
         cal({
-            "repeat": 20,
+            "repeat": 40,
             "kpoint": 128,
             "atom": ["a1", "b1"],
             "hopping": {
