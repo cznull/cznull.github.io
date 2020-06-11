@@ -8,8 +8,11 @@
 <body>
     <canvas id="honor_canvas" width="1280" height="720">
     </canvas>
-    <div>
-        <input type="file" id="in" />
+    <div id="config">
+        <textarea name="" id="conf" cols="128" rows="10"></textarea>
+        <div>
+            <button id="apply">APPLY</button>
+        </div>
     </div>
     <script>
         "use strict";
@@ -229,18 +232,14 @@
     </script>
     <script>
         "use strict";
-        document.getElementById("in").addEventListener("change", upload);
-        function upload() {
-            for (var i = 0; i < this.files.length; i++) {
-                var reader = new FileReader();
-                reader.onload = function () {
-                    var conf = JSON.parse(this.result);
-                    cal(conf);
-                }
-                reader.readAsText(this.files[i]);
+        document.getElementById("apply").addEventListener("click",
+            function () {
+                var conf = JSON.parse(document.getElementById("conf").value);
+                cal(conf);
             }
-        }
-        cal({
+        );
+
+        document.getElementById("conf").value = JSON.stringify({
             "repeat": 40,
             "kpoint": 128,
             "atom": ["a1", "b1"],
