@@ -51,22 +51,8 @@
             }
             return array;
         }
-        function getAij(Mij) {
-            var N = Mij.length;
-            var maxMij = 0;
-            var maxIJ = [0, 1];
-            for (var i = 0; i < N; i++) {
-                for (var j = i + 1; j < N; j++) {
-                    if (maxMij < abs(Mij[i][j])) {
-                        maxMij = abs(Mij[i][j]);
-                        maxIJ = [i, j];
-                    }
-                }
-            }
-            return [maxIJ, maxMij];
-        }
 
-        function getTheta(aii, ajj, aij) {
+        function getq(aii, ajj, aij) {
             var denom = aii[0] - ajj[0];
             var dir = [aij[0] / abs(aij), aij[1] / abs(aij)];
             if (Math.abs(denom) <= 1e-10) {
@@ -78,64 +64,41 @@
             }
         }
         
-        function x1(Hij, theta, i, j) {
-            var N = Hij.length;
+        function qaq(Hij, theta, i, j, N) {
             var c = [theta[0], 0];
             var s = theta[1];
             for (var k = 0; k < N; k++) {
-                var temp = add(mul(c, Hij[i][k]), mul(s, Hij[j][k]));
-                Hij[j][k] = sub(mul(c, Hij[j][k]), mul(conj(s), Hij[i][k]));
-                Hij[i][k] = temp;
+                var temp = add(mul(c, Hij[i * N + k]), mul(s, Hij[j * N + k]));
+                Hij[j * N + k] = sub(mul(c, Hij[j * N + k]), mul(conj(s), Hij[i * N + k]));
+                Hij[i * N + k] = temp;
             }
 
             for (var k = 0; k < N; k++) {
                 if (k != i && k != j) {
-                    Hij[k][j] = conj(Hij[j][k]);
-                    Hij[k][i] = conj(Hij[i][k]);
+                    Hij[k * N + j] = conj(Hij[j * N + k]);
+                    Hij[k * N + i] = conj(Hij[i * N + k]);
                 }
                 else {
-                    var temp = add(mul(c, Hij[k][i]), mul(conj(s), Hij[k][j]));
-                    Hij[k][j] = sub(mul(c, Hij[k][j]), mul(s, Hij[k][i]));
-                    Hij[k][i] = temp;
+                    var temp = add(mul(c, Hij[k * N + i]), mul(conj(s), Hij[k * N + j]));
+                    Hij[k * N + j] = sub(mul(c, Hij[k * N + j]), mul(s, Hij[k * N + i]));
+                    Hij[k * N + i] = temp;
                 }
             }
             return Hij;
         }
 
-        function Sij1(Sij, theta, i, j) {
-            var N = Sij.length;
-            var c = Math.cos(theta);
-            var s = Math.sin(theta);
-            var Ski = createArray(N, 0);
-            var Skj = createArray(N, 0);
-
-            for (var k = 0; k < N; k++) {
-                Ski[k] = c * Sij[k][i] - s * Sij[k][j];
-                Skj[k] = s * Sij[k][i] + c * Sij[k][j];
-            }
-
-            for (var _k = 0; _k < N; _k++) {
-                Sij[_k][i] = Ski[_k];
-                Sij[_k][j] = Skj[_k];
-            }
-
-            return Sij;
-        }
-
-        function diag(x) {
-            var N = x.length;
+        function diag(x, N) {
             var e0 = 1;
             var psi;
-
-            while (e0 > 1e-7) {
+            while (e0 > 1e-6) {
                 var flag = 1;
                 while (flag) {
                     flag = 0;
                     for (var i = 0; i < N; i++) {
                         for (var j = i + 1; j < N; j++) {
-                            if (abs(x[i][j]) >= e0) {
-                                psi = getTheta(x[i][i], x[j][j], x[i][j]);
-                                x = x1(x, psi, i, j);
+                            if (abs(x[i * N + j]) >= e0) {
+                                psi = getq(x[i * N + i], x[j * N + j], x[i * N + j]);
+                                x = qaq(x, psi, i, j, N);
                                 flag++;
                             }
                         }
@@ -145,14 +108,15 @@
                     e0 = e0 * 0.5;
                 }
             }
+            e0 = 1e-7;
             var flag = 1;
             while (flag) {
                 flag = 0;
                 for (var i = 0; i < N; i++) {
                     for (var j = i + 1; j < N; j++) {
-                        if (abs(x[i][j]) >= e0) {
-                            psi = getTheta(x[i][i], x[j][j], x[i][j]);
-                            x = x1(x, psi, i, j);
+                        if (abs(x[i * N + j]) >= e0) {
+                            psi = getq(x[i * N + i], x[j * N + j], x[i * N + j]);
+                            x = qaq(x, psi, i, j, N);
                             flag++;
                         }
                     }
@@ -162,7 +126,7 @@
             var Ei = createArray(N, [0, 0]); // eigenvalues
 
             for (var _i2 = 0; _i2 < N; _i2++) {
-                Ei[_i2] = x[_i2][_i2][0];
+                Ei[_i2] = x[_i2 * N + _i2][0];
             }
             return Ei;
         }
@@ -209,7 +173,13 @@
                         }
                     }
                 }
-                eig[n] = diag(hm).sort((a, b) => a - b);
+                var hm1 = [];
+                for (var i = 0; i < conf.atom.length * conf.repeat; i++) {
+                    for (var j = 0; j < conf.atom.length * conf.repeat; j++) {
+                        hm1[i * conf.atom.length * conf.repeat + j] = hm[i][j];
+                    }
+                }
+                eig[n] = diag(hm1, conf.atom.length * conf.repeat).sort((a, b) => a - b);
             }
             debugger;
             var canvas = document.getElementById("honor_canvas");
