@@ -1,4 +1,3 @@
-﻿
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,7 +29,7 @@
             position: fixed;
             left: 0px;
             top: 30px;
-            display: inline;
+            display: none;
         }
     </style>
 </head>
@@ -38,32 +37,33 @@
     <canvas id="c1" width="512" height="512">
         <span>不支持canvas浏览器</span>
     </canvas>
-    <button id="btn">HIDE</button>
+    <button id="btn">CONFIG</button>
     <div id="config">
         <textarea name="" id="kernel" cols="50" rows="10"></textarea>
         <br />
         <button id="apply">APPLY</button>
         <button id="cancle">CANCLE</button>
     </div>
-    <script>var cx, cy;
-        var canvas;
+    <script>
+        var cx, cy;
+        var canvas = document.getElementById("c1");
         var gl, glview, glproject;
         var md = 0,mx,my;
         var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
         var ml = 0, mr = 0, mm = 0;
-        var len = 1.5;
-        var ang1 = 0.0;
-        var ang2 = 0.0;
-        var cenx = 0.0;
-        var ceny = 0.0;
-        var cenz = 0.0;
+        var len = 6.0;
+        var ang1 = 1.57;
+        var ang2 = 1.57;
+        var cenx = 2.72;
+        var ceny = 0.5;
+        var cenz = 1.57;
         var vbuffer=[], cbuffer=[], nbuffer=[];
         var points = [];
 
         var MapSize =16384;
         var noqi = 16;
-        var Noq = 2048;
-        var coslim = 1.0 - 1.0 / 16, aculim = 0.01;
+        var Noq = 256;
+        var coslim = 1.0 - 1.0 / 4, aculim = 0.01;
 
         var quaMap = Array();
         var Mapbot = Array();
@@ -76,20 +76,224 @@
         var quav = Array();
         var end = 0;
         var s =
-            "getv = function (u,v){\n" +
-            "   u=u*2-1;v=v*2-1;\n" +
-            "   return {\n" +
-            "       \"x\":u,\n" +
-            "       \"y\":v,\n" +
-            "       \"z\":cos((u*u - v * v)*6.2832 * 10)\n" +
-            "   };\n" +
-            "};\n" +
-            "MapSize = 4194304;\n" +
-            "noqi = 32;\n" +
-            "Noq = 8192;\n" +
-            "coslim = 1.0 - 1.0 / 12;\n" +
-            "aculim = 0.001;\n" +
-            "clear();\n";
+            "getv = (function () {\n" +
+            "	conf = {\n" +
+            "		\"repeat\": 30,\n" +
+            "		\"kpoint\": 256,\n" +
+            "		\"atom\": [\"a1\", \"a2\", \"b1\", \"b2\"],\n" +
+            "		\"hopping\": {\n" +
+            "			\"t\": {\n" +
+            "				\"value\": 1,\n" +
+            "				\"pair\": [\n" +
+            "					[\"a1\", \"b1\", 0, 0, 1, 0],\n" +
+            "					[\"b1\", \"a1\", 1, 0, 1, 0],\n" +
+            "					[\"b1\", \"a1\", 0, 1, 1, 0],\n" +
+            "					[\"a2\", \"b2\", 0, 0, 1, 0],\n" +
+            "					[\"b2\", \"a2\", 1, 0, 1, 0],\n" +
+            "					[\"b2\", \"a2\", 0, 1, 1, 0]\n" +
+            "				]\n" +
+            "			},\n" +
+            "			\"tso\": {\n" +
+            "				\"value\": 0.06,\n" +
+            "				\"pair\": [\n" +
+            "					[\"a1\", \"a1\", 1, 0, 0, 1],\n" +
+            "					[\"a1\", \"a1\", 0, 1, 0, -1],\n" +
+            "					[\"a1\", \"a1\", -1, 1, 0, 1],\n" +
+            "					[\"b1\", \"b1\", 1, 0, 0, -1],\n" +
+            "					[\"b1\", \"b1\", 0, 1, 0, 1],\n" +
+            "					[\"b1\", \"b1\", -1, 1, 0, -1],\n" +
+            "					[\"a2\", \"a2\", 1, 0, 0, -1],\n" +
+            "					[\"a2\", \"a2\", 0, 1, 0, 1],\n" +
+            "					[\"a2\", \"a2\", -1, 1, 0, -1],\n" +
+            "					[\"b2\", \"b2\", 1, 0, 0, 1],\n" +
+            "					[\"b2\", \"b2\", 0, 1, 0, -1],\n" +
+            "					[\"b2\", \"b2\", -1, 1, 0, 1]\n" +
+            "				]\n" +
+            "			},\n" +
+            "			\"tr\": {\n" +
+            "				\"value\": 0.05,\n" +
+            "				\"pair\": [\n" +
+            "					[\"a2\", \"b1\", 0, 0, -0.8660254037844386, 0.5],\n" +
+            "					[\"a1\", \"b2\", 0, 0, 0.8660254037844386, 0.5],\n" +
+            "					[\"b2\", \"a1\", 1, 0, -0.8660254037844386, -0.5],\n" +
+            "					[\"b1\", \"a2\", 1, 0, 0.8660254037844386, -0.5],\n" +
+            "					[\"b2\", \"a1\", 0, 1, 0, 1],\n" +
+            "					[\"b1\", \"a2\", 0, 1, 0, 1]\n" +
+            "				]\n" +
+            "			},\n" +
+            "			\"tv\": {\n" +
+            "				\"value\": 0.2,\n" +
+            "				\"pair\": [\n" +
+            "					[\"a1\", \"a1\", 0, 0, 0.5, 0],\n" +
+            "					[\"b1\", \"b1\", 0, 0, -0.5, 0],\n" +
+            "					[\"a2\", \"a2\", 0, 0, 0.5, 0],\n" +
+            "					[\"b2\", \"b2\", 0, 0, -0.5, 0]\n" +
+            "				]\n" +
+            "			}\n" +
+            "		}\n" +
+            "	};\n" +
+            "	function mul(a, b) {\n" +
+            "		return [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];\n" +
+            "	}\n" +
+            "	function add(a, b) {\n" +
+            "		return [a[0] + b[0], a[1] + b[1]];\n" +
+            "	}\n" +
+            "	function sub(a, b) {\n" +
+            "		return [a[0] - b[0], a[1] - b[1]];\n" +
+            "	}\n" +
+            "	function conj(a) {\n" +
+            "		return [a[0], -a[1]];\n" +
+            "	}\n" +
+            "	function abs(a) {\n" +
+            "		return Math.sqrt(a[0] * a[0] + a[1] * a[1]);\n" +
+            "	}\n" +
+            "	function createArray(size, value) {\n" +
+            "		var array = new Array(size);\n" +
+            "		for (var i = 0; i < size; i++) {\n" +
+            "			array[i] = value;\n" +
+            "		}\n" +
+            "		return array;\n" +
+            "	}\n" +
+            "	function getq(aii, ajj, aij) {\n" +
+            "		var denom = aii[0] - ajj[0];\n" +
+            "		var dir = [aij[0] / abs(aij), aij[1] / abs(aij)];\n" +
+            "		if (Math.abs(denom) <= 1e-10) {\n" +
+            "			return [Math.sqrt(0.5), [Math.sqrt(0.5) * dir[0], Math.sqrt(0.5) * dir[1]]];\n" +
+            "		}\n" +
+            "		else {\n" +
+            "			var theta = 0.5 * Math.atan(2 * abs(aij) / denom);\n" +
+            "			return [Math.cos(theta), [Math.sin(theta) * dir[0], Math.sin(theta) * dir[1]]];\n" +
+            "		}\n" +
+            "	}\n" +
+            "	function qaq(Hij, q, theta, i, j, N) {\n" +
+            "		var c = [theta[0], 0];\n" +
+            "		var s = theta[1];\n" +
+            "		for (var k = 0; k < N; k++) {\n" +
+            "			var temp = add(mul(c, Hij[i * N + k]), mul(s, Hij[j * N + k]));\n" +
+            "			Hij[j * N + k] = sub(mul(c, Hij[j * N + k]), mul(conj(s), Hij[i * N + k]));\n" +
+            "			Hij[i * N + k] = temp;\n" +
+            "			var temp = add(mul(c, q[k * N + i]), mul(conj(s), q[k * N + j]));\n" +
+            "			q[k * N + j] = sub(mul(c, q[k * N + j]), mul(s, q[k * N + i]));\n" +
+            "			q[k * N + i] = temp;\n" +
+            "		}\n" +
+            "		for (var k = 0; k < N; k++) {\n" +
+            "			if (k != i && k != j) {\n" +
+            "				Hij[k * N + j] = conj(Hij[j * N + k]);\n" +
+            "				Hij[k * N + i] = conj(Hij[i * N + k]);\n" +
+            "			}\n" +
+            "			else {\n" +
+            "				var temp = add(mul(c, Hij[k * N + i]), mul(conj(s), Hij[k * N + j]));\n" +
+            "				Hij[k * N + j] = sub(mul(c, Hij[k * N + j]), mul(s, Hij[k * N + i]));\n" +
+            "				Hij[k * N + i] = temp;\n" +
+            "			}\n" +
+            "		}\n" +
+            "		return Hij;\n" +
+            "	}\n" +
+            "	function diag(x, N) {\n" +
+            "		var e0 = 1;\n" +
+            "		var psi;\n" +
+            "		var q = createArray(N * N, [0, 0]);\n" +
+            "		for (var i = 0; i < N; i++) {\n" +
+            "			q[i * N + i] = [1, 0];\n" +
+            "		}\n" +
+            "		while (e0 > 1e-6) {\n" +
+            "			var flag = 1;\n" +
+            "			while (flag) {\n" +
+            "				flag = 0;\n" +
+            "				for (var i = 0; i < N; i++) {\n" +
+            "					for (var j = i + 1; j < N; j++) {\n" +
+            "						if (abs(x[i * N + j]) >= e0) {\n" +
+            "							psi = getq(x[i * N + i], x[j * N + j], x[i * N + j]);\n" +
+            "							x = qaq(x, q, psi, i, j, N);\n" +
+            "							flag++;\n" +
+            "						}\n" +
+            "					}\n" +
+            "				}\n" +
+            "			}\n" +
+            "			if (flag < N / 2) {\n" +
+            "				e0 = e0 * 0.5;\n" +
+            "			}\n" +
+            "		}\n" +
+            "		e0 = 1e-7;\n" +
+            "		var flag = 1;\n" +
+            "		while (flag) {\n" +
+            "			flag = 0;\n" +
+            "			for (var i = 0; i < N; i++) {\n" +
+            "				for (var j = i + 1; j < N; j++) {\n" +
+            "					if (abs(x[i * N + j]) >= e0) {\n" +
+            "						psi = getq(x[i * N + i], x[j * N + j], x[i * N + j]);\n" +
+            "						x = qaq(x, q, psi, i, j, N);\n" +
+            "						flag++;\n" +
+            "					}\n" +
+            "				}\n" +
+            "			}\n" +
+            "		}\n" +
+            "		var Ei = createArray(N, [0, 0]); // eigenvalues\n" +
+            "		for (var _i2 = 0; _i2 < N; _i2++) {\n" +
+            "			Ei[_i2] = {\n" +
+            "				\"value\": x[_i2 * N + _i2][0],\n" +
+            "				\"vector\": []\n" +
+            "			};\n" +
+            "			for (var i = 0; i < N; i++) {\n" +
+            "				Ei[_i2].vector[i] = q[i * N + _i2];\n" +
+            "			}\n" +
+            "		}\n" +
+            "		return Ei;\n" +
+            "	}\n" +
+            "	var atoms = {};\n" +
+            "	var hoppings = [];\n" +
+            "	for (var i = 0; i < conf.atom.length; i++) {\n" +
+            "		atoms[conf.atom[i]] = i;\n" +
+            "	}\n" +
+            "	for (var i = 0; i < Object.values(conf.hopping).length; i++) {\n" +
+            "		var value = Object.values(conf.hopping)[i].value;\n" +
+            "		for (var j = 0; j < Object.values(conf.hopping)[i].pair.length; j++) {\n" +
+            "			hoppings.push([\n" +
+            "				atoms[Object.values(conf.hopping)[i].pair[j][0]],\n" +
+            "				atoms[Object.values(conf.hopping)[i].pair[j][1]],\n" +
+            "				Object.values(conf.hopping)[i].pair[j][2],\n" +
+            "				Object.values(conf.hopping)[i].pair[j][3],\n" +
+            "				mul([value, 0], [Object.values(conf.hopping)[i].pair[j][4], Object.values(conf.hopping)[i].pair[j][5]])\n" +
+            "			]);\n" +
+            "		}\n" +
+            "	}\n" +
+            "	function fgetv(u, v) {\n" +
+            "		kx = u * 6.2832; ky = v * 6.2832;\n" +
+            "		var hm = [];\n" +
+            "		var eig = [];\n" +
+            "		for (var i = 0; i < conf.atom.length; i++) {\n" +
+            "			hm[i] = [];\n" +
+            "			for (var j = 0; j < conf.atom.length; j++) {\n" +
+            "				hm[i][j] = [0, 0];\n" +
+            "			}\n" +
+            "		}\n" +
+            "		for (var j = 0; j < hoppings.length; j++) {\n" +
+            "			var f = hoppings[j][0];\n" +
+            "			var t = hoppings[j][1];\n" +
+            "			var h = mul(hoppings[j][4], [Math.cos(kx * hoppings[j][2] + ky * hoppings[j][3]), -Math.sin(kx * hoppings[j][2] + ky * hoppings[j][3])]);\n" +
+            "			hm[t][f] = add(hm[t][f], h);\n" +
+            "			hm[f][t] = add(hm[f][t], conj(h));\n" +
+            "		}\n" +
+            "		var hm1 = [];\n" +
+            "		for (var i = 0; i < conf.atom.length; i++) {\n" +
+            "			for (var j = 0; j < conf.atom.length; j++) {\n" +
+            "				hm1[i * conf.atom.length + j] = hm[i][j];\n" +
+            "			}\n" +
+            "		}\n" +
+            "		eig = diag(hm1, conf.atom.length).sort((a, b) => a.value - b.value);\n" +
+            "		pf = [0, 0];\n" +
+            "		pf = add(pf, mul(conj(eig[0].vector[0]), conj(eig[1].vector[1])));\n" +
+            "		pf = sub(pf, mul(conj(eig[0].vector[1]), conj(eig[1].vector[0])));\n" +
+            "		pf = add(pf, mul(conj(eig[0].vector[2]), conj(eig[1].vector[3])));\n" +
+            "		pf = sub(pf, mul(conj(eig[0].vector[3]), conj(eig[1].vector[2])));\n" +
+            "		return {\n" +
+            "			\"x\": kx * Math.sqrt(0.75),\n" +
+            "			\"z\": ky - 0.5 * kx,\n" +
+            "			\"y\": Math.sqrt(pf[0] * pf[0] + pf[1] * pf[1]) * 2\n" +
+            "		};\n" +
+            "	}\n" +
+            "	return fgetv;\n" +
+            "})();\n";
 
         cos = Math.cos;
         sin = Math.sin;
@@ -148,7 +352,6 @@
             v = quav[cur];
             l = qual[cur];
             if (l < (1.4 / Noq)) {
-                debugger;
                 return;
             }
             if (end > MapSize - 4) {
@@ -401,15 +604,6 @@
             }
             function abs(a) {
                 return Math.sqrt(a[0] * a[0] + a[1] * a[1]);
-            }
-            function log(h) {
-                for (var i = 0; i < h.length; i++) {
-                    var s = "";
-                    for (var j = 0; j < h[i].length; j++) {
-                        s = s + h[i][j][0] + "+" + h[i][j][1] + "i,";
-                    }
-                    console.log(s);
-                }
             }
             function createArray(size, value) {
                 var array = new Array(size);
@@ -1037,7 +1231,6 @@
 
                     ltemp /= 2;
                 }
-                debugger;
                 return { "x": 1.0, "y": 0.0, "z": 0.0 };
             }
         }
@@ -1164,8 +1357,7 @@
                 "	gl_FragColor.b = fc.b*s;" +
                 "	gl_FragColor.a = fc.a;" +
                 "}";
-            canvas = document.getElementById('c1');
-            gl = canvas.getContext('webgl');
+            gl = canvas.getContext("webgl");
 
             gl.enable(gl.DEPTH_TEST);
 
@@ -1188,13 +1380,13 @@
 
             if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
                 var info = gl.getProgramInfoLog(shaderProgram);
-                alert('Could not compile WebGL program. \n\n' + infov + infof + info);
+                alert("Could not compile WebGL program.\n" + infov + infof + info);
             }
-            glvertex = gl.getAttribLocation(shaderProgram, 'vertex');
-            glnormal = gl.getAttribLocation(shaderProgram, 'normal');
-            glcolor = gl.getAttribLocation(shaderProgram, 'color');
-            glview = gl.getUniformLocation(shaderProgram, 'view');
-            glproject = gl.getUniformLocation(shaderProgram, 'project');
+            glvertex = gl.getAttribLocation(shaderProgram, "vertex");
+            glnormal = gl.getAttribLocation(shaderProgram, "normal");
+            glcolor = gl.getAttribLocation(shaderProgram, "color");
+            glview = gl.getUniformLocation(shaderProgram, "view");
+            glproject = gl.getUniformLocation(shaderProgram, "project");
 
             gl.enableVertexAttribArray(glvertex);
             gl.enableVertexAttribArray(glnormal);
@@ -1284,7 +1476,7 @@
             points = [];
         }
 
-        document.addEventListener("mousedown",
+        canvas.addEventListener("mousedown",
             function (ev) {
                 var oEvent = ev || event;
                 if (oEvent.button == 0) {
@@ -1300,7 +1492,7 @@
             },
             false);
 
-        document.addEventListener("mouseup",
+        canvas.addEventListener("mouseup",
             function (ev) {
                 var oEvent = ev || event;
                 if (oEvent.button == 0) {
@@ -1312,7 +1504,7 @@
             },
             false);
 
-        document.addEventListener("mousemove",
+        canvas.addEventListener("mousemove",
             function (ev) {
                 var oEvent = ev || event;
                 if (ml == 1) {
@@ -1336,7 +1528,7 @@
             },
             false);
 
-        document.addEventListener("mousewheel",
+        canvas.addEventListener("mousewheel",
             function (ev) {
                 ev.preventDefault();
                 var oEvent = ev || event;
@@ -1344,7 +1536,7 @@
             },
             false);
 
-        document.addEventListener("touchstart",
+        canvas.addEventListener("touchstart",
             function (ev) {
                 var n = ev.touches.length;
                 if (n == 1) {
@@ -1364,7 +1556,7 @@
             },
             false);
 
-        document.addEventListener("touchend",
+        canvas.addEventListener("touchend",
             function (ev) {
                 var n = ev.touches.length;
                 if (n == 1) {
@@ -1384,7 +1576,7 @@
             },
             false);
 
-        document.addEventListener("touchmove",
+        canvas.addEventListener("touchmove",
             function (ev) {
                 ev.preventDefault();
                 var n = ev.touches.length;
@@ -1414,7 +1606,7 @@
             },
             false);
 
-        document.oncontextmenu = function (event) {
+        canvas.oncontextmenu = function (event) {
             if (mm == 1) {
                 event.preventDefault();
             }
