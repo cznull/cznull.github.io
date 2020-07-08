@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -23,6 +23,9 @@
         }
         function endsize(size) {
             return (2 + Math.random() * 2) * (1 + size);
+        }
+        function danglesize(size) {
+            return 0.01 + 0.15 / (size * size + 2.0);
         }
 
         function drawline(x, y, angle, size) {
@@ -75,7 +78,7 @@
             context.fillStyle = "#cceeff";
             context.fillRect(0, 0, canvas.width, canvas.height);
             function drawlinet(x, y, r, t, dangle) {
-                var cdangle = Math.sin(r.angle) * Math.sin(t) * 0.01;
+                var cdangle = Math.sin(r.angle) * Math.sin(t) * danglesize(r.size);
                 var angle = r.angle + dangle;
                 var xto = x + r.length * Math.cos(angle);
                 var yto = y + r.length * Math.sin(angle);
