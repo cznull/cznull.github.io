@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>卷，就硬卷</title>
+</head>
+<body>
+    <canvas id="tree" width="1280" height="720">
+    </canvas>
+    <script>
+        "use strict";
+        var canvas = document.getElementById("tree");
+        var context = canvas.getContext('2d');
+        function sizedecay(size) {
+            return (0.5 + Math.random() * 0.5) * (1 + 0.1 * size);
+        }
+        function sizelength(size) {
+            return (8 + Math.random() * 2) * Math.sqrt(size * (size + 4)) + Math.random() * 2;
+        }
+        function sizeangle(size) {
+            return 0.15 + 3 / (size * size + 10.0)+size*size*0.002;
+        }
+        function endsize(size) {
+            return (2 + Math.random() * 2) * (1 + size);
+        }
+
+        function drawline(x, y, angle, size) {
+            var length = sizelength(size);
+            var xto = x + length * Math.cos(angle);
+            var yto = y + length * Math.sin(angle);
+
+            context.strokeStyle = "#662200";
+            context.lineWidth = size;
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(xto, yto);
+            context.closePath();
+            context.stroke();
+
+            if (size > 1) {
+                var angleleft = angle - sizeangle(size);
+                var sizeleft = size - sizedecay(size);
+                drawline(xto, yto, angleleft, sizeleft);
+                var angleright = angle + sizeangle(size);
+                var sizeright = size - sizedecay(size);
+                drawline(xto, yto, angleright, sizeright);
+            }
+            else {
+                var end = endsize(size);
+                context.strokeStyle = "#ee2288";
+                context.lineWidth = end*0.2;
+                context.beginPath();
+                context.moveTo(xto, yto);
+                context.lineTo(xto + end * Math.cos(angle + Math.PI * 0.25), yto + end * Math.sin(angle + Math.PI * 0.25));
+                context.lineTo(xto + end * Math.cos(angle), yto + end * Math.sin(angle));
+                context.lineTo(xto + end * Math.cos(angle - Math.PI * 0.25), yto + end * Math.sin(angle - Math.PI * 0.25));
+                context.closePath();
+                context.stroke();
+            }
+        }
+        drawline(640, 600, Math.PI * 1.5, 10);
+    </script>
+</body>
+</html>
