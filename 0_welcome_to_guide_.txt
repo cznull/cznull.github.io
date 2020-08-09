@@ -1,0 +1,440 @@
+//!torch
+[HEADER(is_tutorial=true, is_skippable=true, is_autoable=true, fit_mode="BLACK_MASK", deny_auto_switch_scene=true)] 初始引导
+
+本剧情纯属虚构，仅为玩家对明日方舟夏活复刻的吐槽，请勿当真
+[Delay(time=1)]
+[Dialog]
+// Comments
+[PlayMusic(key="$babel_loop", volume=0.8, delay=0.2)]
+
+[name=""]   哦，是你。
+[Dialog]
+[Image(image="bg_0_babel", fadetime=1, block=true)]
+[ImageTween(image="bg_0_babel", tiled=true, xScaleTo=1.05, yScaleTo=1.05, duration=3, block=false)]
+[ImageTween(image="bg_0_babel", tiled=true, xScaleTo=1.5, yScaleTo=1.5, duration=75, block=false)]
+[name=""]   离我们上一次见面，已经过去了很久。
+[name=""]   这段时间里......你一直<color=#ee4321>《非常快乐》</color>
+[Dialog]
+[Delay(time=1.3)]
+[name=""]   你可能已经忘记了你<color=#ee4321>《平民玩家》</color>的身份，但你还记得那个名字，这就够了。
+[Dialog]
+[name=""]   ——好了，别在这里逗留太久。
+[name=""]   毕竟，你既不是我的，也不应该出现在这里。
+[name=""]   她需要你。
+[Dialog]
+[Delay(time=1)]
+[name=""]   8月11日。
+[name=""]   你可能不知道这一天对你来说，究竟会意味着什么。
+[name=""]   这会让你陷入十分危险的处境。
+[name=""]   ......
+[Blocker(a=1, r=0, g=0, b=0, fadetime=2, block=true)]
+[Image]
+[name=""]   不。
+[name=""]   你必须记住这一天。
+
+[Dialog]
+[Delay(time=1)]
+
+[CameraEffect(effect="Grayscale", fadetime=0, keep=true, initamount=0, amount=1)]
+[Blocker(a=0, r=0, g=0, b=0, fadetime=0, block=true)]
+[Image(image="ac3_title1", fadetime=1)]
+[ImageTween(xScaleTo=1.1, yScaleTo=1.1, duration=6)]
+[PlayMusic(intro="$fesmetal_intro", key="$fesmetal_loop", volume=0.6, crossfade=1.5)]
+[Delay(time=2)]
+
+
+[Background(image="bg_Festival_2", fadetime=3)]
+[name="主持人"]   欢迎你们来到一年一度的汐斯塔黑曜石节！
+
+[name="主持人"]   汐斯塔！让我听到你们的声音！！
+[Image(fadetime=1)]
+[PlaySound(key="$beach", volume=0.4, loop=true, channel="bg")]
+[Character]
+[CameraShake(duration=2, xstrength=8, ystrength=8, vibrato=30, randomness=90, fadeout=true, block=false)]
+[PlaySound(key="$livecrowd", volume=0.4, loop=false, channel="people")]
+[name="观众"]   （狂热的欢呼声）
+[Character(name="avg_npc_017_3#4",fadetime=1, block=true)]
+[name="主持人"]   无论你是什么种族，从哪个城市来，从今天开始，抛弃自己的身份，忘掉所有的烦恼！
+[name="主持人"]   黑曜石节日需要的是每一个人的参与！！融入！！
+[name="主持人"]   把你们每个人的手都举到最高，让我能看到你们每一个人！
+[Character]
+[PlaySound(key="$livecrowd", volume=0.5, loop=false, channel="people")]
+[CameraShake(duration=2, xstrength=12, ystrength=12, vibrato=30, randomness=90, fadeout=true, block=false)]
+[name="观众"]   （狂热的欢呼声）
+[Character(name="avg_npc_017_3#4")]
+[name="主持人"]   老规矩，今年我们也会选出我们黑曜石节的最受欢迎艺人！！
+[name="主持人"]   所以，在狂欢之余，也别忘了给自己最喜欢的音乐艺人进行<color=#ee4321>投票</color>。
+[name="主持人"]   注意！你<color=#ee4321>只有一次机会</color>做出选择，选择的结果将不会有机会做变更。
+[name="主持人"]   但是也请不要担心，投票结果的高低都<color=#ee4321>不会影响</color>大家获得的奖励！
+[name="主持人"]   只要你做出了选择并<color=#ee4321>完成了所有里程碑任务</color>，你将获得相应的里程碑奖励！
+[PlaySound(key="$livecrowd", volume=0.6, loop=false, channel="people")]
+[Character]
+[CameraShake(duration=3, xstrength=15, ystrength=13, vibrato=30, randomness=90, fadeout=true, block=false)]
+[name="观众"]   噢噢噢噢噢噢！
+
+[Character(name="avg_npc_017_3#4")]
+[name="主持人"]   所以，请不要犹豫，为你最喜欢的艺人投上宝贵的一票吧！
+[name="主持人"]   那么接下来，做出你的选择！！告诉我，你最爱的音乐艺人到底在哪里！！
+
+[Dialog]
+[StopMusic(fadetime=1)]
+[delay=1.0]
+
+[CameraEffect(effect="Grayscale", fadetime=0, amount=0, block=false)]
+
+[PlaySound(key="$flashback", volume=0.3)]
+[PlaySound(key="$e_atk_arrow_h", volume=0.2, Delay=0.4)]
+[PlaySound(key="$flashback", volume=0.1, Delay=0.3)]
+
+[PlaySound(key="$flashback", volume=0.2, Delay=0.7)]
+[Blocker(a=1, r=255, g=255, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[Blocker(a=1, r=159, g=254, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[Blocker(a=0.8, r=255, g=96, b=15, afrom=1, rfrom=14, gfrom=0, bfrom=15, fadetime=0.2, block=true)]
+[Blocker(a=0.8, r=0, g=0, b=0, afrom=0.8, rfrom=255, gfrom=96, bfrom=15, fadetime=0.3, block=true)]
+[delay=0.5]
+[Blocker(a=1, r=0, g=0, b=0, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.3, block=true)]
+[Background]
+
+[Character]
+[name="？？？"]   夏活复刻了。
+[name="？？？"]   闪灵的泳装又可以买了。
+[name="？？？"]   斯卡蒂也有新衣服了。
+[name="？？？"]   曾经许诺的艺人家具，也可以获得了。
+[Dialog]
+[Delay(time=1)]
+[name="？？？"]   ......但是......
+[name="？？？"]   首通奖励没了。
+[name="？？？"]   不光是源石，额外的门票，黑曜石，代币，都没有了。
+[Delay(time=0.5)]
+
+[Blocker(a=1, r=0, g=0, b=0, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.3, block=true)]
+[Dialog]
+[Blocker(block=true)]
+[Image]
+[Dialog]
+[PlayMusic(intro="$ekg_loop", key="$ekg_loop", volume=0.8, delay=0)]
+[Blocker(a=1, r=255, g=255, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[CameraEffect(effect="Grayscale", fadetime=0, keep=true, initamount=0, amount=1)]
+[Image(image="bg_0_am", tiled=true, fadetime=0, block=false)]
+
+[Blocker(a=0, fadetime=0.3, block=true)]
+[CameraEffect(effect="Grayscale", fadetime=18, amount=0, block=false)]
+[Delay(time=2)]
+[name="模糊的声音"]   ......知觉......
+[name="模糊的声音"]   开始循环............阻升主......停跳液注入完成......
+[Dialog]
+[Delay(time=2)]
+[CameraEffect(effect="Grayscale", fadetime=8, amount=1, block=false)]
+[name="模糊的声音"]   ......体温过低............熔融源石20cc，静推。
+[Dialog]
+[CameraEffect(effect="Grayscale", fadetime=8, amount=0, block=false)]
+[Delay(time=1)]
+[name="模糊的声音"]   止血钳！
+[name="模糊的声音"]   ......状态正常......开始切除......注意室颤......
+[Dialog]
+[Delay(time=1)]
+[name="模糊的声音"]   ......抱歉......
+[name="模糊的声音"]   又让你受苦了。
+[Delay(time=0.5)]
+[Blocker(a=1, r=0, g=0, b=0, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.3, block=true)]
+[delay=1]
+[Blocker(a=1, r=225, g=225, b=225, afrom=1, rfrom=0, gfrom=0, bfrom=0, fadetime=2, block=true)]
+
+[Image(image="avg_0_2",x=-100, y=-50,xScale=1.3, yScale=1.3, fadetime=0)]
+
+[name="？？？"]   ......
+[name="？？？"]   博士......
+[Blocker(a=0, fadetime=10, block=false)]
+[name="？？？"]   .......手！
+[name="？？？"]   抓......紧！
+[name="？？？"]   抓紧我的手！！
+[Dialog(time=1)]
+[Delay(time=1)]
+
+// 镜头推移效果（阿米娅握手）
+
+
+[Blocker(a=0, fadetime=2, block=false)]
+[Delay(time=3)]
+[PlayMusic(intro="$darkness01_intro", key="$darkness01_loop", volume=0.8, crossfade=1, delay=0.5)]
+[Image(image="avg_0_1",x=-100, y=-50,xScale=1.3, yScale=1.3, fadetime=2)]
+[ImageTween(xFrom=-100, yFrom=-50, xTo=0, yTo=0, xScaleFrom=1.3, yScaleFrom=1.3, xScaleTo=1, yScaleTo=1, duration=35, block=false)]
+[name="？？？"]   ......
+[name="？？？"]   紧急......
+[name="？？？"]   ......救......
+[name="？？？"]   ......束了......！
+[Dialog]
+[Image(fadetime=2)]
+[Delay(time=2)]
+
+[Background(image="bg_indoor_1", width=1, height=1, fadetime=0.5, block=true)]
+
+[Delay(time=1)]
+[Dialog]
+[Character(name="char_002_amiya_1#1")]
+[name="？？？"]   博士，博士！
+[Delay(time=1)]
+[Dialog]
+[name="？？？"]   医生，博士他还好吗？
+[name="？？？"]   刚才，刚才博士......明明已经拉住我的手了。
+[name="？？？"]   但是到现在，博士都没有清醒......怎么办......
+[Character(name="char_016_medic")]
+[name="医疗干员"]   阿米娅！别那么着急，稍微冷静点！
+[Character(name="char_016_medic",name2="char_002_amiya_1#4",focus=2)]
+[name="阿米娅"]   啊......抱，抱歉。
+[Character(name="char_016_medic",name2="char_002_amiya_1#4",focus=1)]
+[name="医疗干员"]   博士只是没有源石了。
+[name="医疗干员"]   本来还期望在夏活复刻时攒点石头，现在怕是行不通了。
+[Character(name="char_016_medic",name2="char_002_amiya_1#4",focus=2)]
+[name="阿米娅"]   我去换上泳装。
+[Character(name="char_016_medic",name2="char_002_amiya_1#4",focus=1)]
+[name="医疗干员"]   ......我知道了。就按你说的做。
+[Character(name="char_016_medic",name2="char_002_amiya_summer_2#1",focus=2)]
+[name="阿米娅"]   那就......拜托你了。
+[Character(name="char_016_medic")]
+[name="医疗干员"]   嗯。呼吸比较微弱，血压正常。应该不要紧的。
+
+[Blocker(a=0.6, r=255, g=150, b=13, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[PlaySound(key="$e_atk_blunt_n")]
+[CameraShake(duration=0.5, xstrength=3, ystrength=4, vibrato=30, randomness=90, block=true)]
+[Blocker(a=0, fadetime=0.2, block=true)]
+[Background(image="bg_indoor_1", width=1, height=1, fadetime=0.5, block=true)]
+
+[Character(name="char_002_amiya_1#6")]
+[name="阿米娅"]   ——！
+[Character(name="char_016_medic")]
+[name="医疗干员"]   ......
+[name="医疗干员"]   你醒了？
+[name="医疗干员"]   阿米娅，成功了，博士清醒了！
+[Character(name="char_002_amiya_1#3")]
+[name="阿米娅"]   博士......？
+[name="阿米娅"]   太好了，太好了......博士......
+[Character(name="char_016_medic")]
+[name="医疗干员"]   啊，小心！你现在还不能......
+
+[Blocker(a=0.5, r=1, g=0.5, b=0.5, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[Blocker(a=0,fadetime=0.1, block=true)]
+[CameraShake(duration=0.5, xstrength=10, ystrength=12, vibrato=15, randomness=90, fadeout=true, block=false)]
+
+[Character(name="char_016_medic")]
+[name="医疗干员"]   先别动，你的理智还没有完全恢复。
+[Character(name="char_002_amiya_1#4")]
+[name="阿米娅"]   博士......？
+[Delay(time=1)]
+[Dialog]
+[Character(name="char_002_amiya_1#3", focus=-1)]
+
+[Decision(options="你们......是谁？", values="1")]
+
+[Predicate(references="1")]
+
+[Character(name="char_002_amiya_1#6")]
+[name="阿米娅"]   啊——博士——我......
+[Character(name="char_002_amiya_1#4")]
+[name="阿米娅"]   ......
+[Character(name="char_002_amiya_1")]
+[name="阿米娅"]   我叫阿米娅。
+[name="阿米娅"]   我们是来告诉你夏活复刻的消息的。
+
+[Decision(options="......我是......？", values="1")]
+
+[Predicate(references="1")]
+
+[Character(name="char_002_amiya_1#4")]
+[name="阿米娅"]   你......
+[name="阿米娅"]   你和我们一样，也是“罗德岛”组织的一员。
+[name="阿米娅"]   ......是我的同伴。
+[name="阿米娅"]   ——Dr.{@nickname}。
+[name="阿米娅"]   我们现在要去接锡兰大小姐。
+[name="阿米娅"]   喝她给你的多娜茶。
+[name="阿米娅"]   博士......不记得了吗？
+
+
+[Decision(options="......我真的能相信你吗？;......;是吗......初次见面，阿米娅。", values="1;2;3")]
+
+[Predicate(references="1")]
+[Character(name="char_002_amiya_1#4")]
+[name="阿米娅"]   (这部分懒得改)
+
+[Predicate(references="2")]
+[Character(name="char_002_amiya_1#4")]
+[name="阿米娅"]   难道说，Dr.{@nickname}也不记得我了......
+[name="阿米娅"]   ......
+[name="阿米娅"]   就算是这样......我也不会放弃的。
+[name="阿米娅"]   我们为了找到你，已经付出了很多很多......
+
+[Predicate(references="3")]
+[name="阿米娅"]   (这部分懒得改)
+
+[Predicate(references="1;2;3")]
+[Character(name="char_002_amiya_1#1")]
+[name="阿米娅"]   至少，对我来说，博士始终是我最重要的人。无论发生什么事，这一点是不会改变的。
+[name="阿米娅"]   所以，请你.....请你多给我一点时间。
+[name="阿米娅"]   哪怕只是一小段时间......
+
+[Decision(options="......", values="1")]
+[Predicate(references="1")]
+
+[Character(name="char_002_amiya_1#1",name2="char_016_medic",focus=2)]
+[name="医疗干员"]   博士真的......失忆了吗？
+[Character(name="char_002_amiya_1#1",name2="char_016_medic",focus=1)]
+[name="阿米娅"]   似乎是的，自从知道夏活复刻的首通奖励没了之后。
+[name="阿米娅"]   没关系，如果，这样能给博士一点空间的话......
+
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=1)]
+[name="可露希尔"] 博士怎么了？
+[name="可露希尔"] 昨天还好好的。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 还不是因为没源石了。
+[name="阿米娅"] 你知道的，博士日常就靠源石维持理智。
+[name="阿米娅"] 突然被告知下个月一个源石都拿不到。
+[name="阿米娅"] 想给斯卡蒂买件新衣服都不行。
+[name="阿米娅"] 理智立刻归零了。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=1)]
+[name="可露希尔"] 想起来了，博士上周念叨过好几次，
+[name="可露希尔"] “如果能把斯卡蒂出一个时装我就更高兴了”
+[name="可露希尔"] “吾辈楷模”
+[name="可露希尔"] 这种让人听不懂的话。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 而且据说重复的锡兰和额外的5个信物也拿不到了。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=1)]
+[name="可露希尔"] 那可是38张黄票呢，这没了咋行。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 鼠王说yj会补偿1800合成玉也就是3个kokodayo。
+[name="阿米娅"] 虽然别人都说这是一些不怀好意的玩家编造消息想拉yj和一些大佬下水。
+[name="阿米娅"] 但我倾向于这不是凭空捏造的。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=1)]
+[name="可露希尔"] 我意见和你一致，如果真实情况时候与这不符，那也是我们争取的结果。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 今年六月，博士连着写了好几篇论文。
+[name="阿米娅"] 专业课的，政治课的，通选课的。
+[name="阿米娅"] 虽然都是学术垃圾，但都写了5000字以上，边写边说什么内卷，保研，绩点。
+[name="阿米娅"] 那段时间磕了过量的源石，现在一个不剩了。
+
+[Character(name="char_134_ifrit_summer_1")]
+[name="伊芙利特"] 写什么论文，一把火烧掉算了。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=1)]
+[name="可露希尔"] 小孩子出去。
+[name="可露希尔"] 话说回来，现在博士怎么样了。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 现在已经醒过来了。
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_summer_2#1",focus=2)]
+[name="阿米娅"] 在我换上泳装之后。
+
+[Character(name="char_007_closre_1#1",name2="char_002_amiya_1#1",focus=1)]
+[name="可露希尔"] 你怎么又给脱了。
+
+[Character(name="char_130_doberm_ex")]
+[name="杜宾"]  抱歉，我来晚了，出什么事了。
+
+[Character(name="char_130_doberm_ex",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 杜宾教官你来的正好，博士刚刚清醒。
+[name="阿米娅"] 我们必须想想办法了，万一以后yj又搞这种让人摸不着头脑的操作。
+[name="阿米娅"] 博士就危险了
+[name="阿米娅"] 搞不好就去隔壁那个叫兰德索尔的移动城市里当骑士去了。
+
+[Character(name="char_355_ethan_1")]
+[name="伊桑"]  我去隔壁看过，好多小姐姐都喜欢博士。
+
+[Character(name="char_130_doberm_ex",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 你什么时候进来的。
+
+[Character(name="char_130_doberm_ex",name2="char_002_amiya_1#1",focus=1)]
+[name="杜宾"]  我们必须行动起来了。
+[name="杜宾"]  要告诉全世界，就算没有了源石，我们也能过得很好。
+[name="杜宾"]  利用好每天有限的理智。
+
+[Character(name="char_130_doberm_ex",name2="char_002_amiya_1#1",focus=2)]
+[name="阿米娅"] 是的，皮肤我们可以自己画。
+[name="阿米娅"] 剧情我们可以自己写，你现在看到的就是。
+[name="阿米娅"] 新的训练关卡我们也可以自己设计。
+[name="阿米娅"] 模拟战斗，我们也一定可以实现。
+[name="阿米娅"] 这是一个全新的计划。
+[name="阿米娅"] 这个计划就叫openark！
+
+
+[name="阿米娅"]   虽然失去了记忆，但博士确实曾与我们......
+[name="阿米娅"]   ......一同战斗过。
+
+[Blocker(a=1, r=255, g=255, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[PlaySound(key="$flashback", volume=0.4)]
+[Background(image="bg_wild_a")]
+[CameraEffect(effect="Grayscale", amount=0.8, keep=true)]
+[Character(name="char_002_amiya_1#8")]
+[Blocker(a=0, fadetime=0.2, block=true)]
+[name="？？？"]   谢谢你教会了我这么多......
+[Blocker(a=1, r=255, g=255, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[PlaySound(key="$flashback", volume=0.1)]
+[CameraEffect(effect="Grayscale", amount=0)]
+[Background(image="bg_indoor_1")]
+
+[character(name="char_002_amiya_1#4")]
+[Blocker(a=0, fadetime=0.1, block=true)]
+
+
+[name="阿米娅"]   ......
+[character(name="char_002_amiya_1")]
+
+[name="阿米娅"]   我们一起经历了许多许多......
+[name="阿米娅"]   我知道的......博士你能为我们带来胜利。
+
+[Blocker(a=1, r=255, g=255, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[PlaySound(key="$flashback", volume=0.4)]
+[Background(image="bg_wild_a")]
+[CameraEffect(effect="Grayscale", amount=0.8, keep=true)]
+[Character(name="char_002_amiya_1#8")]
+[Blocker(a=0, fadetime=0.2, block=true)]
+[name="？？？"]   你能为我们带来胜利。
+[Blocker(a=1, r=255, g=255, b=255, afrom=0, rfrom=0, gfrom=0, bfrom=0, fadetime=0.1, block=true)]
+[PlaySound(key="$flashback", volume=0.1)]
+[CameraEffect(effect="Grayscale", amount=0)]
+[Background(image="bg_indoor_1")]
+[Character(name="char_002_amiya_1")]
+[Blocker(a=0, fadetime=0.1, block=true)]
+
+[name="阿米娅"]   ......我明白这样突然请求你很失礼。 
+[name="阿米娅"]   但是，但是......拜托了，请你助我们一臂之力。
+[Character(name="char_002_amiya_1#2")]
+[name="阿米娅"]   我也会辅助你的！
+
+[name="阿米娅"]   我也不想再把博士你卷入这些纷争。
+[name="阿米娅"]   但现在的我们，非常需要Dr.{@nickname}的智慧。
+[name="阿米娅"]   希望博士能在战斗中，把过去的感觉找回来。
+[Character(name="char_002_amiya_1#4")]
+[name="阿米娅"]   ————也许连你自己都可能还不太相信......
+
+[Character]
+[Background]
+[name="阿米娅"]   但是我相信你。
+[Image(image="avg_0_3", fadetime=0.8)]
+[name="阿米娅"]   ——我相信你，一定可以的。
+
+[name="阿米娅"]   请开始我们的计划
+[name="阿米娅"] openark！
+
+[Delay(time=0.6)]
+[Dialog]
+[Blocker(block=true)]
+[Image]
+
+[SkipToThis]
+[StartBattle(stageId="guide_01")]
+[Tutorial(waitForSignal="battle_start")]
+
+
+
+
+
+
+
+
