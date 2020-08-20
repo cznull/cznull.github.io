@@ -1,0 +1,415 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div style="width:950px">
+        <canvas id="honor_canvas" width="950" height="500">
+        </canvas>
+        <div style="display:block">
+            <button id="honor_save">save</button>
+            <button id="honor_load">load</button>
+            <span id="honor_conf" contenteditable="true"></span>
+        </div>
+        <div style="display:none" id="honorinit">
+            [
+            [[28, 29], [25, 24], [12, 28], [14, 29], [25, 20], [40, 42], [16, 30], [18, 31], [20, 32], [31, 22], [19, 16], [22, 33], [44, 44], [24, 34], [42, 43], [25, 16], [26, 35], [28, 36], [22, 27], [34, 39], [30, 37], [38, 41], [36, 40], [22, 26], [32, 38], [29, 24], [29, 33], [18, 19]],
+            [[28, 29], [25, 24], [12, 28], [14, 29], [25, 20], [42, 43], [16, 30], [18, 31], [20, 32], [31, 23], [19, 16], [22, 33], [30, 37], [24, 34], [27, 24], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 25], [34, 39], [44, 44], [29, 33], [18, 19]],
+            [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [42, 43], [16, 30], [18, 31], [20, 32], [31, 23], [19, 15], [22, 33], [34, 39], [24, 34], [27, 24], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [30, 37], [40, 42], [38, 41], [22, 26], [32, 38], [44, 44], [28, 29], [17, 17]],
+            [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [29, 25], [16, 30], [18, 31], [20, 32], [31, 23], [19, 15], [22, 33], [30, 37], [24, 34], [40, 42], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [42, 43], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [17, 17]],
+            [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [30, 26], [16, 30], [18, 31], [20, 32], [31, 23], [19, 15], [22, 33], [30, 37], [24, 34], [40, 42], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [42, 43], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [17, 17]],
+            [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [32, 26], [16, 30], [18, 31], [20, 32], [31, 22], [19, 16], [22, 33], [30, 37], [24, 34], [40, 42], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [42, 43], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [21, 20]],
+            [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [32, 26], [16, 30], [18, 31], [20, 32], [31, 22], [19, 17], [22, 33], [30, 37], [24, 34], [23, 22], [25, 16],[26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [44, 44], [28, 28], [42, 43]],
+            [[29, 33], [25, 24], [12, 28], [14, 29], [25, 20], [32, 24], [16, 30], [18, 31], [20, 32], [31, 21], [19, 17], [22, 33], [30, 37], [24, 34], [23, 22], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [42, 43]],
+            [[29, 33], [25, 24], [12, 28], [14, 29], [25, 20], [32, 25], [16, 30], [18, 31], [20, 32], [31, 21], [19, 17], [22, 33], [30, 37], [24, 34], [44, 44], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [42, 43], [28, 29], [20, 21]],
+            [[29, 33], [25, 24], [12, 28], [14, 29], [25, 20], [32, 25], [16, 30], [18, 31], [20, 32], [31, 21], [19, 17], [22, 33], [30, 37], [24, 34], [44, 44], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [42, 43], [28, 29], [18, 20]]
+            ]
+        </div>
+    </div>
+    <script>
+        "use strict";
+
+        (function (items,init) {
+            var data = { "items": [] };
+            var canvas = document.getElementById("honor_canvas");
+            var context = canvas.getContext('2d');
+            var focus = -1;
+            var needupdate;
+            var mousex, mousey;
+            var scale = 14;
+
+            canvas.addEventListener("mousedown", pickitem);
+            canvas.addEventListener("touchstart",
+                function (ev) {
+                    if (ev.touches.length == 1) {
+                        pickitem(ev.touches[0]);
+                    }
+                }
+            );
+            canvas.addEventListener("mousemove", moveitem);
+            canvas.addEventListener("touchmove",
+                function (ev) {
+                    if (ev.touches.length == 1) {
+                        ev.preventDefault();
+                        moveitem(ev.touches[0]);
+                    }
+                }
+            );
+            canvas.addEventListener("mouseup", setitem);
+            canvas.addEventListener("mouseleave", setitem);
+            canvas.addEventListener("touchend",
+                function (ev) {
+                    if (ev.touches.length == 0) {
+                        setitem(null);
+                    }
+                }
+            );
+            loaditems();
+            draw();
+            setsaveandload();
+
+            function otoh(x, y) {
+                return { "x": Math.sqrt(4 / 3) * x / scale, "y": (y + Math.sqrt(1 / 3) * x) / scale };
+            }
+            function htoo(x, y) {
+                return { "x": Math.sqrt(3 / 4) * x * scale, "y": (y - 0.5 * x) * scale };
+            }
+            function nearest(x, y) {
+                var xay = Math.floor(x + y);
+                var ix = Math.floor((x - 0.5 * y + 0.5 * xay + 1.0) / 1.5);
+                var iy = Math.floor((y - 0.5 * x + 0.5 * xay + 1.0) / 1.5);
+                return { "x": ix, "y": iy };
+            }
+            function additem(name, id) {
+                var g = 55;
+                var ox, oy;
+                if (id < 30) {
+                    ox = Math.floor(id / 5) * g+0.5*g;
+                    oy = id % 5 * g + 0.5 *g;
+                }
+                else {
+                    ox = (Math.floor((id - 30) / 4) + 1.0) * g;
+                    oy = ((id - 30) % 4 + 1.0) * g;
+                }
+                var x = otoh(ox, oy).x, y = otoh(ox, oy).y;//h
+                //x = 0;
+                //y = 100;
+                //var x = id + 11, y = Math.floor(id / 2) + 26 + 2 * (id % 2);//h
+                var ax, ay;
+                var img = new Image();
+                var drawline = 0;
+                var inbox = 1;
+                var r;
+                img.src = name;
+                img.onload = function () {
+                    r = Math.floor(img.height / scale / 2 + 0.5);
+                    needupdate = 1;
+                    data.items[id] = {
+                        "predraw": predraw,
+                        "draw": draw,
+                        "pick": pick,
+                        "move": move,
+                        "set": set,
+                        "save": save,
+                        "load": load,
+                        "checkfocus": checkfocus
+                    };
+                };
+                function checkvalid(x, y) {
+                    if (x > 0.5 && x < 46.5 && y - 0.5 * x > 0.25 && y - 0.5 * x < 22.75) {
+                        if (y - 0.5 * x < 19.75) {
+                            return 1;
+                        }
+                        else {
+                            return -1;
+                        }
+                    }
+                    else {
+                        return 0;
+                    }
+                }
+                function checkfocus(mx, my) {
+                    var rb = (inbox ? 1 : r);
+                    var dx = otoh(mx, my).x - x;
+                    var dy = otoh(mx, my).y - y;
+                    return dx < rb && dx > -rb && dy < rb && dy > -rb && dx - dy < rb && dx - dy > -rb;
+                }
+                function pick() {
+                    ax = x;
+                    ay = y;
+                    drawline = 1;
+                    needupdate = 1;
+                }
+                function move(dx, dy) {
+                    x = x + otoh(dx, dy).x;
+                    y = y + otoh(dx, dy).y;
+                    var temp = nearest(x, y);
+                    switch (checkvalid(temp.x, temp.y)) {
+                        case 1:
+                            ax = x;
+                            ay = y;
+                            inbox = 1;
+                            break;
+                        case -1:
+                            ax = x;
+                            ay = y;
+                            inbox = 1;
+                            break;
+                    }
+                    needupdate = 1;
+                }
+                function set() {
+                    x = ax;
+                    y = ay;
+                    needupdate = 1;
+                    drawline = 0;
+                }
+                function predraw() {
+                    var rb = (inbox ? 1.0 : r) - 0.2;
+                    context.fillStyle = "#ffffff";
+                    var c = htoo(x, y);
+                    for (var p = 0; p < 5; p++) {
+                        context.beginPath();
+                        context.moveTo(c.x, c.y);
+                        context.lineTo(c.x + Math.sin(p / 5 * 6.2832) * scale * rb, c.y - Math.cos(p / 5 * 6.2832) * scale * rb);
+                        context.lineTo(c.x + Math.sin((p + 2) / 5 * 6.2832) * scale * rb, c.y - Math.cos((p + 2) / 5 * 6.2832) * scale * rb);
+                        context.closePath();
+                        context.fill();
+                    }
+                }
+                function draw() {
+                    if (drawline) {
+                        var rb = (inbox ? 1 : r) - 0.1;
+                        context.strokeStyle = "#8080f0";
+                        context.lineWidth = 2;
+                        context.beginPath();
+                        context.moveTo(htoo(ax - rb, ay - rb).x, htoo(ax - rb, ay - rb).y);
+                        context.lineTo(htoo(ax - rb, ay).x, htoo(ax - rb, ay).y);
+                        context.lineTo(htoo(ax, ay + rb).x, htoo(ax, ay + rb).y);
+                        context.lineTo(htoo(ax + rb, ay + rb).x, htoo(ax + rb, ay + rb).y);
+                        context.lineTo(htoo(ax + rb, ay).x, htoo(ax + rb, ay).y);
+                        context.lineTo(htoo(ax, ay - rb).x, htoo(ax, ay - rb).y);
+                        context.closePath();
+                        context.stroke();
+                    }
+                    if (inbox) {
+                         context.drawImage(img, htoo(x, y).x - img.width / 2 / r, htoo(x, y).y - img.height / 2 / r, img.width / r, img.height / r);
+                    }
+                    else {
+                        context.drawImage(img, htoo(x, y).x - img.width / 2, htoo(x, y).y - img.height / 2);
+                    }
+                }
+                function save() {
+                    return [x, y];
+                }
+                function load(p) {
+                    if (p) {
+                        switch (checkvalid(p[0], p[1])) {
+                            case 1:
+                                x = p[0]-10;
+                                y = p[1]-5;
+                                inbox = 0;
+                                break;
+                            case -1:
+                                x = p[0] - 10;
+                                y = p[1] - 5;
+                                inbox = 1;
+                                break;
+                        }
+                    }
+                    needupdate = 1;
+                }
+            }
+
+
+            function choosefocus(x, y) {
+                for (var i = 0; i < data.items.length; i++) {
+                    if (data.items[i].checkfocus(x, y)) {
+                        focus = i;
+                    }
+                }
+            }
+
+            function getlayerpos(ev) {
+                if (!ev.layerX) {
+                    ev.layerX = ev.pageX;
+                    ev.layerY = ev.pageY;
+                    var t = ev.target;
+                    while (t.offsetParent) {
+                        ev.layerX -= t.offsetLeft;
+                        ev.layerY -= t.offsetTop;
+                        t = t.offsetParent;
+                    }
+                }
+            }
+
+            function pickitem(ev) {
+                if (focus >= 0) {
+                    data.items[focus].set();
+                }
+                focus = -1;
+                getlayerpos(ev);
+                choosefocus(ev.layerX, ev.layerY);
+                if (focus >= 0) {
+                    data.items[focus].pick();
+                }
+                mousex = ev.layerX;
+                mousey = ev.layerY;
+            }
+
+            function moveitem(ev) {
+                getlayerpos(ev);
+                if (focus >= 0) {
+                    data.items[focus].move(ev.layerX - mousex, ev.layerY - mousey);
+                }
+                mousex = ev.layerX;
+                mousey = ev.layerY;
+            }
+
+            function setitem(ev) {
+                if (focus >= 0) {
+                    data.items[focus].set();
+                }
+                focus = -1;
+            }
+
+            function draw() {
+                window.requestAnimationFrame(draw);
+                if (needupdate) {
+                    needupdate = 0;
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.fillStyle = "#ffffff";
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.fillStyle = "#aa0000";
+                    for (var i = 0; i < 7; i++) {
+                        context.beginPath();
+                        context.moveTo(0, canvas.height * (i * 2 / 13));
+                        context.lineTo(canvas.width, canvas.height * (i * 2 / 13));
+                        context.lineTo(canvas.width, canvas.height * ((i * 2 + 1) / 13));
+                        context.lineTo(0, canvas.height * ((i * 2 + 1) / 13));
+                        context.fill();
+                    }
+                    context.fillStyle = "#002266";
+
+                    context.beginPath();
+                    context.moveTo(0, 0);
+                    context.lineTo(canvas.width * 0.4, 0);
+                    context.lineTo(canvas.width * 0.4, canvas.height * (7 / 13));
+                    context.lineTo(0, canvas.height * (7 / 13));
+                    context.fill();
+
+                    for (var i = 0; i < data.items.length; i++) {
+                        if (data.items[i]) {    
+                            data.items[i].predraw();
+                            //data.items[i].draw();
+                        }
+                    }
+                }
+            }
+            function loaditems() {
+                for (var i = 0; i < 50; i++) {
+                    additem(items[i], i);
+                }
+            }
+            function setsaveandload() {
+                function load() {
+                    var conf = JSON.parse(document.getElementById("honor_conf").innerText);
+                    debugger;
+                    for (var i = 0; i < conf.length; i++) {
+                        data.items[i].load(conf[i]);
+                    }
+                }
+                function save() {
+                    var conf = [];
+                    for (var i = 0; i < data.items.length; i++) {
+                        conf[i] = data.items[i].save();
+                    }
+                    document.getElementById("honor_conf").innerText = JSON.stringify(conf);
+                }
+                document.getElementById("honor_save").onclick = save;
+                document.getElementById("honor_load").onclick = load;
+            }
+            var z = [
+                [[28, 29], [25, 24], [12, 28], [14, 29], [25, 20], [40, 42], [16, 30], [18, 31], [20, 32], [31, 22], [19, 16], [22, 33], [44, 44], [24, 34], [42, 43], [25, 16], [26, 35], [28, 36], [22, 27], [34, 39], [30, 37], [38, 41], [36, 40], [22, 26], [32, 38], [29, 24], [29, 33], [18, 19]],
+                [[28, 29], [25, 24], [12, 28], [14, 29], [25, 20], [42, 43], [16, 30], [18, 31], [20, 32], [31, 23], [19, 16], [22, 33], [30, 37], [24, 34], [27, 24], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 25], [34, 39], [44, 44], [29, 33], [18, 19]],
+                [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [42, 43], [16, 30], [18, 31], [20, 32], [31, 23], [19, 15], [22, 33], [34, 39], [24, 34], [27, 24], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [30, 37], [40, 42], [38, 41], [22, 26], [32, 38], [44, 44], [28, 29], [17, 17]],
+                [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [29, 25], [16, 30], [18, 31], [20, 32], [31, 23], [19, 15], [22, 33], [30, 37], [24, 34], [40, 42], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [42, 43], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [17, 17]],
+                [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [30, 26], [16, 30], [18, 31], [20, 32], [31, 23], [19, 15], [22, 33], [30, 37], [24, 34], [40, 42], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [42, 43], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [17, 17]],
+                [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [32, 26], [16, 30], [18, 31], [20, 32], [31, 22], [19, 16], [22, 33], [30, 37], [24, 34], [40, 42], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [42, 43], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [21, 20]],
+                [[28, 30], [25, 24], [12, 28], [14, 29], [25, 20], [32, 26], [16, 30], [18, 31], [20, 32], [31, 22], [19, 17], [22, 33], [30, 37], [24, 34], [23, 22], [25, 16], [26, 35], [28, 36], [21, 29], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [44, 44], [28, 28], [42, 43]],
+                [[29, 33], [25, 24], [12, 28], [14, 29], [25, 20], [32, 24], [16, 30], [18, 31], [20, 32], [31, 21], [19, 17], [22, 33], [30, 37], [24, 34], [23, 22], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [44, 44], [28, 29], [42, 43]],
+                [[29, 33], [25, 24], [12, 28], [14, 29], [25, 20], [32, 25], [16, 30], [18, 31], [20, 32], [31, 21], [19, 17], [22, 33], [30, 37], [24, 34], [44, 44], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [42, 43], [28, 29], [20, 21]],
+                [[29, 33], [25, 24], [12, 28], [14, 29], [25, 20], [32, 25], [16, 30], [18, 31], [20, 32], [31, 21], [19, 17], [22, 33], [30, 37], [24, 34], [44, 44], [25, 16], [26, 35], [28, 36], [22, 27], [36, 40], [32, 38], [40, 42], [38, 41], [22, 26], [34, 39], [42, 43], [28, 29], [18, 20]]
+            ];
+            var f = 0;
+            function mo() {
+                setTimeout(mo, 50);
+                for (var i = 0; i < init[f].length; i++) {
+                    data.items[i].load(init[f][i]);
+                }
+                f = (f + 1) % init.length;
+            }
+            if (init.length) {
+             //   mo();
+            }
+        })([
+            "http://prts.wiki/images/2/23/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%83%E9%94%A4%E7%99%BE%E7%82%BC%E5%A5%96%E7%AB%A0%C2%B7I.png",
+            "http://prts.wiki/images/7/77/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%83%E9%94%A4%E7%99%BE%E7%82%BC%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/6/6f/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%83%E9%94%A4%E7%99%BE%E7%82%BC%E5%A5%96%E7%AB%A0%C2%B7III.png",
+            "http://prts.wiki/images/d/d4/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E7%99%BE%E6%97%A5%E7%9A%84%E6%80%9D%E7%B4%A2%E4%B8%8E%E5%86%B3%E7%AD%96%E2%80%9D.png",
+            "http://prts.wiki/images/2/29/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E4%B8%80%E5%B9%B4%E7%9A%84%E9%8F%96%E6%88%98%E4%B8%8E%E5%AE%88%E6%9C%9B%E2%80%9D.png",
+            "http://prts.wiki/images/8/86/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7I.png",
+            "http://prts.wiki/images/f/fa/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/9/97/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7III.png",
+            "http://prts.wiki/images/b/bb/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B2%E5%91%98%E8%81%94%E7%BB%9C%E5%A5%96%E7%AB%A0%C2%B7IV.png",
+            "http://prts.wiki/images/8/8c/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7I.png",
+            "http://prts.wiki/images/2/25/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/c/c9/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7III.png",
+            "http://prts.wiki/images/a/aa/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7IV.png",
+            "http://prts.wiki/images/a/a8/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%85%AC%E5%BC%80%E6%8B%9B%E5%8B%9F%E5%A5%96%E7%AB%A0%C2%B7V.png",
+            "http://prts.wiki/images/7/79/%E8%9A%80%E5%88%BB%E7%AB%A0_%E6%83%85%E6%8A%A5%E5%BD%92%E6%A1%A3%E7%A1%AE%E8%AE%A4%E7%AB%A0.png",
+            "http://prts.wiki/images/6/6e/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B4%E7%9A%84%E5%8D%B0%E7%AB%A0.png",
+            "http://prts.wiki/images/2/25/%E8%9A%80%E5%88%BB%E7%AB%A0_%E4%B8%8B%E5%8D%88%E8%8C%B6%E9%9B%86%E6%8D%A2%E7%AB%A0.png",
+            "http://prts.wiki/images/a/a9/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E9%87%8D%E9%93%B8%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/1/10/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/e/e4/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/6/61/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0%C2%B7II_%E9%95%80%E5%B1%82.png",
+            "http://prts.wiki/images/f/f7/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E6%88%98%E6%9C%8D%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/b/bb/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E9%98%B5%E5%9C%B0%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/6/66/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%93%8D%E5%BA%94%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/5/54/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%93%8D%E5%BA%94%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/a/af/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E8%B7%8B%E6%B6%89%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/0/00/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E6%BC%94%E4%B9%A0%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/e/e3/%E8%9A%80%E5%88%BB%E7%AB%A0_%E9%BB%84%E9%93%81%E5%90%88%E4%BD%9C%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/3/30/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%BD%BC%E5%BE%97%E6%B5%B7%E5%A7%86%E4%B8%AD%E5%AD%A6%E6%A0%A1%E5%BE%BD.png",
+            "http://prts.wiki/images/4/46/%E8%9A%80%E5%88%BB%E7%AB%A0_%E7%A0%B4%E6%8D%9F%E7%9A%84%E5%88%87%E5%B0%94%E8%AF%BA%E4%BC%AF%E6%A0%BC%E8%AD%A6%E5%BE%BD.png",
+            "http://prts.wiki/images/9/97/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%8D%81%E4%BA%8C%E9%9F%B3%E7%BA%AA%E5%BF%B5%E7%AB%A0.png",
+            "http://prts.wiki/images/2/2d/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B9%B3%E6%81%AF%E8%80%85%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/c/c5/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%9F%8E%E9%95%87%E5%A4%8D%E5%85%B4%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/a/a6/%E8%9A%80%E5%88%BB%E7%AB%A0_%E4%BA%9A%E5%8F%B6%E7%9A%84%E6%89%8B%E5%B7%A5%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/c/cf/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%AE%AA%E5%85%B5%E9%98%9F%E7%AA%81%E5%87%BB%E5%A5%96%E7%AB%A0_%E9%95%80%E5%B1%82.png",
+            "http://prts.wiki/images/3/3b/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%AE%AA%E5%85%B5%E9%98%9F%E7%AA%81%E5%87%BB%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/7/7b/%E8%9A%80%E5%88%BB%E7%AB%A0_%E6%B2%83%E4%BC%A6%E5%A7%86%E5%BE%B7%E8%8D%A3%E8%AA%89%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/d/d7/%E8%9A%80%E5%88%BB%E7%AB%A0_%E7%8B%AC%E5%A5%8F%E8%80%85%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/0/03/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E5%86%AC%E7%81%B5%E7%9A%84%E8%AF%97%E6%AD%8C%E2%80%9D.png",
+            "http://prts.wiki/images/e/e9/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%B2%A9%E7%9F%B3%E9%9F%B3%E4%B9%90%E5%AE%B6%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/2/21/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E7%AC%AC%E5%85%AB%E4%B8%AA%E6%9C%88%E4%BA%AE%E2%80%9D.png",
+            "http://prts.wiki/images/1/15/%E8%9A%80%E5%88%BB%E7%AB%A0_%E2%80%9C%E9%9D%9E%E6%88%8F%E5%89%A7%E6%80%A7%E6%83%A8%E6%A1%88%E2%80%9D.png",
+            "http://prts.wiki/images/d/d5/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E9%98%B5%E5%9C%B0%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/b/bb/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E6%BC%94%E4%B9%A0%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/2/2c/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%93%8D%E5%BA%94%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/3/32/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%93%8D%E5%BA%94%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/3/34/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%90%88%E4%BD%9C%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/e/e8/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0%C2%B7II.png",
+            "http://prts.wiki/images/0/07/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0%C2%B7II_%E9%95%80%E5%B1%82.png",
+            "http://prts.wiki/images/2/2b/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%90%88%E7%BA%A6%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/1/13/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%B9%B2%E5%91%98%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/b/b6/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E5%87%BA%E9%9E%98%E5%A5%96%E7%AB%A0.png",
+            "http://prts.wiki/images/7/7b/%E8%9A%80%E5%88%BB%E7%AB%A0_%E5%88%A9%E5%88%83%E8%B7%8B%E6%B6%89%E5%A5%96%E7%AB%A0.png"
+        ], document.getElementById("honorinit").innerText?JSON.parse(document.getElementById("honorinit").innerText):[]);
+    </script>
+</body>
+</html>
