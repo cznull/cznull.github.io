@@ -1,0 +1,605 @@
+
+<!-- saved from url=(0032)https://cznull.github.io/parasur -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="user-scalable=no">
+    <title>parasur</title>
+    <style>
+
+        body {
+        }
+
+        .sr {
+            width: 400px;
+        }
+
+        #c1 {
+            background: #fbf7fe;
+        }
+
+        #btn {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+        }
+
+        #c1 {
+        }
+
+        #config {
+            position: fixed;
+            left: 0px;
+            top: 30px;
+            display: inline;
+        }
+    </style>
+</head>
+<body style="overflow-x:hidden;overflow-y:hidden">
+    <canvas id="c1" width="2048" height="1042">
+        <span>不支持canvas浏览器</span>
+    </canvas>
+    <div>
+        <input type="range" id="zoom" class="sr" value="0" min="-1" max="1" step="0.001">
+    </div>
+    <script>
+
+
+        var cx, cy;
+        var canvas;
+        var gl, glview, glproject;
+        var md = 0,mx,my;
+        var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
+        var ml = 0, mr = 0, mm = 0;
+        var len = 1.5;
+        var ang1 = 0.0;
+        var ang2 = 0.0;
+        var cenx = 0.0;
+        var ceny = 0.0;
+        var cenz = 0.0;
+        var vbuffer=[], cbuffer=[], nbuffer=[];
+        var points = [];
+        var MapSize =1048580;
+        var noqi = 32;
+        var Noq = 4096;
+        var coslim = 1.0 - 1.0 / 16, aculim = 0.001;
+        var quaMap = Array();
+        var Mapbot = Array();
+        var Maprig = Array();
+        var Maptop = Array();
+        var Maplef = Array();
+        var Mapfat = Array();
+        var qual = Array();
+        var quau = Array();
+        var quav = Array();
+        var end = 0;
+        var s =
+            "getv = function (u,v){\n" +
+            "   u=u*2-1;v=v*2-1;\n" +
+            "   return {\n" +
+            "       \"x\":u,\n" +
+            "       \"y\":v,\n" +
+            "       \"z\":cos((u*u - v * v)*6.2832 * 10)\n" +
+            "   };\n" +
+            "};\n"+
+            "MapSize = 4194304;\n" +
+            "noqi = 32;\n" +
+            "Noq = 8192;\n" +
+            "coslim = 1.0 - 1.0 / 12;\n" +
+            "aculim = 0.001;\n"+
+"clear();\n";
+
+        cos = Math.cos;
+        sin = Math.sin;
+        sqrt = Math.sqrt;
+        max = Math.max;
+        min = Math.min;
+        abs = Math.abs;
+
+        var vbuffer, nbuffer, cbuffer;
+
+        function ontimer() {
+            draw();
+            window.requestAnimationFrame(ontimer);
+        }
+        canvas=document.getElementById('c1');
+        window.onload = function () {
+            cx = 1280;
+            cy = 720;
+            document.getElementById("c1").setAttribute("width", cx);
+            document.getElementById("c1").setAttribute("height", cy);
+            var VSHADER_SOURCE =
+                "#version 100 \n" +
+                "precision highp float;\n" +
+                "attribute vec3 vertex,normal,color;" +
+                "varying vec4 fc;" +
+                "varying vec4 a;" +
+                "float l;" +
+                "varying vec4 ntemp;" +
+                "uniform mat4 view,project;" +
+                "void main() {" +
+                "   ntemp=vec4(normal,0.0);" +
+                "	ntemp = view * ntemp;" +
+                "   a=vec4(vertex,1.0);" +
+                "	a = view* a;" +
+                "	fc = vec4(color,1.0);" +
+                "	gl_Position =  project*a;" +
+                "}";
+
+            var FSHADER_SOURCE =
+                "#version 100 \n" +
+                "precision highp float;\n" +
+                "varying vec4 fc;" +
+                "float s,t,u;" +
+                "vec3 texdir;" +
+                "varying vec4 a;" +
+                "vec3 b,c;" +
+                "varying vec4 ntemp;" +
+                "void main(){" +
+                "	b=vec3(a);" +
+                "	b=normalize(b);" +
+                "	c=vec3(ntemp);" +
+                "	c=normalize(c);" +
+                "	c=(gl_FrontFacing)?c:-c;" +
+                "	texdir=reflect(b,c);" +
+                "	s=texdir.x*0.276+texdir.y*0.920+texdir.z*0.276;" +
+                "	t=c.x*0.276+c.y*0.920+c.z*0.276;" +
+                "	t=0.5*t+0.46875*sqrt(t*t+0.137778);" +
+                "	s=(s>0.0)?s:0.0;" +
+                "	s=pow(s,4.0);" +
+                "	s=s*0.54+t*0.40+0.05;" +
+                "	s=pow(s,0.5);" +
+                "	gl_FragColor.r = fc.r*s;" +
+                "	gl_FragColor.g = fc.g*s;" +
+                "	gl_FragColor.b = fc.b*s;" +
+                "	gl_FragColor.a = 1.0;" +
+                "}";
+            gl = canvas.getContext('webgl');
+
+            gl.enable(gl.DEPTH_TEST);
+
+            vertshader = gl.createShader(gl.VERTEX_SHADER);
+            fragshader = gl.createShader(gl.FRAGMENT_SHADER);
+            shaderProgram = gl.createProgram();
+
+            gl.shaderSource(vertshader, VSHADER_SOURCE);
+            gl.compileShader(vertshader);
+            var infov = gl.getShaderInfoLog(vertshader);
+
+            gl.shaderSource(fragshader, FSHADER_SOURCE);
+            gl.compileShader(fragshader);
+            var infof = gl.getShaderInfoLog(fragshader);
+
+            gl.attachShader(shaderProgram, vertshader);
+            gl.attachShader(shaderProgram, fragshader);
+            gl.linkProgram(shaderProgram);
+            gl.useProgram(shaderProgram);
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                var info = gl.getProgramInfoLog(shaderProgram);
+                alert('Could not compile WebGL program. \n\n' + infov + infof + info);
+            }
+            glvertex = gl.getAttribLocation(shaderProgram, 'vertex');
+            glnormal = gl.getAttribLocation(shaderProgram, 'normal');
+            glcolor = gl.getAttribLocation(shaderProgram, 'color');
+            glview = gl.getUniformLocation(shaderProgram, 'view');
+            glproject = gl.getUniformLocation(shaderProgram, 'project');
+
+            gl.enableVertexAttribArray(glvertex);
+            gl.enableVertexAttribArray(glnormal);
+            gl.enableVertexAttribArray(glcolor);
+
+            vbuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                0, sqrt(3) / 2, 0,
+                sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+                sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+                0, sqrt(3) / 2, 0,
+                sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+                0, sqrt(3) / 6, -sqrt(2 / 3),
+
+
+                0, sqrt(3) / 2, 0,
+                -sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+                -sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+                0, sqrt(3) / 2, 0,
+                0, sqrt(3) / 6, -sqrt(2 / 3),
+                -sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+
+
+                0, sqrt(3) / 2, 0,
+                -sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+                0, -sqrt(3) / 6, sqrt(2 / 3),
+                0, sqrt(3) / 2, 0,
+                0, -sqrt(3) / 6, sqrt(2 / 3),
+                sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+
+                
+                0, -sqrt(3) / 2, 0,
+                sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+                0, -sqrt(3) / 2, 0,
+                sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+                0, -sqrt(3) / 6, sqrt(2 / 3),
+
+
+                0, -sqrt(3) / 2, 0,
+                -sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+                -sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+                0, -sqrt(3) / 2, 0,
+                0, -sqrt(3) / 6, sqrt(2 / 3),
+                -sqrt(0.5), sqrt(3) / 6, sqrt(1 / 6),
+
+
+                0, -sqrt(3) / 2, 0,
+                -sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+                0, sqrt(3) / 6, -sqrt(2 / 3),
+                0, -sqrt(3) / 2, 0,
+                0, sqrt(3) / 6, -sqrt(2 / 3),
+                sqrt(0.5), -sqrt(3) / 6, -sqrt(1 / 6),
+
+
+            ]), gl.STATIC_DRAW);
+
+
+            cbuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+
+                -sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                -sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                -sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                -sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                -sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+                -sqrt(0.5), sqrt(3) / 3, -sqrt(1 / 6),
+
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+
+                sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+
+
+                -sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                -sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                -sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                -sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                -sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+                -sqrt(0.5), -sqrt(3) / 3, sqrt(1 / 6),
+
+
+                0, -sqrt(3) / 3, -sqrt(2 / 3),
+                0, -sqrt(3) / 3, -sqrt(2 / 3),
+                0, -sqrt(3) / 3, -sqrt(2 / 3),
+                0, -sqrt(3) / 3, -sqrt(2 / 3),
+                0, -sqrt(3) / 3, -sqrt(2 / 3),
+                0, -sqrt(3) / 3, -sqrt(2 / 3),
+
+
+            ]), gl.STATIC_DRAW);
+
+
+            nbuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+
+
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+                sqrt(0.5), sqrt(3) / 3, sqrt(1 / 6),
+
+
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+                0, sqrt(3) / 3, sqrt(2 / 3),
+
+
+            ]), gl.STATIC_DRAW);
+
+            gl.viewport(0, 0, cx, cy);
+            window.requestAnimationFrame(ontimer);
+
+        }
+
+        var pixelscale = 1.0;
+
+        function draw() {
+            if (document.getElementById('zoom').value) {
+                var s = Math.exp(0.02 * document.getElementById('zoom').value);
+                pixelscale = pixelscale * s;
+            }
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                0, pixelscale *sqrt(3) / 2, 0,
+                sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+                sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+                0, pixelscale *sqrt(3) / 2, 0,
+                sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+                0, pixelscale * sqrt(3) / 6, -sqrt(2 / 3),
+
+
+                0, pixelscale * sqrt(3) / 2, 0,
+                -sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+                -sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+                0, pixelscale *sqrt(3) / 2, 0,
+                0, pixelscale * sqrt(3) / 6, -sqrt(2 / 3),
+                -sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+
+
+                0, pixelscale *sqrt(3) / 2, 0,
+                -sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+                0, -pixelscale *sqrt(3) / 6, sqrt(2 / 3),
+                0, pixelscale *sqrt(3) / 2, 0,
+                0, -pixelscale *sqrt(3) / 6, sqrt(2 / 3),
+                sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+
+
+                0, -pixelscale *sqrt(3) / 2, 0,
+                sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+                sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+                0, -pixelscale *sqrt(3) / 2, 0,
+                sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+                0, -pixelscale *sqrt(3) / 6, sqrt(2 / 3),
+
+
+                0, -pixelscale *sqrt(3) / 2, 0,
+                -sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+                -sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+                0, -pixelscale *sqrt(3) / 2, 0,
+                0, -pixelscale *sqrt(3) / 6, sqrt(2 / 3),
+                -sqrt(0.5), pixelscale *sqrt(3) / 6, sqrt(1 / 6),
+
+
+                0, -pixelscale *sqrt(3) / 2, 0,
+                -sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+                0, pixelscale *sqrt(3) / 6, -sqrt(2 / 3),
+                0, -pixelscale *sqrt(3) / 2, 0,
+                0, pixelscale *sqrt(3) / 6, -sqrt(2 / 3),
+                sqrt(0.5), -pixelscale *sqrt(3) / 6, -sqrt(1 / 6),
+
+
+            ]), gl.STATIC_DRAW);
+
+            mat = Array(16);
+            mat[0] = cos(ang1);
+            mat[1] = sin(ang1) * sin(ang2);
+            mat[2] = -sin(ang1) * cos(ang2);
+            mat[3] = 0.0;
+
+            mat[4] = 0.0;
+            mat[5] = cos(ang2);
+            mat[6] = sin(ang2);
+            mat[7] = 0.0;
+
+            mat[8] = sin(ang1);
+            mat[9] = -cos(ang1) * sin(ang2);
+            mat[10] = cos(ang1) * cos(ang2);
+            mat[11] = 0.0;
+
+            mat[12] = -cenx * mat[0] - ceny * mat[4] - cenz * mat[8];
+            mat[13] = -cenx * mat[1] - ceny * mat[5] - cenz * mat[9];
+            mat[14] = -len - cenx * mat[2] - ceny * mat[6] - cenz * mat[10];
+            mat[15] = 1.0;
+
+            gl.uniformMatrix4fv(glview, false, new Float32Array(mat));
+
+            var near = 0.01 * len;
+            var far = 10.0 * len;
+
+            mat[0] = (cx + cy) / cx / 2.0;
+            mat[1] = 0.0;
+            mat[2] = 0.0;
+            mat[3] = 0.0;
+
+            mat[4] = 0.0;
+            mat[5] = (cx + cy) / cy / 2.0;;
+            mat[6] = 0.0;
+            mat[7] = 0.0;
+
+            mat[8] = 0.0;
+            mat[9] = 0.0;
+            mat[10] = -(near + far) / (far - near);
+            mat[11] = -1.0;
+
+            mat[12] = 0.0;
+            mat[13] = 0.0;
+            mat[14] = -near * far * 2.0 / (far - near);
+            mat[15] = 0.0;
+            gl.uniformMatrix4fv(glproject, false, new Float32Array(mat));
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+            gl.vertexAttribPointer(glvertex, 3, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
+            gl.vertexAttribPointer(glnormal, 3, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, cbuffer);
+            gl.vertexAttribPointer(glcolor, 3, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, 0, 36);
+            //gl.finish();
+        }
+       
+        canvas.addEventListener("mousedown",
+            function (ev) {
+                var oEvent = ev || event;
+                if (oEvent.button == 0) {
+                    ml = 1;
+                    mm = 0;
+                }
+                if (oEvent.button == 2) {
+                    mr = 1;
+                    mm = 0;
+                }
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            },
+            false);
+        canvas.addEventListener("mouseup",
+            function (ev) {
+                var oEvent = ev || event;
+                if (oEvent.button == 0) {
+                    ml = 0;
+                }
+                if (oEvent.button == 2) {
+                    mr = 0;
+                }
+            },
+            false);
+        canvas.addEventListener("mousemove",
+            function (ev) {
+                var oEvent = ev || event;
+                if (ml == 1) {
+                    ang1 += (oEvent.clientX - mx) * 0.002;
+                    ang2 += (oEvent.clientY - my) * 0.002;
+                    if (oEvent.clientX != mx || oEvent.clientY != my) {
+                        mm = 1;
+                    }
+                }
+                if (mr == 1) {
+                    var l = len * 4.0 / (cx + cy);
+                    cenx += l * (-(oEvent.clientX - mx) * Math.cos(ang1) + (oEvent.clientY - my) * Math.sin(ang2) * Math.sin(ang1));
+                    ceny += l * ((oEvent.clientY - my) * Math.cos(ang2));
+                    cenz += l * (-(oEvent.clientX - mx) * Math.sin(ang1) - (oEvent.clientY - my) * Math.sin(ang2) * Math.cos(ang1));
+                    if (oEvent.clientX != mx || oEvent.clientY != my) {
+                        mm = 1;
+                    }
+                }
+                mx = oEvent.clientX;
+                my = oEvent.clientY;
+            },
+            false);
+        canvas.addEventListener("mousewheel",
+            function (ev) {
+                ev.preventDefault();
+                var oEvent = ev || event;
+                len *= Math.exp(-0.001 * oEvent.wheelDelta);
+            },
+            false);
+        canvas.addEventListener("touchstart",
+            function (ev) {
+                var n = ev.touches.length;
+                if (n == 1) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                }
+                else if (n == 2) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                    oEvent = ev.touches[1];
+                    mx1 = oEvent.clientX;
+                    my1 = oEvent.clientY;
+                }
+                lasttimen = n;
+            },
+            false);
+        canvas.addEventListener("touchend",
+            function (ev) {
+                var n = ev.touches.length;
+                if (n == 1) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                }
+                else if (n == 2) {
+                    var oEvent = ev.touches[0];
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                    oEvent = ev.touches[1];
+                    mx1 = oEvent.clientX;
+                    my1 = oEvent.clientY;
+                }
+                lasttimen = n;
+            },
+            false);
+        canvas.addEventListener("touchmove",
+            function (ev) {
+                ev.preventDefault();
+                var n = ev.touches.length;
+                if (n == 1 && lasttimen == 1) {
+                    var oEvent = ev.touches[0];
+                    ang1 += (oEvent.clientX - mx) * 0.002;
+                    ang2 += (oEvent.clientY - my) * 0.002;
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                }
+                else if (n == 2) {
+                    var oEvent = ev.touches[0];
+                    var oEvent1 = ev.touches[1];
+                    var l = len * 2.0 / (cx + cy), l1;
+                    cenx += l * (-(oEvent.clientX + oEvent1.clientX - mx - mx1) * Math.cos(ang1) + (oEvent.clientY + oEvent1.clientY - my - my1) * Math.sin(ang2) * Math.sin(ang1));
+                    ceny += l * ((oEvent.clientY + oEvent1.clientY - my - my1) * Math.cos(ang2));
+                    cenz += l * (-(oEvent.clientX + oEvent1.clientX - mx - mx1) * Math.sin(ang1) - (oEvent.clientY + oEvent1.clientY - my - my1) * Math.sin(ang2) * Math.cos(ang1));
+                    l1 = Math.sqrt((mx - mx1) * (mx - mx1) + (my - my1) * (my - my1) + 1.0);
+                    mx = oEvent.clientX;
+                    my = oEvent.clientY;
+                    mx1 = oEvent1.clientX;
+                    my1 = oEvent1.clientY;
+                    l = Math.sqrt((mx - mx1) * (mx - mx1) + (my - my1) * (my - my1) + 1.0);
+                    len *= l1 / l;
+                }
+                lasttimen = n;
+            },
+            false);
+        canvas.oncontextmenu = function (event) {
+            if (mm == 1) {
+                event.preventDefault();
+            }
+        };
+
+
+        document.getElementById("zoom").addEventListener("change",
+            function () {
+                this.value = 0;
+            }
+        );
+    </script>
+
+
+</body></html>
