@@ -10,6 +10,12 @@
         #c1 {
             background: #fbf7fe;
         }
+        #fps {
+            color: white;
+            position: fixed;
+            left: 0px;
+            top: 20px;
+        }
         #btn {
             position: fixed;
             left: 0px;
@@ -47,6 +53,7 @@
         <button id="apply">APPLY</button>
         <button id="cancle">CANCLE</button>
     </div>
+    <label id="fps">fps: 0</label>
     <script>
 alert("trigonometric and inverse trigonometric functions test.\ncreated by cznull@bilibili");
     var cx, cy;
@@ -62,6 +69,9 @@ alert("trigonometric and inverse trigonometric functions test.\ncreated by cznul
     var gl;
     var date = new Date();
     var md = 0,mx,my;
+    var lastRenderTime = date.getTime();
+    var fps = 0;
+    var frame = [];
     var t2,t1 = date.getTime();
     var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
     var ml = 0, mr = 0, mm = 0;
@@ -225,7 +235,7 @@ alert("trigonometric and inverse trigonometric functions test.\ncreated by cznul
         }
     };
     function draw() {
-        date = new Date();
+        var time = lastRenderTime;
         var t2 = date.getTime();
         //ang1 += (t2 - t1)*0.001;
         t1 = t2;
@@ -239,6 +249,20 @@ alert("trigonometric and inverse trigonometric functions test.\ncreated by cznul
         gl.uniform3f(glforward, -Math.cos(ang1) * Math.cos(ang2), -Math.sin(ang2), -Math.sin(ang1) * Math.cos(ang2));
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         gl.finish();
+        date = new Date();
+        lastRenderTime = date.getTime();
+        frame.push({
+            time: lastRenderTime,
+            render: lastRenderTime - time
+        });
+        var total = 0;
+        while(frame[0].time < lastRenderTime - 1000) {
+            frame.shift();
+        }
+        for(var f of frame) {
+            total += f.render;
+        }
+        document.getElementById("fps").innerHTML = "fps: " + Math.floor(1000 / total * frame.length);
     }
     window.onresize = function () {
         cx = document.body.clientWidth;
