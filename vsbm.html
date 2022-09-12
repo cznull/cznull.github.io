@@ -405,9 +405,9 @@ alert("trigonometric and inverse trigonometric functions test.\ncreated by cznul
             "   if (sign==1) {\n" +
             "      ver = origin + dir*r3 ;\n" +
                 "       r1=ver.x*ver.x+ver.y*ver.y+ver.z*ver.z;" +
-            "      n.x = kernal(ver - right * (r3*0.001)) - kernal(ver + right * (r3*0.001));\n" +
-            "      n.y = kernal(ver - up * (r3*0.001)) - kernal(ver + up * (r3*0.001));\n" +
-            "      n.z = kernal(ver + forward * (r3*0.001)) - kernal(ver - forward * (r3*0.001));\n" +
+            "      n.x = kernal(ver - right * (r3*0.0025)) - kernal(ver + right * (r3*0.0025));\n" +
+            "      n.y = kernal(ver - up * (r3*0.0025)) - kernal(ver + up * (r3*0.0025));\n" +
+            "      n.z = kernal(ver + forward * (r3*0.0025)) - kernal(ver - forward * (r3*0.0025));\n" +
             "      r3 = n.x*n.x+n.y*n.y+n.z*n.z;\n" +
             "      n = n * (1.0 / sqrt(r3));\n" +
             "      ver = localdir;\n" +
