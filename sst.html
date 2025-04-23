@@ -194,8 +194,8 @@
                 for (var j = 1; j < conf.kpoint; j++) {
                     context.lineTo(j * canvas.width / conf.kpoint, (eig[j][i] * 0.5 + 0.5) * canvas.height);
                 }
-                context.lineTo(j * canvas.width / conf.kpoint, (eig[0][i] * 0.5 + 0.5) * canvas.height);
-                context.closePath();
+                //context.lineTo(j * canvas.width / conf.kpoint, (eig[0][i] * 0.5 + 0.5) * canvas.height);
+                //context.closePath();
                 context.stroke();
             }
         }
